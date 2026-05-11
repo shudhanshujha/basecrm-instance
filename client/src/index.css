@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #0f1117;
+  --color-bg-surface: #181c27;
+  --color-bg-surface-2: #1e2335;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-accent-orange: #f97316;
+  --color-accent-blue: #3b82f6;
+  --color-text-primary: #e8eaf0;
+  --color-text-muted: #6b7280;
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+  --color-warning: #eab308;
+  --color-purple: #a78bfa;
+
+  /* Light Mode Overrides */
+  --color-bg-primary-light: #f3f4f8;
+  --color-bg-surface-light: #ffffff;
+  --color-bg-surface-2-light: #f8f9fc;
+  --color-border-light: rgba(0, 0, 0, 0.1);
+  --color-text-primary-light: #1a1d27;
+  --color-text-muted-light: #64748b;
+}
+
+@layer base {
+  body {
+    @apply bg-bg-primary text-text-primary font-sans;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .light body {
+    @apply bg-bg-primary-light text-text-primary-light;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-bg-surface border border-border rounded-xl p-4 shadow-sm transition-all;
+  }
+
+  .light .card {
+    @apply bg-bg-surface-light border-border-light text-text-primary-light shadow-md;
+  }
+
+  .btn-primary {
+    @apply bg-accent-orange hover:opacity-90 text-white px-4 py-2 rounded-lg font-bold transition-all shadow-lg shadow-accent-orange/20;
+  }
+
+  .btn-outline {
+    @apply border border-border bg-bg-surface-2 text-text-primary px-4 py-2 rounded-lg font-bold transition-all hover:border-accent-orange;
+  }
+
+  .light .btn-outline {
+    @apply bg-white border-border-light text-text-primary-light hover:bg-slate-50;
+  }
+
+  /* High-contrast status tags */
+  .status-tag {
+    @apply text-[10px] font-black uppercase px-2.5 py-1 rounded-full text-white shadow-sm;
+  }
+
+  /* Scrollbar for dark/light */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+  .light ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300;
+  }
+}

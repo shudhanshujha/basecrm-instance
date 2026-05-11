@@ -1,0 +1,238 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// --- CLIENTS ---
+model Client {
+  id            String     @id @default(cuid())
+  name          String
+  contactPerson String
+  phone         String
+  email         String?
+  address       String
+  city          String
+  state         String     @default("Haryana")
+  pincode       String?
+  gstin         String?    @unique
+  panNumber     String?
+  clientType    String     @default("REGULAR")   // PREMIUM, REGULAR, ONE_TIME
+  notes         String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  campaigns     Campaign[]
+  invoices      Invoice[]
+  payments      Payment[]
+}
+
+// --- SITES ---
+model Site {
+  id              String       @id @default(cuid())
+  siteName        String       // e.g., "GT Road Panipat KM 87"
+  address         String
+  city            String
+  district        String
+  state           String       @default("Haryana")
+  latitude        Float?
+  longitude       Float?
+  siteType        String                     // UNIPOLE, GANTRY, BILLBOARD, FLEX, DIGITAL
+  ownershipType   String                     // OWNED, LEASED
+  vendorId        String?
+  vendor          Vendor?      @relation(fields: [vendorId], references: [id])
+  leaseAmount     Float?       // Monthly lease cost if leased
+  leaseStartDate  DateTime?
+  leaseEndDate    DateTime?
+  // Printing & Mounting specs
+  widthFt         Float        // Width in feet
+  heightFt        Float        // Height in feet
+  printingType    String?      // "Flex", "Vinyl", "Digital", "LED"
+  mountingType    String?      // "MS Frame", "Pole Mount", "Concrete Structure"
+  illuminated     Boolean      @default(false)
+  facingSide      String?      // "North", "South", etc.
+  trafficDensity  String?      // LOW, MEDIUM, HIGH
+  monthlyRate     Float        // Base monthly rental rate charged to client
+  status          String       @default("AVAILABLE")   // AVAILABLE, OCCUPIED, MAINTENANCE
+  isRecurring     Boolean      @default(false)
+  notes           String?
+  photos          String       @default("[]") // Store as JSON string in SQLite
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  campaignSites   CampaignSite[]
+}
+
+// --- VENDORS ---
+model Vendor {
+  id              String    @id @default(cuid())
+  vendorName      String
+  contactPerson   String
+  phone         String
+  email           String?
+  address         String
+  city            String
+  gstin           String?
+  panNumber       String?
+  vendorType      String       // SITE_OWNER, PRINTER, FABRICATOR, ELECTRICIAN, OTHER
+  bankName        String?
+  accountNumber   String?
+  ifscCode        String?
+  status          String    @default("ACTIVE") // ACTIVE, INACTIVE
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  sites           Site[]
+  payments        VendorPayment[]
+}
+
+// --- CAMPAIGNS ---
+model Campaign {
+  id              String         @id @default(cuid())
+  campaignName    String
+  clientId        String
+  client          Client         @relation(fields: [clientId], references: [id])
+  startDate       DateTime
+  endDate         DateTime
+  totalBudget     Float?
+  campaignType    String?        // "Brand Awareness", "Product Launch", etc.
+  status          String         @default("PLANNING") // PLANNING, ACTIVE, COMPLETED, CANCELLED
+  designFileUrl   String?
+  notes           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  campaignSites   CampaignSite[]
+  invoices        Invoice[]
+}
+
+// --- CAMPAIGN SITES (junction table) ---
+model CampaignSite {
+  id              String    @id @default(cuid())
+  campaignId      String
+  campaign        Campaign  @relation(fields: [campaignId], references: [id])
+  siteId          String
+  site            Site      @relation(fields: [siteId], references: [id])
+  startDate       DateTime
+  endDate         DateTime
+  agreedRate      Float     // Rate agreed for this site in this campaign
+  // Printing details
+  printingCost    Float?
+  mountingCost    Float?
+  printingVendorId String?
+  printingSize    String?   // e.g. "20x10 ft"
+  printingType    String?
+  mounted         Boolean   @default(false)
+  mountedDate     DateTime?
+  dismantled      Boolean   @default(false)
+  dismantledDate  DateTime?
+  photos          String    @default("[]") // Store as JSON string in SQLite
+  notes           String?
+  @@unique([campaignId, siteId, startDate])
+}
+
+// --- INVOICES ---
+model Invoice {
+  id              String        @id @default(cuid())
+  invoiceNumber   String        @unique  // e.g., "DV-2026-0041"
+  clientId        String
+  client          Client        @relation(fields: [clientId], references: [id])
+  campaignId      String?
+  campaign        Campaign?     @relation(fields: [campaignId], references: [id])
+  invoiceDate     DateTime      @default(now())
+  dueDate         DateTime
+  // Line items stored as JSON string for SQLite compatibility
+  lineItems       String        // Array of { siteId, siteName, description, fromDate, toDate, quantity, rate, amount }
+  subtotal        Float
+  discountAmount  Float         @default(0)
+  discountPercent Float         @default(0)
+  taxableAmount   Float
+  cgstRate        Float         @default(9)    // 9%
+  sgstRate        Float         @default(9)    // 9%
+  igstRate        Float         @default(0)    // 0% for intrastate
+  cgstAmount      Float
+  sgstAmount      Float
+  igstAmount      Float
+  totalAmount     Float
+  amountInWords   String?
+  status          String        @default("PENDING") // DRAFT, PENDING, PAID, PARTIALLY_PAID, OVERDUE, CANCELLED
+  notes           String?
+  bankDetails     String?       // { bankName, accountNo, ifsc, upiId }
+  paymentTerms    String?       // "Due in 30 days"
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  payments        Payment[]
+}
+
+// --- PAYMENTS ---
+model Payment {
+  id              String        @id @default(cuid())
+  invoiceId       String
+  invoice         Invoice       @relation(fields: [invoiceId], references: [id])
+  clientId        String
+  client          Client        @relation(fields: [clientId], references: [id])
+  paymentDate     DateTime
+  amount          Float
+  paymentMode     String        // CASH, CHEQUE, NEFT, RTGS, UPI, IMPS
+  referenceNumber String?
+  bankName        String?
+  chequeNumber    String?
+  chequeDate      DateTime?
+  notes           String?
+  createdAt       DateTime      @default(now())
+}
+
+// --- VENDOR PAYMENTS ---
+model VendorPayment {
+  id              String      @id @default(cuid())
+  vendorId        String
+  vendor          Vendor      @relation(fields: [vendorId], references: [id])
+  paymentDate     DateTime
+  amount          Float
+  month           Int         // 1–12
+  year            Int
+  paymentMode     String      // CASH, CHEQUE, NEFT, RTGS, UPI, IMPS
+  referenceNumber String?
+  purpose         String?     // "Monthly lease", "Printing bill", etc.
+  notes           String?
+  createdAt       DateTime    @default(now())
+}
+
+// --- QUOTATIONS ---
+model Quotation {
+  id              String    @id @default(cuid())
+  quotationNumber String    @unique   // e.g., "DV-QUO-2026-012"
+  clientId        String
+  quotationDate   DateTime  @default(now())
+  validUntil      DateTime
+  lineItems       String    // JSON string
+  subtotal        Float
+  gstAmount       Float
+  totalAmount     Float
+  status          String    @default("DRAFT")  // DRAFT, SENT, ACCEPTED, REJECTED, CONVERTED
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// --- EXPENSES ---
+model Expense {
+  id              String    @id @default(cuid())
+  date            DateTime  @default(now())
+  category        String    // e.g., OFFICE, TRAVEL, MAINTENANCE, SALARY, OTHER
+  amount          Float
+  description     String?
+  paymentMode     String    // CASH, CHEQUE, UPI, BANK_TRANSFER
+  referenceNumber String?
+  gstin           String?   // If applicable for GST input credit
+  taxableAmount   Float?
+  cgstAmount      Float?
+  sgstAmount      Float?
+  igstAmount      Float?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
