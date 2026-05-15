@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Mail, Phone, MapPin, 
@@ -8,34 +8,63 @@ import {
 } from 'lucide-react';
 import KPICard from '../../components/ui/KPICard';
 import toast from 'react-hot-toast';
+import api from '../../lib/axios';
 
 const ClientDetails: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'campaigns' | 'invoices' | 'payments'>('campaigns');
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const [client, setClient] = useState({
-    name: 'Reliance Retail Ltd',
-    gstin: '06AAACR5055K1ZZ',
-    contact: 'Sandeep Sharma',
-    email: 'sandeep@relianceretail.com',
-    phone: '+91 98765 43210',
-    address: 'Maker Chambers IV, Nariman Point, Mumbai, Maharashtra 400021',
-    billed: '₹42,50,000',
-    received: '₹38,00,000',
-    outstanding: '₹4,50,000'
+  const [client, setClient] = useState<any>({
+    name: '',
+    gstin: '',
+    contactPerson: '',
+    email: '',
+    phone: '',
+    address: '',
+    billed: '₹0',
+    received: '₹0',
+    outstanding: '₹0'
   });
 
-  const campaigns = [
-    { id: '1', name: 'Roads Q2', status: 'Active', sites: 12, value: '₹28,00,000' },
-    { id: '2', name: 'Winter Special', status: 'Completed', sites: 8, value: '₹14,50,000' }
-  ];
+  useEffect(() => {
+    fetchClient();
+  }, [id]);
 
-  const handleSave = () => {
-    setIsEditing(false);
-    toast.success('Client details updated successfully!');
+  const fetchClient = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get(`/clients/${id}`);
+      setClient(res.data);
+    } catch (error) {
+      console.error('Failed to fetch client:', error);
+      toast.error('Failed to load client information.');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleSave = async () => {
+    try {
+      await api.put(`/clients/${id}`, {
+        name: client.name,
+        email: client.email,
+        phone: client.phone,
+        address: client.address,
+        gstin: client.gstin
+      });
+      setIsEditing(false);
+      toast.success('Client details updated successfully!');
+      fetchClient();
+    } catch (error) {
+      console.error('Failed to update client:', error);
+      toast.error('Failed to save changes.');
+    }
+  };
+
+  if (loading) return <div className="p-8 text-center text-text-muted">Loading client data...</div>;
 
   return (
     <div className="space-y-8 pb-12">
@@ -55,7 +84,7 @@ const ClientDetails: React.FC = () => {
                 ) : (
                   <h1 className="text-2xl font-bold text-text-primary">{client.name}</h1>
                 )}
-                <span className="bg-success text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-sm shadow-success/20">Premium Partner</span>
+                <span className="bg-success text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-sm shadow-success/20">{client.clientType || 'REGULAR'} Partner</span>
              </div>
              <p className="text-xs text-text-muted mt-1 uppercase tracking-widest font-bold">Client ID: {id?.toUpperCase()}</p>
           </div>
@@ -77,8 +106,8 @@ const ClientDetails: React.FC = () => {
             <div className="flex items-center gap-2 text-text-muted text-[11px]">
                <Mail size={14} className="text-accent-blue" />
                {isEditing ? (
-                 <input className="bg-bg-surface border border-border rounded px-2 py-0.5 w-full outline-none" value={client.email} onChange={e => setClient({...client, email: e.target.value})} />
-               ) : <span>{client.email}</span>}
+                 <input className="bg-bg-surface border border-border rounded px-2 py-0.5 w-full outline-none" value={client.email || ''} onChange={e => setClient({...client, email: e.target.value})} />
+               ) : <span>{client.email || 'No email set'}</span>}
             </div>
             <div className="flex items-center gap-2 text-text-muted text-[11px]">
                <Phone size={14} className="text-accent-orange" />
@@ -93,12 +122,14 @@ const ClientDetails: React.FC = () => {
                ) : <span className="leading-tight">{client.address}</span>}
             </div>
          </div>
-         <KPICard label="Total Billed" value={client.billed} trend="Lifetime" trendType="up" />
-         <KPICard label="Received" value={client.received} trend="89% Collection" trendType="up" />
+         <KPICard label="Total Billed" value={`₹${client.invoices?.reduce((acc: number, inv: any) => acc + inv.totalAmount, 0).toLocaleString() || 0}`} trend="Lifetime" trendType="up" />
+         <KPICard label="Received" value={`₹${client.payments?.reduce((acc: number, p: any) => acc + p.amount, 0).toLocaleString() || 0}`} trend="Collections" trendType="up" />
          <div className="card border-danger/20 bg-danger/5">
             <div className="text-[10px] text-danger uppercase tracking-widest font-black">Outstanding</div>
-            <div className="text-2xl font-black text-danger mt-2">{client.outstanding}</div>
-            <div className="text-[10px] text-danger/60 font-bold mt-2">3 Overdue Invoices</div>
+            <div className="text-2xl font-black text-danger mt-2">
+              ₹{(client.invoices?.reduce((acc: number, inv: any) => acc + inv.totalAmount, 0) - client.payments?.reduce((acc: number, p: any) => acc + p.amount, 0)).toLocaleString() || 0}
+            </div>
+            <div className="text-[10px] text-danger/60 font-bold mt-2">{client.invoices?.filter((i: any) => i.status === 'PENDING').length || 0} Pending Invoices</div>
          </div>
       </div>
 
@@ -119,34 +150,36 @@ const ClientDetails: React.FC = () => {
          <div className="p-6">
             {activeTab === 'campaigns' && (
                <div className="space-y-3">
-                  {campaigns.map(c => (
+                  {client.campaigns?.length > 0 ? client.campaigns.map((c: any) => (
                      <div key={c.id} className="p-4 bg-bg-surface-2 rounded-xl border border-border flex items-center justify-between group hover:border-accent-orange transition-all cursor-pointer">
                         <div className="flex items-center gap-4">
                            <div className="w-10 h-10 bg-bg-surface border border-border rounded-lg flex items-center justify-center text-accent-blue group-hover:scale-110 transition-transform">
                               <TrendingUp size={20} />
                            </div>
                            <div>
-                              <p className="text-[13px] font-bold text-text-primary">{c.name}</p>
-                              <p className="text-[10px] text-text-muted mt-0.5">{c.sites} Sites Booked</p>
+                              <p className="text-[13px] font-bold text-text-primary">{c.campaignName}</p>
+                              <p className="text-[10px] text-text-muted mt-0.5">{new Date(c.startDate).toLocaleDateString()} - {new Date(c.endDate).toLocaleDateString()}</p>
                            </div>
                         </div>
                         <div className="flex items-center gap-8 text-right">
                            <div>
-                              <p className="text-[13px] font-black text-text-primary">{c.value}</p>
-                              <p className="text-[9px] text-text-muted uppercase font-bold tracking-tighter">Contract Value</p>
+                              <p className="text-[13px] font-black text-text-primary">₹{c.totalBudget?.toLocaleString() || 0}</p>
+                              <p className="text-[9px] text-text-muted uppercase font-bold tracking-tighter">Budget</p>
                            </div>
-                           <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white ${c.status === 'Active' ? 'bg-success' : 'bg-accent-blue'}`}>
+                           <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white ${c.status === 'ACTIVE' ? 'bg-success' : 'bg-accent-blue'}`}>
                              {c.status}
                            </span>
                            <ArrowRight size={16} className="text-text-muted group-hover:text-accent-orange" />
                         </div>
                      </div>
-                  ))}
+                  )) : (
+                    <div className="p-8 text-center text-text-muted italic text-[12px]">No campaigns found for this client.</div>
+                  )}
                </div>
             )}
             
             {activeTab === 'invoices' && (
-               <div className="p-8 text-center text-text-muted italic text-[12px]">Financial history for invoices is syncing...</div>
+               <div className="p-8 text-center text-text-muted italic text-[12px]">Invoice management is syncing...</div>
             )}
             {activeTab === 'payments' && (
                <div className="p-8 text-center text-text-muted italic text-[12px]">Payment ledger records are being calculated...</div>

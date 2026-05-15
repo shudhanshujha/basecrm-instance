@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "server": "ts-node-dev --project backend/tsconfig.json --respawn --transpile-only backend/server.ts",
+    "vercel-build": "cd client && npm install && npm run build",
     "lint": "eslint"
   },
   "dependencies": {

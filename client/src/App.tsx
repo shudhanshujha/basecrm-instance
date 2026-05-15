@@ -19,6 +19,8 @@ import Vendors from './pages/Vendors';
 import VendorDetails from './pages/VendorDetails';
 import RecurringSites from './pages/RecurringSites';
 import Settings from './pages/Settings';
+import Invoices from './pages/Invoices';
+import InvoiceGenerator from './pages/invoices/InvoiceGenerator';
 
 const Placeholder = ({ title }: { title: string }) => (
   <div className="card min-h-[400px] flex flex-col items-center justify-center border-dashed">
@@ -48,7 +50,8 @@ function App() {
           <Route path="/vendors/:id" element={<VendorDetails />} />
           <Route path="/sites" element={<Sites />} />
           <Route path="/sites/:id" element={<SiteDetails />} />
-          <Route path="/invoices" element={<Placeholder title="Smart Invoicing" />} />
+          <Route path="/invoices" element={<Invoices />} />
+          <Route path="/invoices/new" element={<InvoiceGenerator />} />
           <Route path="/expenses" element={<ExpenseTracker />} />
           <Route path="/payments" element={<Payments />} />
           <Route path="/pl-report" element={<PLReport />} />

@@ -3,23 +3,11 @@ import {
   Search, Filter, Plus, Database, Map as MapIcon, 
   Table, Download, Upload, Info, ExternalLink,
   ChevronRight, ArrowRight, X, LayoutGrid, List,
-  Truck, ShieldCheck, Home
+  Truck, ShieldCheck, Home, Camera, Ruler, Lightbulb, MapPin
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ExportButton from '../components/ui/ExportButton';
 import toast from 'react-hot-toast';
-
-interface Site {
-  id: string;
-  name: string;
-  location: string;
-  type: string;
-  size: string;
-  ownership: string;
-  rate: string;
-  status: string;
-  bg: string;
-}
 
 const Sites: React.FC = () => {
   const navigate = useNavigate();
@@ -31,48 +19,29 @@ const Sites: React.FC = () => {
   
   const [newSiteType, setNewSiteType] = useState<'owned' | 'rented'>('owned');
 
-  const [sites] = useState<Site[]>([
-    { id: '1', name: 'GT Road, Panipat KM 87', location: 'Panipat', type: 'Unipole', size: '20×10 ft', ownership: 'Owned', rate: '₹28,000', status: 'Occupied', bg: 'bg-success' },
-    { id: '2', name: 'Sector 12, Karnal Bus Stand', location: 'Karnal', type: 'Gantry', size: '40×10 ft', ownership: 'Rented', rate: '₹22,000', status: 'Available', bg: 'bg-warning' },
-    { id: '3', name: 'NH-44 Flyover, Ambala', location: 'Ambala', type: 'Billboard', size: '30×15 ft', ownership: 'Owned', rate: '₹45,000', status: 'Occupied', bg: 'bg-success' },
-    { id: '4', name: 'Railway Road, Kurukshetra', location: 'Kurukshetra', type: 'Flex', size: '15×10 ft', ownership: 'Owned', rate: '₹12,000', status: 'Maintenance', bg: 'bg-danger' },
-    { id: '5', name: 'Connaught Place, Delhi', location: 'Delhi', type: 'Digital', size: '10×10 ft', ownership: 'Rented', rate: '₹1,50,000', status: 'Available', bg: 'bg-warning' },
+  const [sites, setSites] = useState([
+    { id: '1', name: 'GT Road, Panipat KM 87', location: 'Panipat', state: 'Haryana', facing: 'Front (Facing Delhi)', type: 'Unipole', size: '20×10 ft', ownership: 'Owned', rate: '₹28,000', status: 'Occupied', bg: 'bg-success' },
+    { id: '2', name: 'Sector 12, Karnal Bus Stand', location: 'Karnal', state: 'Haryana', facing: 'Side (Facing Market)', type: 'Gantry', size: '40×10 ft', ownership: 'Rented', rate: '₹22,000', status: 'Available', bg: 'bg-warning' },
+    { id: '3', name: 'NH-44 Ambala Flyover', location: 'Ambala', state: 'Haryana', facing: 'Front (Facing Chandigarh)', type: 'Billboard', size: '30×15 ft', ownership: 'Owned', rate: '₹45,000', status: 'Occupied', bg: 'bg-success' },
+    { id: '4', name: 'Railway Road, Kurukshetra', location: 'Kurukshetra', state: 'Haryana', facing: 'Front (Facing Station)', type: 'Flex', size: '15×10 ft', ownership: 'Owned', rate: '₹12,000', status: 'Maintenance', bg: 'bg-danger' },
+    { id: '5', name: 'Connaught Place, Delhi', location: 'Delhi', state: 'Delhi', facing: 'Digital (Circular)', type: 'Digital', size: '10×10 ft', ownership: 'Rented', rate: '₹1,50,000', status: 'Available', bg: 'bg-warning' },
   ]);
-
-  // Advanced Filter States
-  const [advFilters, setAdvFilters] = useState({
-    city: 'All',
-    type: 'All',
-    minRate: '',
-    maxRate: ''
-  });
-
-  const cities = ['All', ...Array.from(new Set(sites.map(s => s.location)))];
-  const types = ['All', ...Array.from(new Set(sites.map(s => s.type)))];
 
   const filteredSites = sites.filter(s => {
     const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.location.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesQuickFilter = filterType === 'All' || 
+    const matchesFilter = filterType === 'All' || 
                          (filterType === 'Owned' && s.ownership === 'Owned') ||
                          (filterType === 'Leased' && s.ownership === 'Rented') ||
                          (filterType === 'Available' && s.status === 'Available');
-    
-    const matchesCity = advFilters.city === 'All' || s.location === advFilters.city;
-    const matchesType = advFilters.type === 'All' || s.type === advFilters.type;
-    
-    const rateValue = parseInt(s.rate.replace(/[^\d]/g, ''));
-    const matchesMinRate = !advFilters.minRate || rateValue >= parseInt(advFilters.minRate);
-    const matchesMaxRate = !advFilters.maxRate || rateValue <= parseInt(advFilters.maxRate);
-
-    return matchesSearch && matchesQuickFilter && matchesCity && matchesType && matchesMinRate && matchesMaxRate;
+    return matchesSearch && matchesFilter;
   });
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-xl font-bold text-text-primary">Pan-India Inventory</h1>
-          <p className="text-[11px] text-text-muted mt-1 uppercase font-black tracking-widest">Site Management · Real-time availability</p>
+          <h1 className="text-xl font-bold text-text-primary uppercase tracking-tight">Pan-India Inventory</h1>
+          <p className="text-[11px] text-text-muted mt-1 uppercase font-black tracking-widest">Inventory Management · Real-time Status</p>
         </div>
         <div className="flex gap-2">
           <button onClick={() => toast.error('CSV Template coming soon.')} className="btn-outline text-[12px] py-1.5 flex items-center gap-2">
@@ -117,70 +86,18 @@ const Sites: React.FC = () => {
           <button onClick={() => setShowFilters(!showFilters)} className={`btn-outline flex items-center justify-center gap-2 text-[12px] ${showFilters ? 'border-accent-orange text-accent-orange' : ''}`}><Filter size={14} /> Advanced</button>
           <ExportButton data={filteredSites} filename="drishtivision_inventory" />
         </div>
-
-        {showFilters && (
-          <div className="p-4 bg-bg-surface-2 border border-border rounded-xl grid grid-cols-4 gap-4 animate-in slide-in-from-top-2 duration-200">
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-text-muted uppercase">City Filter</label>
-              <select 
-                className="w-full bg-bg-surface border border-border rounded-lg px-3 py-2 text-[11px] outline-none"
-                value={advFilters.city}
-                onChange={(e) => setAdvFilters({...advFilters, city: e.target.value})}
-              >
-                {cities.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-text-muted uppercase">Structure Type</label>
-              <select 
-                className="w-full bg-bg-surface border border-border rounded-lg px-3 py-2 text-[11px] outline-none"
-                value={advFilters.type}
-                onChange={(e) => setAdvFilters({...advFilters, type: e.target.value})}
-              >
-                {types.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-text-muted uppercase">Min Rate (₹)</label>
-              <input 
-                type="number" 
-                placeholder="Min"
-                className="w-full bg-bg-surface border border-border rounded-lg px-3 py-2 text-[11px] outline-none"
-                value={advFilters.minRate}
-                onChange={(e) => setAdvFilters({...advFilters, minRate: e.target.value})}
-              />
-            </div>
-            <div className="space-y-1.5 relative">
-              <label className="text-[10px] font-black text-text-muted uppercase">Max Rate (₹)</label>
-              <div className="flex gap-2">
-                <input 
-                  type="number" 
-                  placeholder="Max"
-                  className="w-full bg-bg-surface border border-border rounded-lg px-3 py-2 text-[11px] outline-none"
-                  value={advFilters.maxRate}
-                  onChange={(e) => setAdvFilters({...advFilters, maxRate: e.target.value})}
-                />
-                <button 
-                  onClick={() => setAdvFilters({city: 'All', type: 'All', minRate: '', maxRate: ''})}
-                  className="p-2 text-text-muted hover:text-danger"
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {view === 'table' ? (
-        <div className="card p-0 overflow-hidden border-border/50">
+        <div className="card p-0 overflow-hidden border-border/50 shadow-xl">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-bg-surface-2 border-b border-border text-[10px] font-black text-text-muted uppercase tracking-widest">
-                <th className="px-4 py-3">Site Details</th>
-                <th className="px-4 py-3">Ownership</th>
-                <th className="px-4 py-3">Technical Specs</th>
-                <th className="px-4 py-3 text-right">Status</th>
+                <th className="px-4 py-3">Site Identification</th>
+                <th className="px-4 py-3">Facing / Orientation</th>
+                <th className="px-4 py-3 text-center">Procurement</th>
+                <th className="px-4 py-3">Specifications</th>
+                <th className="px-4 py-3 text-right">Activity Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -188,13 +105,18 @@ const Sites: React.FC = () => {
                 <tr key={site.id} onClick={() => navigate(`/sites/${site.id}`)} className="hover:bg-bg-surface-2 transition-colors cursor-pointer group">
                   <td className="px-4 py-4">
                     <div className="text-[13px] font-bold text-text-primary group-hover:text-accent-orange transition-colors">{site.name}</div>
-                    <div className="text-[10px] text-text-muted mt-0.5 font-bold uppercase tracking-widest">{site.location}, India</div>
+                    <div className="text-[10px] text-text-muted mt-0.5 font-bold uppercase tracking-tighter">{site.location}, {site.state}</div>
                   </td>
                   <td className="px-4 py-4">
+                    <div className="flex items-center gap-2 text-[11px] font-bold text-text-primary">
+                       <MapPin size={12} className="text-accent-blue" /> {site.facing}
+                    </div>
+                  </td>
+                  <td className="px-4 py-4 text-center">
                     <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded border ${site.ownership === 'Owned' ? 'border-success text-success bg-success/5' : 'border-purple-500 text-purple-400 bg-purple-500/5'}`}>{site.ownership}</span>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="text-[11px] font-medium text-text-primary">{site.type} · {site.size}</div>
+                    <div className="text-[11px] font-medium text-text-primary uppercase tracking-tighter">{site.type} · {site.size}</div>
                     <div className="text-[11px] font-black text-accent-blue mt-0.5">{site.rate}</div>
                   </td>
                   <td className="px-4 py-4 text-right">
@@ -208,20 +130,30 @@ const Sites: React.FC = () => {
       ) : (
         <div className="grid grid-cols-3 gap-4">
           {filteredSites.map(site => (
-            <div key={site.id} onClick={() => navigate(`/sites/${site.id}`)} className="card bg-bg-surface hover:border-accent-orange transition-all cursor-pointer group flex flex-col p-0 overflow-hidden relative shadow-lg">
-               <div className="h-36 bg-bg-surface-2 flex items-center justify-center relative border-b border-border">
-                  <Database size={40} className="text-border group-hover:text-accent-orange/20 transition-colors" />
+            <div key={site.id} onClick={() => navigate(`/sites/${site.id}`)} className="card bg-bg-surface hover:border-accent-orange transition-all cursor-pointer group flex flex-col p-0 overflow-hidden relative shadow-lg border-border/50">
+               <div className="h-36 bg-bg-surface-2 flex items-center justify-center relative border-b border-border overflow-hidden">
+                  <img 
+                    src="https://images.unsplash.com/photo-1541746972996-4e0b0f43e02a?q=80&w=400&auto=format&fit=crop" 
+                    className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-opacity" 
+                    alt="Hoarding"
+                  />
+                  <Camera size={32} className="text-border z-10" />
                   <div className="absolute top-3 left-3 flex gap-2">
                      <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full text-white ${site.bg}`}>{site.status}</span>
                   </div>
                   <div className="absolute bottom-2 right-2"><div className={`w-2 h-2 rounded-full ${site.status === 'Occupied' ? 'bg-success shadow-[0_0_8px_#22c55e]' : 'bg-warning shadow-[0_0_8px_#eab308]'}`}></div></div>
                </div>
                <div className="p-4">
-                  <h3 className="text-[14px] font-bold text-text-primary group-hover:text-accent-orange transition-colors line-clamp-1">{site.name}</h3>
-                  <p className="text-[10px] text-text-muted mt-1 uppercase font-bold tracking-widest">{site.location}</p>
+                  <h3 className="text-[14px] font-bold text-text-primary group-hover:text-accent-orange transition-colors line-clamp-1 uppercase">{site.name}</h3>
+                  <div className="flex items-center gap-1.5 text-[10px] text-text-muted mt-1 uppercase font-bold tracking-widest">
+                     <MapPin size={10} /> {site.location}
+                  </div>
                   <div className="flex justify-between items-center mt-4 pt-4 border-t border-border">
                      <div className="text-[13px] font-black text-accent-blue">{site.rate}</div>
-                     <span className="text-[9px] font-black text-text-muted uppercase border border-border px-1.5 py-0.5 rounded-md">{site.ownership}</span>
+                     <div className="flex items-center gap-2">
+                        <span className="text-[8px] font-black text-text-muted uppercase border border-border px-1.5 py-0.5 rounded-md">{site.ownership}</span>
+                        <div className="p-1.5 bg-bg-surface-2 rounded-lg text-text-muted group-hover:text-accent-orange transition-colors border border-border"><ArrowRight size={12} /></div>
+                     </div>
                   </div>
                </div>
             </div>
@@ -261,45 +193,45 @@ const Sites: React.FC = () => {
                        <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[13px] outline-none font-bold focus:border-accent-orange" placeholder="e.g. MG Road Gantry A-1" />
                     </div>
                     <div className="space-y-2">
+                       <label className="text-[10px] font-black text-text-muted uppercase ml-1">Site Facing / orientation</label>
+                       <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none" placeholder="e.g. Front (Facing Market)" />
+                    </div>
+                    <div className="space-y-2">
                        <label className="text-[10px] font-black text-text-muted uppercase ml-1">City / Hub</label>
                        <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none" placeholder="e.g. Gurugram" />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black text-text-muted uppercase ml-1">Structure Type</label>
-                       <select className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none appearance-none font-bold">
-                          <option>Unipole</option><option>Gantry</option><option>Billboard</option><option>Digital</option>
-                       </select>
+                       <label className="text-[10px] font-black text-text-muted uppercase ml-1">Structure Dimensions</label>
+                       <div className="relative">
+                          <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={14} />
+                          <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl pl-9 pr-4 py-3 text-[13px] outline-none" placeholder="20x10 ft" />
+                       </div>
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-text-muted uppercase ml-1">Monthly Billing Rate (₹)</label>
+                       <input type="number" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] font-black text-accent-blue outline-none" placeholder="0.00" />
                     </div>
 
                     {newSiteType === 'rented' && (
-                       <div className="col-span-2 space-y-4 animate-in slide-in-from-top-2 duration-300">
-                          <div className="p-5 bg-purple-500/5 border border-purple-500/20 rounded-2xl flex flex-col gap-4">
-                             <div className="flex items-center gap-2 text-purple-400 font-black text-[10px] uppercase tracking-widest"><ShieldCheck size={14} /> Vendor Linkage Required</div>
-                             <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                   <label className="text-[9px] font-black text-purple-400 uppercase">Select Vendor</label>
-                                   <select className="w-full bg-bg-surface border border-purple-500/20 rounded-xl px-3 py-2.5 text-[12px] outline-none text-text-primary font-bold">
-                                      <option>Haryana Outdoor Media</option><option>North India Hoardings</option>
-                                   </select>
-                                </div>
-                                <div className="space-y-2">
-                                   <label className="text-[9px] font-black text-purple-400 uppercase">Lease End Date</label>
-                                   <input type="date" className="w-full bg-bg-surface border border-purple-500/20 rounded-xl px-3 py-2.5 text-[12px] outline-none text-text-primary" />
-                                </div>
+                       <div className="col-span-2 space-y-4 animate-in slide-in-from-top-2 duration-300 pt-4 border-t border-border border-dashed">
+                          <div className="flex items-center gap-2 text-purple-400 font-black text-[10px] uppercase tracking-widest"><ShieldCheck size={14} /> Vendor Linkage Required</div>
+                          <div className="grid grid-cols-2 gap-4">
+                             <div className="space-y-2">
+                                <label className="text-[9px] font-black text-purple-400 uppercase">Select Vendor Partner</label>
+                                <select className="w-full bg-bg-surface border border-purple-500/20 rounded-xl px-3 py-2.5 text-[12px] outline-none text-text-primary font-bold"><option>Haryana Outdoor Media</option><option>North India Hoardings</option></select>
+                             </div>
+                             <div className="space-y-2">
+                                <label className="text-[9px] font-black text-purple-400 uppercase">Vendor Payout Rate</label>
+                                <input type="number" className="w-full bg-bg-surface border border-purple-500/20 rounded-xl px-3 py-2.5 text-[12px] outline-none font-bold" placeholder="Vendor Rate" />
                              </div>
                           </div>
                        </div>
                     )}
-
-                    <div className="col-span-2 space-y-2 pt-2 border-t border-border">
-                       <label className="text-[10px] font-black text-text-muted uppercase ml-1">Monthly Billing Rate (₹)</label>
-                       <input type="number" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3.5 text-[16px] font-black text-accent-blue outline-none" placeholder="0.00" />
-                    </div>
                  </div>
               </div>
-              <div className="p-6 border-t border-border flex justify-end gap-3 bg-bg-surface-2">
+              <div className="p-6 border-t border-border flex justify-end gap-3 bg-bg-surface-2 rounded-b-2xl">
                  <button onClick={() => setShowAddModal(false)} className="btn-outline px-8 py-2.5 text-[12px]">Discard</button>
-                 <button onClick={() => { toast.success('Site added to database!'); setShowAddModal(false); }} className={`px-10 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-widest text-white shadow-xl transition-all ${newSiteType === 'owned' ? 'bg-accent-orange shadow-accent-orange/20' : 'bg-purple-600 shadow-purple-600/20'}`}>Save Site</button>
+                 <button onClick={() => { toast.success('Site added to database!'); setShowAddModal(false); }} className={`px-10 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-widest text-white shadow-xl transition-all ${newSiteType === 'owned' ? 'bg-accent-orange shadow-accent-orange/20' : 'bg-purple-600 shadow-purple-600/20'}`}>Save Inventory</button>
               </div>
            </div>
         </div>
