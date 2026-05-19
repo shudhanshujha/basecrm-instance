@@ -1,12 +1,12 @@
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 import { numberToWords } from '../../lib/numberToWords';
 
-// Define styles to match the HTML preview exactly
+// Define styles to match the EXACT preview format
 const styles = StyleSheet.create({
   page: {
-    padding: 25,
-    fontSize: 8.5,
+    padding: '15mm', // 15mm margins on all sides
+    fontSize: 8,
     fontFamily: 'Helvetica',
     color: '#000',
     backgroundColor: '#fff',
@@ -16,61 +16,64 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     width: '100%',
   },
-  // Header Section
+  
+  // 1. COMPANY HEADER
   header: {
-    borderBottom: '1pt solid #000',
-    padding: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 100,
+    padding: 10,
+    borderBottom: '1pt solid #000',
+    position: 'relative',
+    minHeight: 90,
   },
   logoBox: {
-    width: 80,
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: 'absolute',
+    left: 10,
+    top: 10,
+    width: 70,
+    height: 70,
   },
   logo: {
-    width: 65,
-    height: 65,
+    width: '100%',
+    height: '100%',
     objectFit: 'contain',
   },
   companyInfo: {
     flex: 1,
-    textAlign: 'center',
-    paddingRight: 80, 
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   companyName: {
     fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 2,
+    marginBottom: 4,
     textTransform: 'uppercase',
   },
   companySubInfo: {
-    fontSize: 9.5,
-    fontWeight: 'bold',
-    marginBottom: 1,
+    fontSize: 9,
+    marginBottom: 2,
   },
-  gstinBox: {
+  gstinLine: {
     marginTop: 6,
     paddingTop: 4,
-    borderTop: '0.5pt solid #ccc',
-    alignSelf: 'center',
+    borderTop: '0.5pt solid #000',
   },
   gstinText: {
     fontSize: 11,
     fontWeight: 'bold',
-    textTransform: 'uppercase',
   },
-  // Title Bar
+
+  // 2. INVOICE TITLE BAR
   titleBar: {
-    backgroundColor: '#d9e5f3',
+    backgroundColor: '#f2f2f2',
     borderBottom: '1pt solid #000',
     textAlign: 'center',
-    paddingVertical: 1,
+    paddingVertical: 2,
     fontWeight: 'bold',
-    fontSize: 11,
+    fontSize: 10,
   },
-  // Metadata Grid
+
+  // 3. INVOICE METADATA GRID
   metaGrid: {
     flexDirection: 'row',
     borderBottom: '1pt solid #000',
@@ -78,242 +81,271 @@ const styles = StyleSheet.create({
   metaCol: {
     width: '50%',
   },
-  metaItem: {
+  metaRow: {
     flexDirection: 'row',
     borderBottom: '1pt solid #000',
-    minHeight: 17,
-    alignItems: 'center',
-  },
-  metaItemLast: {
-    flexDirection: 'row',
-    minHeight: 17,
-    alignItems: 'center',
-  },
-  metaLabel: {
-    width: 100,
-    padding: 2,
-    fontWeight: 'bold',
-    borderRight: '1pt solid #000',
-    fontSize: 9,
-  },
-  metaValue: {
-    flex: 1,
-    padding: 2,
-    fontSize: 9,
-  },
-  // Party Section
-  partyHeader: {
-    flexDirection: 'row',
-    backgroundColor: '#d9e5f3',
-    borderBottom: '1pt solid #000',
-    fontWeight: 'bold',
-    fontSize: 10,
-  },
-  partyHeaderBox: {
-    width: '50%',
-    textAlign: 'center',
-    paddingVertical: 1.5,
-  },
-  partyGrid: {
-    flexDirection: 'row',
-    borderBottom: '1pt solid #000',
-  },
-  partyBox: {
-    width: '50%',
-    padding: 4,
-    minHeight: 70,
-  },
-  partyRow: {
-    flexDirection: 'row',
-    marginBottom: 1,
-    fontSize: 9.5,
-  },
-  labelBold: {
-    fontWeight: 'bold',
-    width: 45,
-  },
-  valueBold: {
-    fontWeight: 'bold',
-    flex: 1,
-  },
-  // Table Section
-  descHeaderBar: {
-    padding: 3,
-    fontWeight: 'bold',
-    fontSize: 8.5,
-    borderBottom: '1pt solid #000',
-  },
-  table: {
-    flex: 1,
-  },
-  tableHeaderRow: {
-    flexDirection: 'row',
-    backgroundColor: '#d9e5f3',
-    borderBottom: '1pt solid #000',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    fontSize: 7.5,
-  },
-  tableRow: {
-    flexDirection: 'row',
-    borderBottom: '0.5pt solid #eee',
-    minHeight: 17,
-    alignItems: 'center',
-    textAlign: 'center',
-    fontSize: 8.5,
-  },
-  tableFooterRow: {
-    flexDirection: 'row',
-    backgroundColor: '#d9e5f3',
-    borderTop: '1pt solid #000',
-    borderBottom: '1pt solid #000',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    fontSize: 8.5,
     minHeight: 18,
     alignItems: 'center',
   },
-  // Optimized Column Widths to prevent wrapping
-  c1: { width: '4%', borderRight: '1pt solid #000', padding: 2 }, // S.No
-  c2: { flex: 1, borderRight: '1pt solid #000', padding: 2, textAlign: 'left' }, // Description
-  c3: { width: '8%', borderRight: '1pt solid #000', padding: 2 }, // HSN
-  c4: { width: '4%', borderRight: '1pt solid #000', padding: 2 }, // Qty
-  c5: { width: '7%', borderRight: '1pt solid #000', padding: 2 }, // Rate
-  c6: { width: '9%', borderRight: '1pt solid #000', padding: 2 }, // Amount
-  c7: { width: '6%', borderRight: '1pt solid #000', padding: 2 }, // Discount
-  c8: { width: '9%', borderRight: '1pt solid #000', padding: 2 }, // Taxable Val
-  c9: { width: '13%', borderRight: '1pt solid #000' }, // GST Group
-  c10: { width: '11%', padding: 2, fontWeight: 'bold' }, // Total
+  metaRowLast: {
+    flexDirection: 'row',
+    minHeight: 18,
+    alignItems: 'center',
+  },
+  metaLabel: {
+    width: 90,
+    paddingHorizontal: 4,
+    fontWeight: 'bold',
+    borderRight: '1pt solid #000',
+  },
+  metaValue: {
+    flex: 1,
+    paddingHorizontal: 4,
+  },
 
-  // Bottom Grid (Summary & Words)
-  summaryGrid: {
+  // 4. PARTY DETAILS
+  partyHeaderGrid: {
+    flexDirection: 'row',
+    backgroundColor: '#f2f2f2',
+    borderBottom: '1pt solid #000',
+  },
+  partyHeaderCell: {
+    width: '50%',
+    textAlign: 'center',
+    paddingVertical: 3,
+    fontWeight: 'bold',
+    fontSize: 9,
+  },
+  partyDataGrid: {
     flexDirection: 'row',
     borderBottom: '1pt solid #000',
     minHeight: 80,
+  },
+  partyDataBox: {
+    width: '50%',
+    padding: 4,
+  },
+  partyLine: {
+    flexDirection: 'row',
+    marginBottom: 3,
+  },
+  partyLabel: {
+    fontWeight: 'bold',
+    width: 45,
+  },
+  partyValue: {
+    flex: 1,
+  },
+
+  // 5. SERVICE DESCRIPTION
+  descHeader: {
+    padding: 4,
+    fontWeight: 'bold',
+    borderBottom: '1pt solid #000',
+    fontSize: 8.5,
+  },
+
+  // 6. ITEMS TABLE
+  tableHeaderPrimary: {
+    flexDirection: 'row',
+    backgroundColor: '#f2f2f2',
+    borderBottom: '1pt solid #000',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  tableHeaderSecondary: {
+    flexDirection: 'row',
+    backgroundColor: '#f2f2f2',
+    borderBottom: '1pt solid #000',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    borderBottom: '1pt solid #000',
+    minHeight: 20,
+    alignItems: 'center',
+    textAlign: 'center',
+  },
+  tableTotalRow: {
+    flexDirection: 'row',
+    backgroundColor: '#f2f2f2',
+    borderBottom: '1pt solid #000',
+    minHeight: 20,
+    alignItems: 'center',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+
+  // TABLE COLUMNS (Fixed widths for perfect alignment)
+  colSNo: { width: 25, borderRight: '1pt solid #000', padding: 2 },
+  colDesc: { flex: 1, borderRight: '1pt solid #000', padding: 4, textAlign: 'left' },
+  colHSN: { width: 45, borderRight: '1pt solid #000', padding: 2 },
+  colQty: { width: 25, borderRight: '1pt solid #000', padding: 2 },
+  colRate: { width: 40, borderRight: '1pt solid #000', padding: 2 },
+  colAmount: { width: 45, borderRight: '1pt solid #000', padding: 2 },
+  colDisc: { width: 35, borderRight: '1pt solid #000', padding: 2 },
+  colTaxVal: { width: 50, borderRight: '1pt solid #000', padding: 2 },
+  colGstGrp: { width: 50, borderRight: '1pt solid #000' }, // For CGST/SGST parent
+  colGstRate: { width: 20, borderRight: '1pt solid #000', padding: 2 },
+  colGstAmt: { width: 30, padding: 2 },
+  colTotal: { width: 50, padding: 2, fontWeight: 'bold' },
+
+  // 7. TOTALS SUMMARY
+  summarySection: {
+    flexDirection: 'row',
+    borderBottom: '1pt solid #000',
   },
   wordsBox: {
     flex: 1,
     borderRight: '1pt solid #000',
   },
-  wordsHeader: {
-    backgroundColor: '#d9e5f3',
+  wordsTitle: {
+    backgroundColor: '#f2f2f2',
     borderBottom: '1pt solid #000',
     textAlign: 'center',
-    paddingVertical: 2,
+    paddingVertical: 3,
     fontWeight: 'bold',
-    fontSize: 10,
     textTransform: 'uppercase',
   },
-  wordsContent: {
-    padding: 10,
+  wordsAmount: {
+    padding: 15,
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: 14,
     fontStyle: 'italic',
     fontWeight: 'bold',
-    justifyContent: 'center',
-    flex: 1,
   },
   totalsBox: {
     width: 200,
   },
-  totalsRow: {
+  totRow: {
     flexDirection: 'row',
     borderBottom: '1pt solid #000',
-    minHeight: 16,
+    minHeight: 18,
     alignItems: 'center',
   },
-  totalsLabel: {
-    width: 120,
-    padding: 3,
+  totRowLast: {
+    flexDirection: 'row',
+    minHeight: 18,
+    alignItems: 'center',
+  },
+  totLabel: {
+    width: 130,
+    paddingHorizontal: 4,
     fontWeight: 'bold',
     borderRight: '1pt solid #000',
-    fontSize: 7.5,
     textTransform: 'uppercase',
+    fontSize: 7.5,
   },
-  totalsValue: {
+  totValue: {
     flex: 1,
-    padding: 3,
+    paddingHorizontal: 4,
     textAlign: 'right',
     fontWeight: 'bold',
     fontSize: 9,
   },
-  // Final Row (Bank/Seal/Auth)
-  bottomGrid: {
+
+  // 8. BOTTOM FOOTER
+  footerRow: {
     flexDirection: 'row',
-    minHeight: 90,
+    minHeight: 110,
   },
-  bankCol: {
-    width: 200,
+  footerBank: {
+    width: 220,
     borderRight: '1pt solid #000',
+    justifyContent: 'space-between',
   },
-  bankHeader: {
-    backgroundColor: '#d9e5f3',
+  footerSeal: {
+    flex: 1,
+    borderRight: '1pt solid #000',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  footerSign: {
+    width: 200,
+    padding: 6,
+    justifyContent: 'space-between',
+  },
+  
+  // Bank elements
+  bankTitle: {
+    backgroundColor: '#f2f2f2',
     borderBottom: '1pt solid #000',
     textAlign: 'center',
-    paddingVertical: 1.5,
+    paddingVertical: 3,
     fontWeight: 'bold',
-    fontSize: 10,
   },
   bankContent: {
     padding: 4,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  bankText: {
-    fontSize: 8,
+  bankDetailsText: {
+    lineHeight: 1.4,
     fontWeight: 'bold',
-    lineHeight: 1.3,
   },
-  qrImage: {
-    width: 48,
-    height: 48,
-  },
-  sealCol: {
-    flex: 1,
-    borderRight: '1pt solid #000',
-    justifyContent: 'flex-end',
+  qrContainer: {
     alignItems: 'center',
-    paddingBottom: 5,
+    justifyContent: 'center',
   },
-  authCol: {
-    width: 200,
-    padding: 4,
-    justifyContent: 'space-between',
+  qrCode: {
+    width: 50,
+    height: 50,
   },
+  qrLabel: {
+    fontSize: 6,
+    fontWeight: 'bold',
+    marginTop: 2,
+  },
+  termsText: {
+    borderTop: '1pt solid #000',
+    textAlign: 'center',
+    paddingVertical: 4,
+    fontWeight: 'bold',
+  },
+
+  // Seal elements
+  sealLabel: {
+    fontWeight: 'bold',
+    fontSize: 10,
+  },
+
+  // Signature elements
   certText: {
     fontSize: 7,
     fontStyle: 'italic',
-    marginBottom: 5,
+    textAlign: 'justify',
   },
-  authFor: {
+  authCompany: {
     textAlign: 'center',
     fontWeight: 'bold',
-    fontSize: 10,
+    fontSize: 9,
+    marginTop: 10,
     textTransform: 'uppercase',
+  },
+  signatureImage: {
+    width: 90,
+    height: 35,
+    objectFit: 'contain',
+    alignSelf: 'center',
+    marginVertical: 4,
   },
   authLabel: {
     borderTop: '1pt solid #000',
     textAlign: 'center',
     paddingTop: 4,
     fontWeight: 'bold',
-    fontSize: 9,
-    textTransform: 'uppercase',
+    fontSize: 8,
   },
-  signatureImage: {
-    width: 80,
-    height: 25,
-    objectFit: 'contain',
-    alignSelf: 'center',
-    marginVertical: 4,
-  },
-  bold: {
-    fontWeight: 'bold',
-  }
+
+  // Utilities
+  bold: { fontWeight: 'bold' },
+  uppercase: { textTransform: 'uppercase' },
 });
 
 interface InvoiceItem {
-  id: any;
-  sNo: number;
+  id?: any;
+  sNo?: number;
   description: string;
   subDescription?: string;
   hsn: string;
@@ -344,7 +376,7 @@ interface FiscalInvoiceProps {
     seller: {
       name: string;
       address: string;
-      phone: string[];
+      phone: string | string[];
       email: string;
       gstin: string;
       msmeRegNo: string;
@@ -381,14 +413,19 @@ interface FiscalInvoiceProps {
 const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
   const isIntraState = invoiceData.gstConfig === 'INTRA';
   const isInterState = invoiceData.gstConfig === 'INTER';
-  const totalTax = (invoiceData.cgstTotal || 0) + (invoiceData.sgstTotal || 0) + (invoiceData.igstTotal || 0);
+  const isNone = invoiceData.gstConfig === 'NONE';
+  const totalTaxAmount = (invoiceData.cgstTotal || 0) + (invoiceData.sgstTotal || 0) + (invoiceData.igstTotal || 0);
+
+  const phoneString = Array.isArray(invoiceData.seller.phone) 
+    ? invoiceData.seller.phone.join(', ') 
+    : invoiceData.seller.phone;
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.container}>
           
-          {/* Header */}
+          {/* 1. COMPANY HEADER */}
           <View style={styles.header}>
             <View style={styles.logoBox}>
               <Image src="/dvs_logo.jpg" style={styles.logo} />
@@ -396,160 +433,335 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
             <View style={styles.companyInfo}>
               <Text style={styles.companyName}>{invoiceData.seller.name}</Text>
               <Text style={styles.companySubInfo}>{invoiceData.seller.address}</Text>
-              <Text style={styles.companySubInfo}>Phone: {invoiceData.seller.phone.join(', ')}</Text>
+              <Text style={styles.companySubInfo}>Phone: {phoneString}</Text>
               <Text style={styles.companySubInfo}>E Mail: {invoiceData.seller.email}</Text>
-              <View style={styles.gstinBox}>
-                <Text style={styles.gstinText}>GSTIN Number : {invoiceData.seller.gstin}</Text>
+              <View style={styles.gstinLine}>
+                <Text style={styles.gstinText}>GSTIN NUMBER : {invoiceData.seller.gstin}</Text>
               </View>
             </View>
           </View>
 
-          <View style={styles.titleBar}><Text>Invoice</Text></View>
+          {/* 2. TITLE BAR */}
+          <View style={styles.titleBar}>
+            <Text>Invoice</Text>
+          </View>
 
-          {/* Metadata */}
+          {/* 3. METADATA GRID */}
           <View style={styles.metaGrid}>
             <View style={[styles.metaCol, { borderRight: '1pt solid #000' }]}>
-              <View style={styles.metaItem}><Text style={styles.metaLabel}>Invoice No:</Text><Text style={[styles.metaValue, styles.bold]}>{invoiceData.invoiceNumber}</Text></View>
-              <View style={styles.metaItem}><Text style={styles.metaLabel}>Invoice Date:</Text><Text style={styles.metaValue}>{invoiceData.invoiceDate}</Text></View>
-              <View style={styles.metaItem}><Text style={styles.metaLabel}>Reverse Charge:</Text><Text style={styles.metaValue}>{invoiceData.reverseCharge}</Text></View>
-              <View style={styles.metaItem}>
+              <View style={styles.metaRow}>
+                <Text style={styles.metaLabel}>Invoice No:</Text>
+                <Text style={[styles.metaValue, styles.bold]}>{invoiceData.invoiceNumber}</Text>
+              </View>
+              <View style={styles.metaRow}>
+                <Text style={styles.metaLabel}>Invoice Date:</Text>
+                <Text style={styles.metaValue}>{invoiceData.invoiceDate}</Text>
+              </View>
+              <View style={styles.metaRow}>
+                <Text style={styles.metaLabel}>Reverse Charge:</Text>
+                <Text style={styles.metaValue}>{invoiceData.reverseCharge || 'N'}</Text>
+              </View>
+              <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>State:</Text>
                 <View style={{ flexDirection: 'row', flex: 1 }}>
-                  <Text style={[styles.metaValue, { borderRight: '0.5pt solid #000' }]}>{invoiceData.seller.state}</Text>
-                  <Text style={[styles.metaLabel, { width: 35 }]}>Code:</Text>
-                  <Text style={styles.metaValue}>{invoiceData.seller.stateCode}</Text>
+                  <Text style={{ flex: 1, paddingHorizontal: 4 }}>{invoiceData.seller.state}</Text>
+                  <Text style={{ width: 40, fontWeight: 'bold', borderLeft: '1pt solid #000', paddingHorizontal: 4 }}>Code:</Text>
+                  <Text style={{ paddingHorizontal: 4 }}>{invoiceData.seller.stateCode}</Text>
                 </View>
               </View>
-              <View style={styles.metaItemLast}><Text style={[styles.metaLabel, { fontSize: 7, textTransform: 'uppercase' }]}>MSME REGISTRATION NO.:</Text><Text style={[styles.metaValue, styles.bold]}>{invoiceData.seller.msmeRegNo}</Text></View>
+              <View style={styles.metaRowLast}>
+                <Text style={[styles.metaLabel, { fontSize: 8 }]}>MSME REGISTRATION NO.:</Text>
+                <Text style={[styles.metaValue, styles.bold]}>{invoiceData.seller.msmeRegNo}</Text>
+              </View>
             </View>
+            
             <View style={styles.metaCol}>
-              <View style={styles.metaItem}><Text style={styles.metaLabel}>Transport Mode:</Text><Text style={styles.metaValue}>{invoiceData.transportMode || '-'}</Text></View>
-              <View style={styles.metaItem}><Text style={styles.metaLabel}>Vehicle number:</Text><Text style={styles.metaValue}>{invoiceData.vehicleNumber || '-'}</Text></View>
-              <View style={styles.metaItem}><Text style={styles.metaLabel}>Date of Supply:</Text><Text style={styles.metaValue}>{invoiceData.dateOfSupply}</Text></View>
-              <View style={styles.metaItemLast}><Text style={styles.metaLabel}>Place of Supply:</Text><Text style={[styles.metaValue, { textTransform: 'uppercase' }]}>{invoiceData.placeOfSupply}</Text></View>
-            </View>
-          </View>
-
-          {/* Party Grid */}
-          <View style={styles.partyHeader}>
-            <View style={[styles.partyHeaderBox, { borderRight: '1pt solid #000' }]}><Text>Invoice to Party</Text></View>
-            <View style={styles.partyHeaderBox}><Text>Ship to Party</Text></View>
-          </View>
-          <View style={styles.partyGrid}>
-            <View style={[styles.partyBox, { borderRight: '1pt solid #000' }]}>
-              <View style={styles.partyRow}><Text style={styles.labelBold}>Name:</Text><Text style={styles.valueBold}>{invoiceData.buyer.name || '-'}</Text></View>
-              <View style={styles.partyRow}><Text style={styles.labelBold}>Address:</Text><Text style={{ flex: 1 }}>{invoiceData.buyer.address || '-'}</Text></View>
-              <View style={styles.partyRow}><Text style={styles.labelBold}>GSTIN:</Text><Text style={styles.valueBold}>{invoiceData.buyer.gstin || '-'}</Text></View>
-              <View style={styles.partyRow}>
-                <Text style={styles.labelBold}>State:</Text><Text style={{ borderRight: '0.5pt solid #000', paddingRight: 5, marginRight: 5 }}>{invoiceData.buyer.state || '-'}</Text>
-                <Text style={styles.labelBold}>Code:</Text><Text>{invoiceData.buyer.stateCode || '-'}</Text>
+              <View style={styles.metaRow}>
+                <Text style={styles.metaLabel}>Transport Mode:</Text>
+                <Text style={styles.metaValue}>{invoiceData.transportMode || '-'}</Text>
               </View>
-            </View>
-            <View style={styles.partyBox}>
-              <View style={styles.partyRow}><Text style={styles.labelBold}>Name:</Text><Text style={styles.valueBold}>{invoiceData.buyer.name || '-'}</Text></View>
-              <View style={styles.partyRow}><Text style={styles.labelBold}>Address:</Text><Text style={{ flex: 1 }}>{invoiceData.buyer.address || '-'}</Text></View>
-              <View style={styles.partyRow}><Text style={styles.labelBold}>GSTIN:</Text><Text style={styles.valueBold}>{invoiceData.buyer.gstin || '-'}</Text></View>
-              <View style={styles.partyRow}>
-                <Text style={styles.labelBold}>State:</Text><Text style={{ borderRight: '0.5pt solid #000', paddingRight: 5, marginRight: 5 }}>{invoiceData.buyer.state || '-'}</Text>
-                <Text style={styles.labelBold}>Code:</Text><Text>{invoiceData.buyer.stateCode || '-'}</Text>
+              <View style={styles.metaRow}>
+                <Text style={styles.metaLabel}>Vehicle number:</Text>
+                <Text style={styles.metaValue}>{invoiceData.vehicleNumber || '-'}</Text>
+              </View>
+              <View style={styles.metaRow}>
+                <Text style={styles.metaLabel}>Date of Supply:</Text>
+                <Text style={styles.metaValue}>{invoiceData.dateOfSupply}</Text>
+              </View>
+              <View style={styles.metaRowLast}>
+                <Text style={styles.metaLabel}>Place of Supply:</Text>
+                <Text style={[styles.metaValue, styles.uppercase]}>{invoiceData.placeOfSupply}</Text>
               </View>
             </View>
           </View>
 
-          <View style={styles.descHeaderBar}><Text>{invoiceData.descriptionHeader}</Text></View>
-
-          {/* Table */}
-          <View style={styles.table}>
-            <View style={styles.tableHeaderRow}>
-              <Text style={styles.c1}></Text><Text style={styles.c2}></Text><Text style={styles.c3}></Text><Text style={styles.c4}></Text><Text style={styles.c5}></Text><Text style={styles.c6}></Text><Text style={styles.c7}></Text><Text style={styles.c8}></Text>
-              {isIntraState && <><Text style={[styles.c9, { borderBottom: '0.5pt solid #000' }]}>CGST</Text><Text style={[styles.c9, { borderBottom: '0.5pt solid #000' }]}>SGST</Text></>}
-              {isInterState && <Text style={[styles.c9, { borderBottom: '0.5pt solid #000' }]}>IGST</Text>}
-              <Text style={styles.c10}></Text>
+          {/* 4. PARTY DETAILS */}
+          <View style={styles.partyHeaderGrid}>
+            <Text style={[styles.partyHeaderCell, { borderRight: '1pt solid #000' }]}>Invoice to Party</Text>
+            <Text style={styles.partyHeaderCell}>Ship to Party</Text>
+          </View>
+          
+          <View style={styles.partyDataGrid}>
+            <View style={[styles.partyDataBox, { borderRight: '1pt solid #000' }]}>
+              <View style={styles.partyLine}>
+                <Text style={styles.partyLabel}>Name:</Text>
+                <Text style={[styles.partyValue, styles.bold]}>{invoiceData.buyer.name || '-'}</Text>
+              </View>
+              <View style={styles.partyLine}>
+                <Text style={styles.partyLabel}>Address:</Text>
+                <Text style={styles.partyValue}>{invoiceData.buyer.address || '-'}</Text>
+              </View>
+              <View style={styles.partyLine}>
+                <Text style={styles.partyLabel}>GSTIN:</Text>
+                <Text style={[styles.partyValue, styles.bold]}>{invoiceData.buyer.gstin || '-'}</Text>
+              </View>
+              <View style={styles.partyLine}>
+                <Text style={styles.partyLabel}>State:</Text>
+                <View style={{ flexDirection: 'row', flex: 1 }}>
+                  <Text style={{ flex: 1 }}>{invoiceData.buyer.state || '-'}</Text>
+                  <Text style={{ width: 40, fontWeight: 'bold', borderLeft: '1pt solid #000', paddingLeft: 4 }}>Code:</Text>
+                  <Text style={{ paddingLeft: 4 }}>{invoiceData.buyer.stateCode || '-'}</Text>
+                </View>
+              </View>
             </View>
-            <View style={styles.tableHeaderRow}>
-              <Text style={styles.c1}>S. No.</Text><Text style={styles.c2}>Product Description</Text><Text style={styles.c3}>HSN code</Text><Text style={styles.c4}>Qty</Text><Text style={styles.c5}>Rate</Text><Text style={styles.c6}>Amount</Text><Text style={styles.c7}>Discount</Text><Text style={styles.c8}>Taxable Value</Text>
+            
+            <View style={styles.partyDataBox}>
+              <View style={styles.partyLine}>
+                <Text style={styles.partyLabel}>Name:</Text>
+                <Text style={[styles.partyValue, styles.bold]}>{invoiceData.buyer.name || '-'}</Text>
+              </View>
+              <View style={styles.partyLine}>
+                <Text style={styles.partyLabel}>Address:</Text>
+                <Text style={styles.partyValue}>{invoiceData.buyer.address || '-'}</Text>
+              </View>
+              <View style={styles.partyLine}>
+                <Text style={styles.partyLabel}>GSTIN:</Text>
+                <Text style={[styles.partyValue, styles.bold]}>{invoiceData.buyer.gstin || '-'}</Text>
+              </View>
+              <View style={styles.partyLine}>
+                <Text style={styles.partyLabel}>State:</Text>
+                <View style={{ flexDirection: 'row', flex: 1 }}>
+                  <Text style={{ flex: 1 }}>{invoiceData.buyer.state || '-'}</Text>
+                  <Text style={{ width: 40, fontWeight: 'bold', borderLeft: '1pt solid #000', paddingLeft: 4 }}>Code:</Text>
+                  <Text style={{ paddingLeft: 4 }}>{invoiceData.buyer.stateCode || '-'}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* 5. SERVICE DESCRIPTION */}
+          <View style={styles.descHeader}>
+            <Text>{invoiceData.descriptionHeader}</Text>
+          </View>
+
+          {/* 6. ITEMS TABLE */}
+          {/* Table Header Row 1 */}
+          <View style={styles.tableHeaderPrimary}>
+            <Text style={[styles.colSNo, { paddingVertical: 6 }]}></Text>
+            <Text style={[styles.colDesc, { paddingVertical: 6 }]}></Text>
+            <Text style={[styles.colHSN, { paddingVertical: 6 }]}></Text>
+            <Text style={[styles.colQty, { paddingVertical: 6 }]}></Text>
+            <Text style={[styles.colRate, { paddingVertical: 6 }]}></Text>
+            <Text style={[styles.colAmount, { paddingVertical: 6 }]}></Text>
+            <Text style={[styles.colDisc, { paddingVertical: 6 }]}></Text>
+            <Text style={[styles.colTaxVal, { paddingVertical: 6 }]}></Text>
+            {isIntraState && (
+              <>
+                <View style={[styles.colGstGrp, { borderBottom: '1pt solid #000' }]}><Text style={{ padding: 2 }}>CGST</Text></View>
+                <View style={[styles.colGstGrp, { borderBottom: '1pt solid #000' }]}><Text style={{ padding: 2 }}>SGST</Text></View>
+              </>
+            )}
+            {isInterState && (
+              <View style={[styles.colGstGrp, { borderBottom: '1pt solid #000' }]}><Text style={{ padding: 2 }}>IGST</Text></View>
+            )}
+            {isNone && (
+              <View style={[styles.colGstGrp, { borderBottom: '1pt solid #000' }]}><Text style={{ padding: 2 }}>Tax (0%)</Text></View>
+            )}
+            <Text style={[styles.colTotal, { paddingVertical: 6 }]}></Text>
+          </View>
+
+          {/* Table Header Row 2 */}
+          <View style={styles.tableHeaderSecondary}>
+            <Text style={styles.colSNo}>S.No</Text>
+            <Text style={styles.colDesc}>Product Description</Text>
+            <Text style={styles.colHSN}>HSN Code</Text>
+            <Text style={styles.colQty}>Qty</Text>
+            <Text style={styles.colRate}>Rate</Text>
+            <Text style={styles.colAmount}>Amount</Text>
+            <Text style={styles.colDisc}>Discount</Text>
+            <Text style={styles.colTaxVal}>Taxable Value</Text>
+            {isIntraState && (
+              <>
+                <View style={[styles.colGstGrp, { flexDirection: 'row' }]}>
+                  <Text style={styles.colGstRate}>Rate</Text><Text style={styles.colGstAmt}>Amt</Text>
+                </View>
+                <View style={[styles.colGstGrp, { flexDirection: 'row' }]}>
+                  <Text style={styles.colGstRate}>Rate</Text><Text style={styles.colGstAmt}>Amt</Text>
+                </View>
+              </>
+            )}
+            {isInterState && (
+              <View style={[styles.colGstGrp, { flexDirection: 'row' }]}>
+                <Text style={styles.colGstRate}>Rate</Text><Text style={styles.colGstAmt}>Amt</Text>
+              </View>
+            )}
+            {isNone && (
+              <View style={[styles.colGstGrp, { flexDirection: 'row' }]}>
+                <Text style={styles.colGstAmt}>Amt</Text>
+              </View>
+            )}
+            <Text style={styles.colTotal}>Total</Text>
+          </View>
+
+          {/* Table Data Rows */}
+          {invoiceData.items.map((item, index) => (
+            <View key={index} style={styles.tableRow}>
+              <Text style={styles.colSNo}>{index + 1}</Text>
+              <Text style={[styles.colDesc, styles.bold]}>{item.description}</Text>
+              <Text style={styles.colHSN}>{item.hsn}</Text>
+              <Text style={styles.colQty}>{item.qty}</Text>
+              <Text style={styles.colRate}>{item.rate}</Text>
+              <Text style={styles.colAmount}>{item.amount}</Text>
+              <Text style={styles.colDisc}>{item.discount}</Text>
+              <Text style={styles.colTaxVal}>{item.taxableValue.toFixed(2)}</Text>
               {isIntraState && (
-                <><View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>Rate</Text><Text style={{ flex: 1.2 }}>Amt</Text></View>
-                  <View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>Rate</Text><Text style={{ flex: 1.2 }}>Amt</Text></View></>
+                <>
+                  <View style={[styles.colGstGrp, { flexDirection: 'row', height: '100%' }]}>
+                    <Text style={styles.colGstRate}>{item.cgstRate}%</Text><Text style={styles.colGstAmt}>{item.cgstAmount?.toFixed(2)}</Text>
+                  </View>
+                  <View style={[styles.colGstGrp, { flexDirection: 'row', height: '100%' }]}>
+                    <Text style={styles.colGstRate}>{item.sgstRate}%</Text><Text style={styles.colGstAmt}>{item.sgstAmount?.toFixed(2)}</Text>
+                  </View>
+                </>
               )}
               {isInterState && (
-                <View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>Rate</Text><Text style={{ flex: 1.2 }}>Amt</Text></View>
+                <View style={[styles.colGstGrp, { flexDirection: 'row', height: '100%' }]}>
+                  <Text style={styles.colGstRate}>{item.igstRate}%</Text><Text style={styles.colGstAmt}>{item.igstAmount?.toFixed(2)}</Text>
+                </View>
               )}
-              <Text style={styles.c10}>Total</Text>
+              {isNone && (
+                <View style={[styles.colGstGrp, { flexDirection: 'row', height: '100%' }]}>
+                  <Text style={styles.colGstAmt}>0.00</Text>
+                </View>
+              )}
+              <Text style={[styles.colTotal, { textAlign: 'right' }]}>{item.total.toFixed(2)}</Text>
             </View>
+          ))}
 
-            {invoiceData.items.map((item, i) => (
-              <View key={i} style={styles.tableRow}>
-                <Text style={styles.c1}>{i + 1}</Text><Text style={[styles.c2, styles.bold]}>{item.description}</Text><Text style={styles.c3}>{item.hsn}</Text><Text style={styles.c4}>{item.qty}</Text><Text style={styles.c5}>{item.rate}</Text><Text style={styles.c6}>{item.amount}</Text><Text style={styles.c7}>{item.discount}</Text><Text style={styles.c8}>{item.taxableValue.toFixed(2)}</Text>
-                {isIntraState && (
-                  <><View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000', height: '100%' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>{item.cgstRate}%</Text><Text style={{ flex: 1.2 }}>{item.cgstAmount?.toFixed(2)}</Text></View>
-                    <View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000', height: '100%' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>{item.sgstRate}%</Text><Text style={{ flex: 1.2 }}>{item.sgstAmount?.toFixed(2)}</Text></View></>
-                )}
-                {isInterState && (
-                  <View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000', height: '100%' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>{item.igstRate}%</Text><Text style={{ flex: 1.2 }}>{item.igstAmount?.toFixed(2)}</Text></View>
-                )}
-                <Text style={[styles.c10, { textAlign: 'right' }]}>{item.total.toFixed(2)}</Text>
-              </View>
-            ))}
-
-            {/* Optimized filler count to prevent page overflow */}
-            {Array.from({ length: Math.max(0, 12 - invoiceData.items.length) }).map((_, i) => (
-              <View key={i} style={[styles.tableRow, { borderBottom: '0.5pt solid #eee' }]}><Text style={styles.c1}> </Text><Text style={styles.c2}> </Text><Text style={styles.c3}> </Text><Text style={styles.c4}> </Text><Text style={styles.c5}> </Text><Text style={styles.c6}> </Text><Text style={styles.c7}> </Text><Text style={styles.c8}> </Text>{isIntraState && <><View style={{ width: '13%', borderRight: '1pt solid #000' }}><Text> </Text></View><View style={{ width: '13%', borderRight: '1pt solid #000' }}><Text> </Text></View></>}{isInterState && <View style={{ width: '13%', borderRight: '1pt solid #000' }}><Text> </Text></View>}<Text style={styles.c10}> </Text></View>
-            ))}
-
-            <View style={styles.tableFooterRow}>
-              <Text style={{ width: '12%', borderRight: '1pt solid #000' }}>Total</Text><Text style={{ flex: 1, borderRight: '1pt solid #000' }}></Text><Text style={styles.c3}></Text><Text style={styles.c4}>{invoiceData.items.reduce((acc, curr) => acc + curr.qty, 0)}</Text><Text style={styles.c5}>###</Text><Text style={styles.c6}>####</Text><Text style={styles.c7}>{invoiceData.items.reduce((acc, curr) => acc + curr.discount, 0)}</Text><Text style={styles.c8}>{invoiceData.subtotal.toFixed(2)}</Text>{isIntraState && <><Text style={{ width: '13%', borderRight: '1pt solid #000' }}>####</Text><Text style={{ width: '13%', borderRight: '1pt solid #000' }}>###</Text></>}{isInterState && <Text style={{ width: '13%', borderRight: '1pt solid #000' }}>####</Text>}<Text style={[styles.c10, { textAlign: 'right' }]}>{Math.round(invoiceData.grandTotal)}</Text>
+          {/* Filler Rows (Fixed 10 rows to force full page look) */}
+          {Array.from({ length: Math.max(0, 10 - invoiceData.items.length) }).map((_, i) => (
+            <View key={`filler-${i}`} style={styles.tableRow}>
+              <Text style={styles.colSNo}> </Text><Text style={styles.colDesc}> </Text><Text style={styles.colHSN}> </Text><Text style={styles.colQty}> </Text><Text style={styles.colRate}> </Text><Text style={styles.colAmount}> </Text><Text style={styles.colDisc}> </Text><Text style={styles.colTaxVal}> </Text>
+              {isIntraState && <><View style={[styles.colGstGrp, { flexDirection: 'row', height: '100%' }]}><Text style={styles.colGstRate}> </Text><Text style={styles.colGstAmt}> </Text></View><View style={[styles.colGstGrp, { flexDirection: 'row', height: '100%' }]}><Text style={styles.colGstRate}> </Text><Text style={styles.colGstAmt}> </Text></View></>}
+              {isInterState && <View style={[styles.colGstGrp, { flexDirection: 'row', height: '100%' }]}><Text style={styles.colGstRate}> </Text><Text style={styles.colGstAmt}> </Text></View>}
+              {isNone && <View style={[styles.colGstGrp, { flexDirection: 'row', height: '100%' }]}><Text style={styles.colGstAmt}> </Text></View>}
+              <Text style={styles.colTotal}> </Text>
             </View>
+          ))}
+
+          {/* Table Totals Row */}
+          <View style={styles.tableTotalRow}>
+            <Text style={{ width: 25 + 45 + 2, borderRight: '1pt solid #000', padding: 2, flex: 1, textAlign: 'center' }}>Total</Text>
+            <Text style={styles.colHSN}> </Text>
+            <Text style={styles.colQty}>{invoiceData.items.reduce((acc, curr) => acc + curr.qty, 0)}</Text>
+            <Text style={styles.colRate}>###</Text>
+            <Text style={styles.colAmount}>####</Text>
+            <Text style={styles.colDisc}>{invoiceData.items.reduce((acc, curr) => acc + curr.discount, 0)}</Text>
+            <Text style={styles.colTaxVal}>{invoiceData.subtotal.toFixed(2)}</Text>
+            {isIntraState && (
+              <><View style={[styles.colGstGrp, { flexDirection: 'row' }]}><Text style={styles.colGstRate}>####</Text><Text style={styles.colGstAmt}>###</Text></View>
+                <View style={[styles.colGstGrp, { flexDirection: 'row' }]}><Text style={styles.colGstRate}>####</Text><Text style={styles.colGstAmt}>###</Text></View></>
+            )}
+            {isInterState && (
+              <View style={[styles.colGstGrp, { flexDirection: 'row' }]}><Text style={styles.colGstRate}>####</Text><Text style={styles.colGstAmt}>###</Text></View>
+            )}
+            {isNone && (
+              <View style={[styles.colGstGrp, { flexDirection: 'row' }]}><Text style={styles.colGstAmt}>###</Text></View>
+            )}
+            <Text style={[styles.colTotal, { textAlign: 'right' }]}>{Math.round(invoiceData.grandTotal)}</Text>
           </View>
 
-          {/* Summary Section */}
-          <View style={styles.summaryGrid}>
+          {/* 7. TOTALS SUMMARY */}
+          <View style={styles.summarySection}>
             <View style={styles.wordsBox}>
-              <Text style={styles.wordsHeader}>Total Invoice Amount in Words</Text>
-              <View style={styles.wordsContent}>
-                <Text>{numberToWords(Math.round(invoiceData.grandTotal))}</Text>
-              </View>
+              <Text style={styles.wordsTitle}>TOTAL INVOICE AMOUNT IN WORDS</Text>
+              <Text style={styles.wordsAmount}>{numberToWords(Math.round(invoiceData.grandTotal))} ONLY</Text>
             </View>
             <View style={styles.totalsBox}>
-              <View style={styles.totalsRow}><Text style={styles.totalsLabel}>Total Amount Before Tax</Text><Text style={styles.totalsValue}>{invoiceData.subtotal.toFixed(2)}</Text></View>
-              {isIntraState && <><View style={styles.totalsRow}><Text style={styles.totalsLabel}>Add: CGST</Text><Text style={styles.totalsValue}>{invoiceData.cgstTotal.toFixed(2)}</Text></View><View style={styles.totalsRow}><Text style={styles.totalsLabel}>Add: SGST</Text><Text style={styles.totalsValue}>{invoiceData.sgstTotal.toFixed(2)}</Text></View></>}
-              {isInterState && <View style={styles.totalsRow}><Text style={styles.totalsLabel}>Add: IGST</Text><Text style={styles.totalsValue}>{invoiceData.igstTotal.toFixed(2)}</Text></View>}
-              <View style={styles.totalsRow}><Text style={styles.totalsLabel}>Total Tax Amount</Text><Text style={styles.totalsValue}>{totalTax.toFixed(2)}</Text></View>
-              <View style={[styles.totalsRow, { backgroundColor: '#f3f4f6' }]}><Text style={styles.totalsLabel}>Total Amount After Tax</Text><Text style={styles.totalsValue}>{invoiceData.grandTotal.toFixed(2)}</Text></View>
-              <View style={[styles.totalsRow, { borderBottom: 'none' }]}><Text style={styles.totalsLabel}>GST on Reverse Charge</Text><Text style={styles.totalsValue}>0.00</Text></View>
+              <View style={styles.totRow}>
+                <Text style={styles.totLabel}>TOTAL AMOUNT BEFORE TAX</Text>
+                <Text style={styles.totValue}>{invoiceData.subtotal.toFixed(2)}</Text>
+              </View>
+              {isIntraState && (
+                <>
+                  <View style={styles.totRow}>
+                    <Text style={styles.totLabel}>ADD: CGST</Text>
+                    <Text style={styles.totValue}>{invoiceData.cgstTotal.toFixed(2)}</Text>
+                  </View>
+                  <View style={styles.totRow}>
+                    <Text style={styles.totLabel}>ADD: SGST</Text>
+                    <Text style={styles.totValue}>{invoiceData.sgstTotal.toFixed(2)}</Text>
+                  </View>
+                </>
+              )}
+              {isInterState && (
+                <View style={styles.totRow}>
+                  <Text style={styles.totLabel}>ADD: IGST</Text>
+                  <Text style={styles.totValue}>{invoiceData.igstTotal.toFixed(2)}</Text>
+                </View>
+              )}
+              <View style={styles.totRow}>
+                <Text style={styles.totLabel}>TOTAL TAX AMOUNT</Text>
+                <Text style={styles.totValue}>{totalTaxAmount.toFixed(2)}</Text>
+              </View>
+              <View style={[styles.totRow, { backgroundColor: '#f2f2f2' }]}>
+                <Text style={styles.totLabel}>TOTAL AMOUNT AFTER TAX</Text>
+                <Text style={styles.totValue}>{invoiceData.grandTotal.toFixed(2)}</Text>
+              </View>
+              <View style={styles.totRowLast}>
+                <Text style={styles.totLabel}>GST ON REVERSE CHARGE</Text>
+                <Text style={styles.totValue}>0.00</Text>
+              </View>
             </View>
           </View>
 
-          {/* Bottom Grid */}
-          <View style={styles.bottomGrid}>
-            <View style={styles.bankCol}>
-              <Text style={styles.bankHeader}>Bank Details</Text>
+          {/* 8. BOTTOM FOOTER */}
+          <View style={styles.footerRow}>
+            {/* Left: Bank Details */}
+            <View style={styles.footerBank}>
+              <Text style={styles.bankTitle}>Bank Details</Text>
               <View style={styles.bankContent}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.bankText}>Bank Name: {invoiceData.seller.bank.name}</Text>
-                  <Text style={styles.bankText}>Branch Name: {invoiceData.seller.bank.branch}</Text>
-                  <Text style={styles.bankText}>Account No: {invoiceData.seller.bank.accountNo}</Text>
-                  <Text style={styles.bankText}>Bank IFSC: {invoiceData.seller.bank.ifsc}</Text>
+                  <Text style={styles.bankDetailsText}>Bank Name: {invoiceData.seller.bank.name}</Text>
+                  <Text style={styles.bankDetailsText}>Branch Name: {invoiceData.seller.bank.branch}</Text>
+                  <Text style={styles.bankDetailsText}>Account No: {invoiceData.seller.bank.accountNo}</Text>
+                  <Text style={styles.bankDetailsText}>Bank IFSC: {invoiceData.seller.bank.ifsc}</Text>
                 </View>
                 {invoiceData.upiId && invoiceData.showUpiQr && (
-                  <View style={{ alignItems: 'center' }}>
-                    <Image src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`upi://pay?pa=${invoiceData.upiId}&pn=${encodeURIComponent(invoiceData.seller.name)}&am=${invoiceData.grandTotal.toFixed(2)}&cu=INR`)}`} style={styles.qrImage} />
-                    <Text style={{ fontSize: 6, fontWeight: 'bold', marginTop: 1 }}>SCAN TO PAY</Text>
+                  <View style={styles.qrContainer}>
+                    <Image src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`upi://pay?pa=${invoiceData.upiId}&pn=${encodeURIComponent(invoiceData.seller.name)}&am=${invoiceData.grandTotal.toFixed(2)}&cu=INR`)}`} style={styles.qrCode} />
+                    <Text style={styles.qrLabel}>SCAN TO PAY</Text>
                   </View>
                 )}
               </View>
-              <Text style={{ fontSize: 7, textAlign: 'center', borderTop: '0.5pt solid #000', marginTop: 2, fontWeight: 'bold' }}>Terms & Conditions Apply</Text>
+              <Text style={styles.termsText}>Terms & Conditions Apply</Text>
             </View>
-            <View style={styles.sealCol}>
-              <Text style={{ borderTop: '1pt solid #000', width: '100%', textAlign: 'center', fontWeight: 'bold', paddingVertical: 1 }}>Common Seal</Text>
+
+            {/* Center: Common Seal */}
+            <View style={styles.footerSeal}>
+              <Text style={styles.sealLabel}>Common Seal</Text>
             </View>
-            <View style={styles.authCol}>
+
+            {/* Right: Authorised Signatory */}
+            <View style={styles.footerSign}>
               <Text style={styles.certText}>Certified that the particulars given above are true and correct.</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.authFor}>For {invoiceData.seller.name}</Text>
-                {invoiceData.showDigitalSignature && <Image src={invoiceData.signatureUrl} style={styles.signatureImage} />}
-              </View>
-              <Text style={styles.authLabel}>Authorised Signatory</Text>
+              <Text style={styles.authCompany}>FOR {invoiceData.seller.name}</Text>
+              {invoiceData.showDigitalSignature ? (
+                <Image src={invoiceData.signatureUrl || "https://upload.wikimedia.org/wikipedia/commons/3/3a/Jon_Snow_Signature.png"} style={styles.signatureImage} />
+              ) : (
+                <View style={{ height: 35, marginVertical: 4 }}></View>
+              )}
+              <Text style={styles.authLabel}>AUTHORISED SIGNATORY</Text>
             </View>
           </View>
 
