@@ -3,8 +3,10 @@ import {
   CreditCard, ArrowUpRight, ArrowDownRight, 
   Search, Filter, CheckCircle2, Clock, 
   Plus, Download, IndianRupee, Building, Truck, X,
-  Calendar, CreditCard as MethodIcon
+  Calendar, CreditCard as MethodIcon, Loader2
 } from 'lucide-react';
+import api from '../lib/axios';
+import { format } from 'date-fns';
 import ExportButton from '../components/ui/ExportButton';
 import toast from 'react-hot-toast';
 
@@ -13,24 +15,92 @@ const Payments: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
 
-  const [collections, setCollections] = useState([
-    { id: '1', date: '10 May 2026', client: 'Reliance Retail Ltd', inv: 'INV-0041', amount: '₹3,20,000', method: 'Bank Transfer', status: 'Settled' },
-    { id: '2', date: '08 May 2026', client: 'Axis Bank Ltd', inv: 'INV-0039', amount: '₹1,80,000', method: 'UPI / Razorpay', status: 'Pending' },
-    { id: '3', date: '02 May 2026', client: 'Havells India', inv: 'INV-0035', amount: '₹90,000', method: 'Cheque', status: 'Settled' },
-  ]);
+  const [collections, setCollections] = useState<any[]>([]);
+  const [payouts, setPayouts] = useState<any[]>([]);
+  const [clients, setClients] = useState<any[]>([]);
+  const [vendors, setVendors] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [summary, setSummary] = useState<any>({ netCollections: 0, totalPayouts: 0, netCashFlow: 0 });
 
-  const [payouts, setPayouts] = useState([
-    { id: '1', date: '09 May 2026', vendor: 'Haryana Outdoor Media', type: 'Site Lease', amount: '₹45,000', method: 'NEFT', status: 'Paid' },
-    { id: '2', date: '05 May 2026', vendor: 'Digital Flex Printers', type: 'Production', amount: '₹22,000', method: 'Bank Transfer', status: 'Paid' },
-    { id: '3', date: '01 May 2026', vendor: 'North India Hoardings', type: 'Site Lease', amount: '₹12,000', method: 'Bank Transfer', status: 'Processing' },
-  ]);
+  React.useEffect(() => {
+    fetchPayments();
+    fetchEntities();
+    fetchSummary();
+  }, [activeTab]);
 
-  const currentData = activeTab === 'collections' ? collections : payouts;
-
-  const handleSavePayment = () => {
-    toast.success(`${activeTab === 'collections' ? 'Collection' : 'Payout'} recorded successfully!`);
-    setShowModal(false);
+  const fetchSummary = async () => {
+    try {
+      const res = await api.get('/analytics/payments-summary');
+      setSummary(res.data);
+    } catch (err) {
+      console.error('Failed to fetch summary');
+    }
   };
+
+  const fetchEntities = async () => {
+    try {
+      const [clientsRes, vendorsRes] = await Promise.all([
+        api.get('/clients'),
+        api.get('/vendors')
+      ]);
+      setClients(clientsRes.data);
+      setVendors(vendorsRes.data);
+    } catch (error) {
+      console.error('Failed to fetch entities', error);
+    }
+  };
+
+  const fetchPayments = async () => {
+    try {
+      setIsLoading(true);
+      if (activeTab === 'collections') {
+        const res = await api.get('/payments/clients');
+        setCollections(res.data);
+      } else {
+        const res = await api.get('/payments/vendors');
+        setPayouts(res.data);
+      }
+    } catch (error) {
+      console.error('Error fetching payments:', error);
+      toast.error('Failed to load ledger');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSavePayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const data = Object.fromEntries(formData.entries());
+    
+    try {
+      if (activeTab === 'collections') {
+        await api.post('/payments/clients', {
+          ...data,
+          amount: parseFloat(data.amount as string),
+          paymentDate: new Date(data.paymentDate as string).toISOString()
+        });
+      } else {
+        await api.post('/payments/vendors', {
+          ...data,
+          amount: parseFloat(data.amount as string),
+          paymentDate: new Date(data.paymentDate as string).toISOString(),
+          month: new Date(data.paymentDate as string).getMonth() + 1,
+          year: new Date(data.paymentDate as string).getFullYear()
+        });
+      }
+      toast.success(`${activeTab === 'collections' ? 'Collection' : 'Payout'} recorded!`);
+      setShowModal(false);
+      fetchPayments();
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || 'Failed to record payment');
+    }
+  };
+
+  const currentData = (activeTab === 'collections' ? collections : payouts).filter(p => 
+    (p.client?.name || p.vendor?.vendorName || p.client || p.vendor || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (p.invoice?.invoiceNumber || p.purpose || p.inv || p.type || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
@@ -40,25 +110,25 @@ const Payments: React.FC = () => {
           <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">Settlement History · Cash Flow tracking</p>
         </div>
         <div className="flex gap-2">
-          <ExportButton data={currentData} filename={`drishtivision_${activeTab}_ledger`} />
+          <ExportButton data={activeTab === 'collections' ? collections : payouts} filename={`drishtivision_${activeTab}_ledger`} />
           <button onClick={() => setShowModal(true)} className="btn-primary text-[12px] py-1.5 flex items-center gap-2">
             <Plus size={16} /> Record {activeTab === 'collections' ? 'Collection' : 'Payout'}
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-         <div className="card border-success/20 bg-success/5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+         <div className="card border-border/40 shadow-sm">
             <div className="text-[9px] text-success uppercase font-black tracking-widest">Net Collections (MTD)</div>
-            <div className="text-xl font-black text-text-primary mt-2">₹5,90,000</div>
+            <div className="text-xl font-black text-text-primary mt-2">₹{summary.netCollections.toLocaleString()}</div>
          </div>
-         <div className="card border-danger/20 bg-danger/5">
+         <div className="card border-border/40 shadow-sm">
             <div className="text-[9px] text-danger uppercase font-black tracking-widest">Total Payouts (MTD)</div>
-            <div className="text-xl font-black text-text-primary mt-2">₹79,000</div>
+            <div className="text-xl font-black text-text-primary mt-2">₹{summary.totalPayouts.toLocaleString()}</div>
          </div>
-         <div className="card border-accent-blue/20 bg-accent-blue/5">
+         <div className="card border-border/40 shadow-sm">
             <div className="text-[9px] text-accent-blue uppercase font-black tracking-widest">Net Cash Flow</div>
-            <div className="text-xl font-black text-text-primary mt-2">₹5,11,000</div>
+            <div className="text-xl font-black text-text-primary mt-2">₹{summary.netCashFlow.toLocaleString()}</div>
          </div>
       </div>
 
@@ -104,33 +174,35 @@ const Payments: React.FC = () => {
                      <th className="px-6 py-4 text-right">Settlement Amount</th>
                   </tr>
                </thead>
-               <tbody className="divide-y divide-border">
-                  {currentData.map((p) => (
-                     <tr key={p.id} className="hover:bg-bg-surface-2 transition-colors cursor-pointer group">
-                        <td className="px-6 py-4 text-[12px] font-medium text-text-muted">{p.date}</td>
-                        <td className="px-6 py-4">
-                           <div className="flex items-center gap-3">
-                              <div className={`w-8 h-8 rounded flex items-center justify-center border border-border ${activeTab === 'collections' ? 'text-success' : 'text-danger'}`}>
-                                 {activeTab === 'collections' ? <Building size={14} /> : <Truck size={14} />}
-                              </div>
-                              <div>
-                                 <div className="text-[13px] font-bold text-text-primary group-hover:text-accent-orange transition-colors">{(p as any).client || (p as any).vendor}</div>
-                                 <div className="text-[10px] text-text-muted font-bold mt-0.5">{(p as any).inv || (p as any).type}</div>
-                              </div>
-                           </div>
-                        </td>
-                        <td className="px-6 py-4 text-[11px] font-bold text-text-primary">{(p as any).method}</td>
-                        <td className="px-6 py-4 text-center">
-                           <span className={`status-tag ${p.status === 'Settled' || p.status === 'Paid' ? 'bg-success' : p.status === 'Pending' ? 'bg-warning' : 'bg-accent-blue'}`}>
-                              {p.status}
-                           </span>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                           <div className={`text-[14px] font-black ${activeTab === 'collections' ? 'text-text-primary' : 'text-danger'}`}>{p.amount}</div>
-                        </td>
-                     </tr>
-                  ))}
-               </tbody>
+                <tbody className="divide-y divide-border">
+                   {isLoading ? (
+                      <tr><td colSpan={5} className="py-10 text-center"><Loader2 className="animate-spin mx-auto text-accent-orange" /></td></tr>
+                   ) : currentData.map((p) => (
+                      <tr key={p.id} className="hover:bg-bg-surface-2 transition-colors cursor-pointer group">
+                         <td className="px-6 py-4 text-[12px] font-medium text-text-muted">{format(new Date(p.paymentDate || p.date), 'dd MMM yyyy')}</td>
+                         <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                               <div className={`w-8 h-8 rounded flex items-center justify-center border border-border ${activeTab === 'collections' ? 'text-success' : 'text-danger'}`}>
+                                  {activeTab === 'collections' ? <Building size={14} /> : <Truck size={14} />}
+                               </div>
+                               <div>
+                                  <div className="text-[13px] font-bold text-text-primary group-hover:text-accent-orange transition-colors">{p.client?.name || p.vendor?.vendorName || p.client || p.vendor}</div>
+                                  <div className="text-[10px] text-text-muted font-bold mt-0.5">{p.invoice?.invoiceNumber || p.purpose || p.inv || p.type}</div>
+                               </div>
+                            </div>
+                         </td>
+                         <td className="px-6 py-4 text-[11px] font-bold text-text-primary">{p.paymentMode || p.method}</td>
+                         <td className="px-6 py-4 text-center">
+                            <span className={`status-tag ${p.status === 'Settled' || p.status === 'Paid' || activeTab === 'collections' ? 'bg-success' : 'bg-warning'}`}>
+                               {p.status || 'Settled'}
+                            </span>
+                         </td>
+                         <td className="px-6 py-4 text-right">
+                            <div className={`text-[14px] font-black ${activeTab === 'collections' ? 'text-text-primary' : 'text-danger'}`}>₹{p.amount?.toLocaleString()}</div>
+                         </td>
+                      </tr>
+                   ))}
+                </tbody>
             </table>
          </div>
       </div>
@@ -149,43 +221,54 @@ const Payments: React.FC = () => {
                  </div>
                  <button onClick={() => setShowModal(false)} className="p-2 hover:bg-bg-surface border border-transparent hover:border-border rounded-xl transition-colors"><X size={20} /></button>
               </div>
+              <form onSubmit={handleSavePayment}>
               <div className="p-8 space-y-6">
                  <div className="grid grid-cols-2 gap-4">
                     <div className="col-span-2 space-y-1.5">
                        <label className="text-[10px] font-black text-text-muted uppercase ml-1">
-                          {activeTab === 'collections' ? 'Client Name' : 'Vendor Name'}
+                          {activeTab === 'collections' ? 'Select Client' : 'Select Vendor'}
                        </label>
-                       <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[13px] outline-none font-bold" placeholder={activeTab === 'collections' ? 'e.g. Reliance Retail' : 'e.g. Haryana Media'} />
+                       <select name={activeTab === 'collections' ? 'clientId' : 'vendorId'} required className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[13px] outline-none font-bold">
+                          <option value="">Select Entity</option>
+                          {activeTab === 'collections' 
+                            ? clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)
+                            : vendors.map(v => <option key={v.id} value={v.id}>{v.vendorName}</option>)
+                          }
+                       </select>
                     </div>
                     <div className="space-y-1.5">
                        <label className="text-[10px] font-black text-text-muted uppercase ml-1">Reference (Invoice/PO)</label>
-                       <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none font-mono" placeholder="INV-0000" />
+                       <input name={activeTab === 'collections' ? 'invoiceId' : 'purpose'} type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none font-mono" placeholder="INV-0000" />
                     </div>
                     <div className="space-y-1.5">
                        <label className="text-[10px] font-black text-text-muted uppercase ml-1">Date of Settlement</label>
                        <div className="relative">
                           <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={14} />
-                          <input type="date" className="w-full bg-bg-surface-2 border border-border rounded-xl pl-9 pr-4 py-3 text-[12px] outline-none" />
+                          <input name="paymentDate" type="date" required className="w-full bg-bg-surface-2 border border-border rounded-xl pl-9 pr-4 py-3 text-[12px] outline-none" />
                        </div>
                     </div>
                     <div className="space-y-1.5">
                        <label className="text-[10px] font-black text-text-muted uppercase ml-1">Payment Method</label>
-                       <select className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none appearance-none font-bold">
-                          <option>Bank Transfer / NEFT</option><option>UPI / QR Scan</option><option>Cheque / Draft</option><option>Cash Ledger</option>
+                       <select name="paymentMode" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none appearance-none font-bold">
+                          <option value="BANK_TRANSFER">Bank Transfer / NEFT</option>
+                          <option value="UPI">UPI / QR Scan</option>
+                          <option value="CHEQUE">Cheque / Draft</option>
+                          <option value="CASH">Cash Ledger</option>
                        </select>
                     </div>
                     <div className="space-y-1.5">
                        <label className="text-[10px] font-black text-text-muted uppercase ml-1">Settlement Amount (₹)</label>
-                       <input type="number" className={`w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] font-black outline-none ${activeTab === 'collections' ? 'text-success' : 'text-danger'}`} placeholder="0.00" />
+                       <input name="amount" type="number" required className={`w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] font-black outline-none ${activeTab === 'collections' ? 'text-success' : 'text-danger'}`} placeholder="0.00" />
                     </div>
                  </div>
               </div>
               <div className="p-6 border-t border-border flex justify-end gap-3 bg-bg-surface-2">
-                 <button onClick={() => setShowModal(false)} className="btn-outline px-8 py-2.5 text-[12px]">Discard</button>
-                 <button onClick={handleSavePayment} className={`px-10 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-widest text-white shadow-xl transition-all ${activeTab === 'collections' ? 'bg-success shadow-success/20' : 'bg-danger shadow-danger/20'}`}>
+                 <button type="button" onClick={() => setShowModal(false)} className="btn-outline px-8 py-2.5 text-[12px]">Discard</button>
+                 <button type="submit" className={`px-10 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-widest text-white shadow-xl transition-all ${activeTab === 'collections' ? 'bg-success shadow-success/20' : 'bg-danger shadow-danger/20'}`}>
                     Confirm Settlement
                  </button>
               </div>
+              </form>
            </div>
         </div>
       )}

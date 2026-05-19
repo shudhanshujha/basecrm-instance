@@ -12,21 +12,11 @@ const GSTBalance: React.FC = () => {
 
   const gstDataByQuarter: any = {
     Q1: {
-      output: [
-        { id: '1', date: '10 May', entity: 'Reliance Retail', gstin: '06AAACR5055K1ZZ', taxable: 280000, cgst: 25200, sgst: 25200, igst: 0, total: 330400 },
-        { id: '2', date: '08 May', entity: 'Axis Bank Ltd', gstin: '06AAACC2415M1ZF', taxable: 180000, cgst: 16200, sgst: 16200, igst: 0, total: 212400 },
-      ],
-      input: [
-        { id: '1', date: '09 May', entity: 'Haryana Media', gstin: '06BBBCR1234K1Z1', taxable: 45000, cgst: 4050, sgst: 4050, igst: 0, total: 53100 },
-        { id: '2', date: '05 May', entity: 'Digital Printers', gstin: '07CCCHR5678D1Z2', taxable: 22000, cgst: 1980, sgst: 1980, igst: 0, total: 25960 },
-      ],
-      totals: { collected: 82800, paid: 12060, net: 70740 }
+      output: [],
+      input: [],
+      totals: { collected: 0, paid: 0, net: 0 }
     },
-    Q2: {
-      output: [{ id: '3', date: '15 Jul', entity: 'LG Electronics', gstin: '07AAACL1234K1Z2', taxable: 500000, cgst: 45000, sgst: 45000, igst: 0, total: 590000 }],
-      input: [{ id: '3', date: '20 Jul', entity: 'Pan India Hoardings', gstin: '06DDDR1234K1Z1', taxable: 100000, cgst: 9000, sgst: 9000, igst: 0, total: 118000 }],
-      totals: { collected: 90000, paid: 18000, net: 72000 }
-    },
+    Q2: { output: [], input: [], totals: { collected: 0, paid: 0, net: 0 } },
     Q3: { output: [], input: [], totals: { collected: 0, paid: 0, net: 0 } },
     Q4: { output: [], input: [], totals: { collected: 0, paid: 0, net: 0 } }
   };

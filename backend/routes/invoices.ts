@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import prisma from '../prismaClient';
+import { getPrisma } from '../prismaClient.js';
 
 const router = Router();
 
 // Get all invoices
 router.get('/', async (req, res) => {
   try {
-    const invoices = await prisma.invoice.findMany({
+    const invoices = await getPrisma().invoice.findMany({
       include: { client: true, campaign: true, payments: true }
     });
     res.json(invoices);
@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const invoice = await prisma.invoice.findUnique({
+    const invoice = await getPrisma().invoice.findUnique({
       where: { id },
       include: { client: true, campaign: true, payments: true }
     });
@@ -33,7 +33,7 @@ router.get('/:id', async (req, res) => {
 // Create invoice
 router.post('/', async (req, res) => {
   try {
-    const invoice = await prisma.invoice.create({
+    const invoice = await getPrisma().invoice.create({
       data: req.body
     });
     res.status(201).json(invoice);
@@ -46,7 +46,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const invoice = await prisma.invoice.update({
+    const invoice = await getPrisma().invoice.update({
       where: { id },
       data: req.body
     });
@@ -60,7 +60,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.invoice.delete({ where: { id } });
+    await getPrisma().invoice.delete({ where: { id } });
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete invoice' });

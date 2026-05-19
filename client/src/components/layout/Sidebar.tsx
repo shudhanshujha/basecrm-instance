@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -11,8 +11,10 @@ import {
   LineChart, 
   Settings,
   Repeat,
-  Truck
+  Truck,
+  HardDrive,
 } from 'lucide-react';
+import api from '../../lib/axios';
 
 interface NavItemProps {
   to: string;
@@ -24,7 +26,7 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label }) => (
   <NavLink 
     to={to}
     className={({ isActive }) => `
-      flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12px] transition-all
+      flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-all
       ${isActive 
         ? 'bg-accent-orange text-white font-bold shadow-lg shadow-accent-orange/20' 
         : 'text-text-muted hover:bg-bg-surface-2 hover:text-text-primary'}
@@ -35,6 +37,54 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label }) => (
   </NavLink>
 );
 
+// ─── Storage Widget ────────────────────────────────────────────────────────────
+const StorageBar: React.FC = () => {
+  const [storage, setStorage] = useState<{ label: string; percent: number; limitGB: number } | null>(null);
+
+  useEffect(() => {
+    api.get('/storage')
+      .then(r => setStorage(r.data))
+      .catch(() => {/* silently fail */});
+    
+    // Refresh every 5 minutes
+    const interval = setInterval(() => {
+      api.get('/storage').then(r => setStorage(r.data)).catch(() => {});
+    }, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (!storage) return null;
+
+  const pct = Math.min(storage.percent, 100);
+  const color = pct > 85 ? '#ef4444' : pct > 60 ? '#f59e0b' : '#f97316';
+
+  return (
+    <div className="mx-4 mb-4 p-3 bg-bg-surface-2 border border-border rounded-xl space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5 text-[10px] font-black text-text-muted uppercase tracking-wider">
+          <HardDrive size={11} className="text-accent-orange" />
+          Storage
+        </div>
+        <span className="text-[9px] font-black text-text-muted">{storage.label} / {storage.limitGB} GB</span>
+      </div>
+
+      {/* Bar track */}
+      <div className="w-full h-1.5 bg-bg-surface rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all duration-700"
+          style={{ width: `${Math.max(pct, 0.3)}%`, backgroundColor: color }}
+        />
+      </div>
+
+      <div className="flex justify-between items-center">
+        <span className="text-[9px] text-text-muted">{pct < 0.1 ? '<0.1' : pct.toFixed(2)}% used</span>
+        <span className="text-[9px] text-text-muted font-bold">{(storage.limitGB - (storage.percent / 100) * storage.limitGB).toFixed(2)} GB free</span>
+      </div>
+    </div>
+  );
+};
+
+// ─── Sidebar ───────────────────────────────────────────────────────────────────
 const Sidebar: React.FC = () => {
   return (
     <div className="w-[240px] bg-bg-surface border-r border-border h-full flex flex-col py-6 shrink-0 overflow-y-auto shadow-xl">
@@ -68,6 +118,9 @@ const Sidebar: React.FC = () => {
         </div>
       </div>
       
+      {/* Storage Bar */}
+      <StorageBar />
+
       <div className="px-4 mb-4">
         <NavItem to="/settings" icon={<Settings size={18} />} label="Settings" />
       </div>

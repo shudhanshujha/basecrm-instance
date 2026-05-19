@@ -1,5 +1,15 @@
+
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+let prisma: PrismaClient;
 
-export default prisma;
+export function getPrisma() {
+  if (!prisma) {
+    prisma = new PrismaClient({
+      log: ['error', 'warn'],
+    });
+  }
+  return prisma;
+}
+
+// Do NOT initialize at top level

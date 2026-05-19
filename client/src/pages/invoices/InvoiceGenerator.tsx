@@ -1,138 +1,148 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  ArrowLeft, Printer, Download, Plus, Trash2, 
+  ArrowLeft, Printer, Download, Plus, Trash2, Minus,
   ChevronDown, Building, User, FileText, IndianRupee,
-  ShieldCheck, MapPin, Phone, Mail
+  ShieldCheck, MapPin, Phone, Mail, Loader2, Database, Settings
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { PDFDownloadLink, usePDF } from '@react-pdf/renderer';
+import FiscalInvoice from '../../components/invoices/FiscalInvoice';
+import { numberToWords } from '../../lib/numberToWords';
+import api from '../../lib/axios';
 
-// --- MOCK CRM DATA ---
-const CRM_MOCK = {
-  seller: {
-    name: "DRISHTI VISION SOLUTION",
-    address: "2/182, Arya Nagar, Sonepat, 131001, Haryana",
-    phone: ["7015177522", "8307096269"],
-    email: "drishtivisionad@gmail.com",
-    gstin: "06AONPP6480J1ZB",
-    msme_reg_no: "UDYAM-HR-18-0006940",
-    state: "Haryana",
-    state_code: "6",
-    bank: {
-      name: "Punjab National Bank",
-      branch: "Mission Chowk Sonepat",
-      account_no: "00561132000617",
-      ifsc: "PUNB0005610"
-    }
-  },
-  lastInvoiceNumber: 332,
-  clients: [
-    {
-      id: "c001",
-      name: "GPB Trading LLP",
-      address: "P P Green City-2, V.P.O Kamaspur, opp. Omaxe City, Sonipat",
-      gstin: "06AAUFG6384R1Z8",
-      state: "Haryana",
-      state_code: "6"
-    },
-    {
-      id: "c002",
-      name: "Sample Client Pvt Ltd",
-      address: "123, Industrial Area, Phase 2, Chandigarh",
-      gstin: "04AABCS1234D1Z5",
-      state: "Chandigarh",
-      state_code: "4"
-    }
-  ],
-  catalog: [
-    { id: "p001", description: "Hoarding Display", sub_description: "Per Month", hsn_code: "9983", default_rate: 12000, cgst_rate: 9, sgst_rate: 9 },
-    { id: "p002", description: "LED Billboard Display", sub_description: "Per Month", hsn_code: "9983", default_rate: 18000, cgst_rate: 9, sgst_rate: 9 },
-    { id: "p003", description: "Transit Media Ad", sub_description: "Per Campaign", hsn_code: "9983", default_rate: 25000, cgst_rate: 9, sgst_rate: 9 }
-  ]
-};
-
-// --- UTILS ---
-const amountToWords = (num: number) => {
-  const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-  const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-  const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-
-  const convert_thousands = (n: number): string => {
-    if (n >= 1000) return convert_thousands(Math.floor(n / 1000)) + " Thousand " + convert_thousands(n % 1000);
-    if (n >= 100) return ones[Math.floor(n / 100)] + " Hundred " + convert_thousands(n % 100);
-    if (n >= 20) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + ones[n % 10] : "");
-    if (n >= 10) return teens[n - 10];
-    return ones[n];
-  };
-
-  const convert_indian = (n: number): string => {
-    if (n === 0) return "Zero";
-    let str = "";
-    if (n >= 10000000) {
-      str += convert_thousands(Math.floor(n / 10000000)) + " Crore ";
-      n %= 10000000;
-    }
-    if (n >= 100000) {
-      str += convert_thousands(Math.floor(n / 100000)) + " Lakh ";
-      n %= 100000;
-    }
-    str += convert_thousands(n);
-    return str.trim();
-  };
-
-  const whole = Math.floor(num);
-  const paise = Math.round((num - whole) * 100);
-  let res = convert_indian(whole) + " Rupees";
-  if (paise > 0) res += " and " + convert_indian(paise) + " Paise";
-  return res + " Only";
+// --- COMPANY DATA ---
+const SELLER_DETAILS = {
+  name: "DRISHTI VISION SOLUTION",
+  address: "2/182, Arya Nagar, Sonepat, 131001, Haryana",
+  phone: ["7015177522", "8307096269"],
+  email: "drishtivisionad@gmail.com",
+  gstin: "06AONPP6480J1ZB",
+  msmeRegNo: "UDYAM-HR-18-0006940",
+  state: "Haryana",
+  stateCode: "06",
+  bank: {
+    name: "Punjab National Bank",
+    branch: "Mission Chowk Sonepat",
+    accountNo: "00561132000617",
+    ifsc: "PUNB0005610"
+  }
 };
 
 const InvoiceGenerator: React.FC = () => {
   const navigate = useNavigate();
+  const [clients, setClients] = useState<any[]>([]);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [catalog, setCatalog] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [formData, setFormData] = useState({
-    invoiceNumber: (CRM_MOCK.lastInvoiceNumber + 1).toString(),
+    invoiceNumber: `DV-2026-TEMP`,
     invoiceDate: new Date().toISOString().split('T')[0],
-    invoiceType: "Tax Invoice - Intra State",
     reverseCharge: "N",
+    gstConfig: 'INTRA',
+    upiId: "7015177522@pnb",
     transportMode: "",
     vehicleNumber: "",
     dateOfSupply: new Date().toISOString().split('T')[0],
     placeOfSupply: "HARYANA (06)",
     descriptionHeader: "Advertising Hoarding Site Display in Pan India Sites for the period of May 2026",
-    seller: { ...CRM_MOCK.seller },
+    seller: { ...SELLER_DETAILS, upiId: "7015177522@pnb" },
     buyer: {
       name: "",
       address: "",
       gstin: "",
       state: "",
-      state_code: ""
+      stateCode: ""
     },
     items: [
       { id: Date.now(), description: "", hsn: "", qty: 1, rate: 0, discount: 0, cgstRate: 9, sgstRate: 9, igstRate: 0 }
     ],
-    terms: "1. Payment should be made by Cheque/DD/NEFT in favor of DRISHTI VISION SOLUTION.\n2. Interest @18% p.a. will be charged if payment is not made within due date."
+    terms: "1. Payment should be made by Cheque/DD/NEFT in favor of DRISHTI VISION SOLUTION.\n2. Interest @18% p.a. will be charged if payment is not made within due date.",
+    showDigitalSignature: false,
+    signatureUrl: "",
+    showUpiQr: true
   });
 
+  const [zoom, setZoom] = useState(0.65);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    fetchInitialData();
+  }, []);
+
+  const fetchInitialData = async () => {
+    try {
+      setIsLoading(true);
+      const [clientsRes, campaignsRes, sitesRes, invoicesRes] = await Promise.all([
+        api.get('/clients'),
+        api.get('/campaigns'),
+        api.get('/sites'),
+        api.get('/invoices')
+      ]);
+      setClients(clientsRes.data);
+      setCampaigns(campaignsRes.data);
+      
+      const invCount = (invoicesRes.data?.length || 0) + 1;
+      setFormData(prev => ({
+        ...prev,
+        invoiceNumber: `DV-2026-${String(invCount).padStart(4, '0')}`
+      }));
+      
+      // Use sites as catalog items
+      const siteCatalog = sitesRes.data.map((s: any) => ({
+        id: s.id,
+        description: s.siteName,
+        hsn_code: "9983",
+        default_rate: s.monthlyRate,
+        cgst_rate: 9,
+        sgst_rate: 9
+      }));
+      setCatalog(siteCatalog);
+    } catch (error) {
+      toast.error('Failed to load CRM data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const totals = useMemo(() => {
-    const isInterState = formData.invoiceType.includes("Inter State");
     let taxableTotal = 0;
     let cgstTotal = 0;
     let sgstTotal = 0;
     let igstTotal = 0;
 
-    const itemsWithCalc = formData.items.map(item => {
+    const itemsWithCalc = formData.items.map((item, index) => {
       const amount = item.qty * item.rate;
       const taxable = amount - item.discount;
-      const cgst = isInterState ? 0 : taxable * (item.cgstRate / 100);
-      const sgst = isInterState ? 0 : taxable * (item.sgstRate / 100);
-      const igst = isInterState ? taxable * (18 / 100) : 0;
+      
+      let cgst = 0;
+      let sgst = 0;
+      let igst = 0;
+
+      if (formData.gstConfig === 'INTRA') {
+        cgst = taxable * (item.cgstRate / 100);
+        sgst = taxable * (item.sgstRate / 100);
+      } else if (formData.gstConfig === 'INTER') {
+        igst = taxable * (18 / 100); // Default 18% for IGST if not specified per item
+      }
       
       taxableTotal += taxable;
       cgstTotal += cgst;
       sgstTotal += sgst;
       igstTotal += igst;
 
-      return { ...item, amount, taxable, cgst, sgst, igst, total: taxable + cgst + sgst + igst };
+      return { 
+        ...item, 
+        sNo: index + 1,
+        amount, 
+        taxableValue: taxable, 
+        cgstAmount: cgst, 
+        sgstAmount: sgst, 
+        igstAmount: igst, 
+        total: taxable + cgst + sgst + igst 
+      };
     });
 
     return {
@@ -145,8 +155,52 @@ const InvoiceGenerator: React.FC = () => {
     };
   }, [formData]);
 
+  const pdfData = useMemo(() => ({
+    ...formData,
+    items: totals.items,
+    subtotal: totals.taxableTotal,
+    cgstTotal: totals.cgstTotal,
+    sgstTotal: totals.sgstTotal,
+    igstTotal: totals.igstTotal,
+    grandTotal: totals.grandTotal,
+    upiId: formData.upiId,
+    showUpiQr: formData.showUpiQr
+  }), [formData, totals]);
+
+  const [instance, updateInstance] = usePDF({ document: <FiscalInvoice invoiceData={pdfData} /> });
+
+  useEffect(() => {
+    if (isClient) {
+      updateInstance(<FiscalInvoice invoiceData={pdfData} />);
+    }
+  }, [pdfData, isClient]);
+
+  const handleDownloadPdf = () => {
+    if (instance.loading) {
+      toast('PDF is still compiling, please wait...', { icon: '⏳' });
+      return;
+    }
+    if (instance.error) {
+      toast.error(`PDF Error: ${instance.error}`);
+      return;
+    }
+    if (instance.url) {
+      const link = document.createElement('a');
+      link.href = instance.url;
+      link.download = `${formData.invoiceNumber || 'invoice'}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success('PDF Download Started');
+    } else {
+      // Force recompile and retry
+      updateInstance(<FiscalInvoice invoiceData={pdfData} />);
+      toast('Compiling PDF, click again in a moment...', { icon: '🔄' });
+    }
+  };
+
   const handleClientSelect = (clientId: string) => {
-    const client = CRM_MOCK.clients.find(c => c.id === clientId);
+    const client = clients.find(c => c.id === clientId);
     if (client) {
       setFormData({
         ...formData,
@@ -155,14 +209,37 @@ const InvoiceGenerator: React.FC = () => {
           address: client.address,
           gstin: client.gstin,
           state: client.state,
-          state_code: client.state_code
+          stateCode: client.pincode ? '06' : '06' // Simplified
         }
       });
     }
   };
 
+  const handleCampaignSelect = (campaignId: string) => {
+    const campaign = campaigns.find(c => c.id === campaignId);
+    if (campaign) {
+      const campaignItems = campaign.campaignSites?.map((cs: any) => ({
+        id: Date.now() + Math.random(),
+        description: cs.site?.siteName || "Hoarding Site",
+        hsn: "9983",
+        qty: 1,
+        rate: cs.agreedRate,
+        discount: 0,
+        cgstRate: 9,
+        sgstRate: 9,
+        igstRate: 0
+      })) || [];
+
+      setFormData({
+        ...formData,
+        descriptionHeader: `Advertising Campaign: ${campaign.campaignName}`,
+        items: campaignItems.length > 0 ? campaignItems : formData.items
+      });
+    }
+  };
+
   const handleProductSelect = (index: number, productId: string) => {
-    const product = CRM_MOCK.catalog.find(p => p.id === productId);
+    const product = catalog.find(p => p.id === productId);
     if (product) {
       const newItems = [...formData.items];
       newItems[index] = {
@@ -192,8 +269,40 @@ const InvoiceGenerator: React.FC = () => {
     });
   };
 
-  const handlePrint = () => {
-    window.print();
+  const saveInvoice = async () => {
+    try {
+      setIsLoading(true);
+      const payload = {
+        invoiceNumber: formData.invoiceNumber,
+        clientId: clients.find(c => c.name === formData.buyer.name)?.id || '',
+        campaignId: campaigns.find(c => c.campaignName.includes(formData.descriptionHeader.replace('Advertising Campaign: ', '')))?.id || null,
+        invoiceDate: new Date(),
+        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        lineItems: JSON.stringify(totals.items),
+        subtotal: totals.taxableTotal,
+        taxableAmount: totals.taxableTotal,
+        cgstAmount: totals.cgstTotal,
+        sgstAmount: totals.sgstTotal,
+        igstAmount: totals.igstTotal,
+        totalAmount: totals.grandTotal,
+        status: 'PENDING',
+        bankDetails: JSON.stringify(formData.seller.bank),
+        notes: formData.descriptionHeader
+      };
+
+      if (!payload.clientId) {
+        toast.error('Client mapping failed. Please re-select client from list.');
+        return;
+      }
+
+      const res = await api.post('/invoices', payload);
+      toast.success('Invoice registered in ledger!');
+      navigate('/invoices');
+    } catch (error) {
+      toast.error('Failed to register invoice');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -206,75 +315,220 @@ const InvoiceGenerator: React.FC = () => {
           </button>
           <h1 className="text-sm font-black uppercase tracking-widest text-text-primary">Invoice Intelligence Generator</h1>
         </div>
-        <button 
-          onClick={handlePrint}
-          className="bg-accent-orange text-white px-6 py-2 rounded-lg font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-accent-orange/20"
-        >
-          <Printer size={16} /> Generate & Print PDF
-        </button>
+        
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={saveInvoice}
+            disabled={isLoading}
+            className="bg-bg-surface-2 border border-border text-text-primary px-4 py-2 rounded-lg font-black text-xs uppercase tracking-widest hover:border-accent-orange transition-all flex items-center gap-2"
+          >
+            {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Database size={16} />}
+            Record & Save
+          </button>
+          
+          {isClient && (
+            <button 
+              onClick={handleDownloadPdf}
+              disabled={instance.loading}
+              className="bg-accent-orange text-white px-6 py-2 rounded-lg font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-accent-orange/20 hover:bg-accent-orange/90 transition-all disabled:opacity-50"
+            >
+              {instance.loading ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
+              {instance.loading ? 'Compiling...' : 'Download PDF'}
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden print:block">
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden print:block">
         {/* Left Side: Form */}
-        <div className="w-1/2 overflow-y-auto p-8 border-r border-border bg-bg-primary custom-scrollbar print:hidden">
-          <div className="space-y-8 max-w-2xl mx-auto">
+        <div className="w-full lg:w-1/2 overflow-y-auto p-8 border-r border-border bg-bg-primary custom-scrollbar print:hidden">
+          <div className="space-y-8 max-w-2xl mx-auto pb-20">
             
             {/* Section 1: Meta */}
             <div className="card space-y-6">
-              <h2 className="text-[11px] font-black text-accent-orange uppercase tracking-[2px] border-b border-border pb-3">01. Invoice Details</h2>
+              <h2 className="text-[12px] font-black text-accent-orange uppercase tracking-[2px] border-b border-border pb-3">01. Invoice Details</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-text-muted uppercase">Invoice Number</label>
+                  <label className="text-[11px] font-black text-text-muted uppercase">Invoice Number</label>
                   <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[13px] outline-none" value={formData.invoiceNumber} onChange={e => setFormData({...formData, invoiceNumber: e.target.value})} />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-text-muted uppercase">Invoice Date</label>
+                  <label className="text-[11px] font-black text-text-muted uppercase">Invoice Date</label>
                   <input type="date" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[12px] outline-none" value={formData.invoiceDate} onChange={e => setFormData({...formData, invoiceDate: e.target.value})} />
                 </div>
                 <div className="col-span-2 space-y-1.5">
-                  <label className="text-[10px] font-black text-text-muted uppercase">Invoice Type</label>
-                  <select className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[13px] outline-none" value={formData.invoiceType} onChange={e => setFormData({...formData, invoiceType: e.target.value})}>
-                    <option>Tax Invoice - Intra State</option>
-                    <option>Tax Invoice - Inter State</option>
-                  </select>
+                  <label className="text-[11px] font-black text-text-muted uppercase">GST Configuration</label>
+                  <div className="flex gap-4 mt-1">
+                    {[
+                      { id: 'INTRA', label: 'CGST + SGST' },
+                      { id: 'INTER', label: 'IGST Only' },
+                      { id: 'NONE', label: 'No GST' }
+                    ].map(cfg => (
+                      <label key={cfg.id} className="flex items-center gap-2 cursor-pointer group">
+                        <div 
+                          onClick={() => setFormData({...formData, gstConfig: cfg.id})}
+                          className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${formData.gstConfig === cfg.id ? 'bg-accent-orange border-accent-orange' : 'border-border group-hover:border-accent-orange'}`}
+                        >
+                          {formData.gstConfig === cfg.id && <div className="w-1.5 h-1.5 bg-white rounded-full"></div>}
+                        </div>
+                        <span className="text-[11px] font-bold text-text-primary">{cfg.label}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
                 <div className="col-span-2 space-y-1.5">
-                  <label className="text-[10px] font-black text-text-muted uppercase">Campaign Description Header</label>
+                  <label className="text-[11px] font-black text-text-muted uppercase">Campaign Description Header</label>
                   <textarea rows={2} className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[12px] outline-none" value={formData.descriptionHeader} onChange={e => setFormData({...formData, descriptionHeader: e.target.value})} />
                 </div>
               </div>
             </div>
 
+            {/* Section 1.5: Supply & Transport */}
+            <div className="card space-y-6">
+              <h2 className="text-[12px] font-black text-accent-blue uppercase tracking-[2px] border-b border-border pb-3">01b. Supply & Transport</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black text-text-muted uppercase">Place of Supply</label>
+                  <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[13px] outline-none" value={formData.placeOfSupply} onChange={e => setFormData({...formData, placeOfSupply: e.target.value})} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black text-text-muted uppercase">Date of Supply</label>
+                  <input type="date" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[12px] outline-none" value={formData.dateOfSupply} onChange={e => setFormData({...formData, dateOfSupply: e.target.value})} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black text-text-muted uppercase">Transport Mode</label>
+                  <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[13px] outline-none" value={formData.transportMode} onChange={e => setFormData({...formData, transportMode: e.target.value})} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black text-text-muted uppercase">Vehicle Number</label>
+                  <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[13px] outline-none font-mono" value={formData.vehicleNumber} onChange={e => setFormData({...formData, vehicleNumber: e.target.value})} />
+                </div>
+                <div className="space-y-1.5">
+                   <label className="text-[11px] font-black text-text-muted uppercase">Reverse Charge</label>
+                   <select className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[13px] outline-none" value={formData.reverseCharge} onChange={e => setFormData({...formData, reverseCharge: e.target.value})}>
+                      <option value="N">No</option>
+                      <option value="Y">Yes</option>
+                   </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 1.6: Seller (Manual Override) */}
+            <div className="card space-y-6">
+              <h2 className="text-[11px] font-black text-danger uppercase tracking-[2px] border-b border-border pb-3">01c. Seller Details (Override)</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2 space-y-1.5">
+                  <label className="text-[11px] font-black text-text-muted uppercase">Company Name</label>
+                  <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[13px] outline-none font-bold" value={formData.seller.name} onChange={e => setFormData({...formData, seller: {...formData.seller, name: e.target.value}})} />
+                </div>
+                <div className="col-span-2 space-y-1.5">
+                  <label className="text-[11px] font-black text-text-muted uppercase">Address</label>
+                  <textarea rows={2} className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[12px] outline-none" value={formData.seller.address} onChange={e => setFormData({...formData, seller: {...formData.seller, address: e.target.value}})} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black text-text-muted uppercase">GSTIN</label>
+                  <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[13px] outline-none font-mono" value={formData.seller.gstin} onChange={e => setFormData({...formData, seller: {...formData.seller, gstin: e.target.value}})} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black text-text-muted uppercase">MSME No.</label>
+                  <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[13px] outline-none" value={formData.seller.msmeRegNo} onChange={e => setFormData({...formData, seller: {...formData.seller, msmeRegNo: e.target.value}})} />
+                </div>
+                <div className="col-span-2 grid grid-cols-2 gap-4 pt-2 border-t border-border">
+                   <div className="col-span-2 text-[10px] font-black text-text-muted uppercase">Bank Details (Override)</div>
+                   <div className="space-y-1.5">
+                      <label className="text-[9px] font-black text-text-muted uppercase">Bank Name</label>
+                      <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-2 py-1.5 text-[11px] outline-none" value={formData.seller.bank.name} onChange={e => setFormData({...formData, seller: {...formData.seller, bank: {...formData.seller.bank, name: e.target.value}}})} />
+                   </div>
+                   <div className="space-y-1.5">
+                      <label className="text-[9px] font-black text-text-muted uppercase">Branch</label>
+                      <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-2 py-1.5 text-[11px] outline-none" value={formData.seller.bank.branch} onChange={e => setFormData({...formData, seller: {...formData.seller, bank: {...formData.seller.bank, branch: e.target.value}}})} />
+                   </div>
+                   <div className="space-y-1.5">
+                      <label className="text-[9px] font-black text-text-muted uppercase">A/c No</label>
+                      <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-2 py-1.5 text-[11px] outline-none" value={formData.seller.bank.accountNo} onChange={e => setFormData({...formData, seller: {...formData.seller, bank: {...formData.seller.bank, accountNo: e.target.value}}})} />
+                   </div>
+                   <div className="space-y-1.5">
+                      <label className="text-[9px] font-black text-text-muted uppercase">IFSC</label>
+                      <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-2 py-1.5 text-[11px] outline-none" value={formData.seller.bank.ifsc} onChange={e => setFormData({...formData, seller: {...formData.seller, bank: {...formData.seller.bank, ifsc: e.target.value}}})} />
+                   </div>
+                   <div className="col-span-2 space-y-1.5">
+                      <label className="text-[9px] font-black text-text-muted uppercase">Digital Signature Link</label>
+                      <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-2 py-1.5 text-[11px] outline-none font-mono" value={formData.signatureUrl} onChange={e => setFormData({...formData, signatureUrl: e.target.value})} placeholder="https://..." />
+                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 1.7: Signature */}
+            <div className="card space-y-4">
+              <h2 className="text-[11px] font-black text-success uppercase tracking-[2px] border-b border-border pb-3">01d. Digital Authentication</h2>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-[12px] font-bold text-text-primary">Apply Digital Signature</div>
+                  <div className="text-[10px] text-text-muted">Will appear on the 'Authorised Signatory' section</div>
+                </div>
+                <button 
+                  onClick={() => setFormData({...formData, showDigitalSignature: !formData.showDigitalSignature})}
+                  className={`w-12 h-6 rounded-full transition-all relative ${formData.showDigitalSignature ? 'bg-success' : 'bg-bg-surface-2 border border-border'}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${formData.showDigitalSignature ? 'right-1' : 'left-1'}`}></div>
+                </button>
+              </div>
+              {formData.showDigitalSignature && (
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-text-muted uppercase">Signature Image URL / Data URI</label>
+                  <input 
+                    type="text" 
+                    className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[11px] outline-none font-mono" 
+                    placeholder="data:image/png;base64,..." 
+                    value={formData.signatureUrl}
+                    onChange={e => setFormData({...formData, signatureUrl: e.target.value})}
+                  />
+                  <p className="text-[9px] text-text-muted italic">Leave empty to use a professional script-font placeholder</p>
+                </div>
+              )}
+            </div>
+
             {/* Section 2: Buyer */}
             <div className="card space-y-6">
-              <h2 className="text-[11px] font-black text-accent-blue uppercase tracking-[2px] border-b border-border pb-3">02. Buyer (Bill To)</h2>
+              <h2 className="text-[12px] font-black text-accent-blue uppercase tracking-[2px] border-b border-border pb-3">02. Buyer (Bill To)</h2>
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-text-muted uppercase">Select Client</label>
+                  <label className="text-[11px] font-black text-text-muted uppercase">Select Client</label>
                   <select 
                     className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[13px] outline-none"
                     onChange={(e) => handleClientSelect(e.target.value)}
                   >
                     <option value="">Manual Entry...</option>
-                    {CRM_MOCK.clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-text-muted uppercase">Client Name</label>
+                  <label className="text-[11px] font-black text-text-muted uppercase">Select Campaign (Optional)</label>
+                  <select 
+                    className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[13px] outline-none"
+                    onChange={(e) => handleCampaignSelect(e.target.value)}
+                  >
+                    <option value="">Choose Campaign...</option>
+                    {campaigns.map(c => <option key={c.id} value={c.id}>{c.campaignName}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black text-text-muted uppercase">Client Name</label>
                   <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[13px] outline-none font-bold" value={formData.buyer.name} onChange={e => setFormData({...formData, buyer: {...formData.buyer, name: e.target.value}})} />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-text-muted uppercase">Address</label>
+                  <label className="text-[11px] font-black text-text-muted uppercase">Address</label>
                   <textarea rows={2} className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[12px] outline-none" value={formData.buyer.address} onChange={e => setFormData({...formData, buyer: {...formData.buyer, address: e.target.value}})} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-text-muted uppercase">GSTIN</label>
+                    <label className="text-[11px] font-black text-text-muted uppercase">GSTIN</label>
                     <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[13px] outline-none font-mono" value={formData.buyer.gstin} onChange={e => setFormData({...formData, buyer: {...formData.buyer, gstin: e.target.value}})} />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-text-muted uppercase">State Code</label>
-                    <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[13px] outline-none" value={formData.buyer.state_code} onChange={e => setFormData({...formData, buyer: {...formData.buyer, state_code: e.target.value}})} />
+                    <label className="text-[11px] font-black text-text-muted uppercase">State Code</label>
+                    <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[13px] outline-none" value={formData.buyer.stateCode} onChange={e => setFormData({...formData, buyer: {...formData.buyer, stateCode: e.target.value}})} />
                   </div>
                 </div>
               </div>
@@ -305,7 +559,7 @@ const InvoiceGenerator: React.FC = () => {
                           onChange={(e) => handleProductSelect(index, e.target.value)}
                         >
                           <option value="">Choose Catalog...</option>
-                          {CRM_MOCK.catalog.map(p => <option key={p.id} value={p.id}>{p.description}</option>)}
+                          {catalog.map(p => <option key={p.id} value={p.id}>{p.description}</option>)}
                         </select>
                         <input type="text" className="w-full bg-bg-surface border border-border rounded-lg px-2 py-1.5 text-[12px] outline-none" value={item.description} onChange={e => {
                           const newItems = [...formData.items];
@@ -345,189 +599,415 @@ const InvoiceGenerator: React.FC = () => {
                           setFormData({...formData, items: newItems});
                         }} />
                       </div>
+                      {formData.gstConfig === 'INTRA' && (
+                        <>
+                          <div className="col-span-1 space-y-1.5">
+                            <label className="text-[9px] font-black text-text-muted uppercase">CGST %</label>
+                            <input type="number" className="w-full bg-bg-surface border border-border rounded-lg px-2 py-1.5 text-[10px] outline-none" value={item.cgstRate} onChange={e => {
+                              const newItems = [...formData.items];
+                              newItems[index].cgstRate = parseFloat(e.target.value) || 0;
+                              setFormData({...formData, items: newItems});
+                            }} />
+                          </div>
+                          <div className="col-span-1 space-y-1.5">
+                            <label className="text-[9px] font-black text-text-muted uppercase">SGST %</label>
+                            <input type="number" className="w-full bg-bg-surface border border-border rounded-lg px-2 py-1.5 text-[10px] outline-none" value={item.sgstRate} onChange={e => {
+                              const newItems = [...formData.items];
+                              newItems[index].sgstRate = parseFloat(e.target.value) || 0;
+                              setFormData({...formData, items: newItems});
+                            }} />
+                          </div>
+                        </>
+                      )}
+                      {formData.gstConfig === 'INTER' && (
+                        <div className="col-span-1 space-y-1.5">
+                          <label className="text-[9px] font-black text-text-muted uppercase">IGST %</label>
+                          <input type="number" className="w-full bg-bg-surface border border-border rounded-lg px-2 py-1.5 text-[10px] outline-none" value={item.igstRate || 18} onChange={e => {
+                            const newItems = [...formData.items];
+                            newItems[index].igstRate = parseFloat(e.target.value) || 0;
+                            setFormData({...formData, items: newItems});
+                          }} />
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-
             {/* Terms */}
             <div className="card space-y-4">
               <h2 className="text-[11px] font-black text-text-muted uppercase tracking-[2px] border-b border-border pb-3">Terms & Conditions</h2>
               <textarea rows={3} className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[11px] outline-none italic" value={formData.terms} onChange={e => setFormData({...formData, terms: e.target.value})} />
             </div>
 
+            {/* Section 0: Global Settings (AT BOTTOM OF SIDEBAR) */}
+            <div className="card space-y-4 border-accent-orange/30 bg-accent-orange/5">
+              <h2 className="text-[12px] font-black text-accent-orange uppercase tracking-[2px] border-b border-accent-orange/10 pb-3 flex items-center gap-2">
+                <Settings size={14} /> Quick Configuration
+              </h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black text-text-muted uppercase">UPI ID (for QR Code)</label>
+                  <input 
+                    type="text" 
+                    className="w-full bg-bg-surface border border-border rounded-xl px-3 py-2 text-[13px] outline-none font-mono focus:border-accent-orange" 
+                    value={formData.upiId} 
+                    onChange={e => setFormData({...formData, upiId: e.target.value})} 
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black text-text-muted uppercase">GST Configuration</label>
+                  <div className="flex gap-4 mt-1">
+                    {[
+                      { id: 'INTRA', label: 'CGST + SGST' },
+                      { id: 'INTER', label: 'IGST Only' }
+                    ].map(cfg => (
+                      <label key={cfg.id} className="flex items-center gap-2 cursor-pointer group">
+                        <div 
+                          onClick={() => setFormData({...formData, gstConfig: cfg.id})}
+                          className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${formData.gstConfig === cfg.id ? 'bg-accent-orange border-accent-orange' : 'border-border group-hover:border-accent-orange'}`}
+                        >
+                          {formData.gstConfig === cfg.id && <div className="w-1.5 h-1.5 bg-white rounded-full"></div>}
+                        </div>
+                        <span className="text-[11px] font-bold text-text-primary">{cfg.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="col-span-2 pt-2 border-t border-accent-orange/10 flex items-center justify-between">
+                  <span className="text-[11px] font-black text-text-muted uppercase">Show UPI QR Code</span>
+                  <button 
+                    onClick={() => setFormData({...formData, showUpiQr: !formData.showUpiQr})}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${formData.showUpiQr ? 'bg-accent-orange' : 'bg-bg-surface-2 border border-border'}`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.showUpiQr ? 'translate-x-6' : 'translate-x-1'}`} />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Right Side: A4 Live Preview */}
-        <div className="w-1/2 overflow-y-auto bg-[#525659] flex justify-center p-12 custom-scrollbar print:bg-white print:p-0 print:block">
-          <div className="bg-white w-[210mm] min-h-[297mm] shadow-2xl p-10 text-black font-serif flex flex-col print:shadow-none print:w-full">
+        <div className="flex-1 bg-bg-surface-2 overflow-auto p-6 custom-scrollbar print:p-0 print:bg-white flex flex-col items-center">
+          {/* Zoom Controls */}
+          <div className="sticky top-0 z-20 mb-4 bg-bg-surface/80 backdrop-blur-md border border-border px-4 py-2 rounded-full flex items-center gap-4 shadow-xl">
+            <button onClick={() => setZoom(Math.max(0.3, zoom - 0.05))} className="p-1 hover:text-accent-orange transition-colors"><Minus size={16} /></button>
+            <span className="text-[10px] font-black uppercase tracking-widest min-w-[50px] text-center">Zoom: {Math.round(zoom * 100)}%</span>
+            <button onClick={() => setZoom(Math.min(1.5, zoom + 0.05))} className="p-1 hover:text-accent-orange transition-colors"><Plus size={16} /></button>
+            <div className="w-px h-4 bg-border" />
+            <button onClick={() => setZoom(0.65)} className="text-[10px] font-black hover:text-accent-orange transition-colors">Reset</button>
+          </div>
+
+          <div className="shadow-2xl print:shadow-none origin-top transition-all duration-300" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
+            <div className="bg-white text-black w-[794px] min-h-[1123px] p-8 font-sans flex flex-col print:shadow-none print:w-full relative shrink-0">
             
-            {/* INVOICE HEADER */}
-            <div className="text-center space-y-1 mb-8">
-              <h1 className="text-2xl font-bold tracking-tight">{formData.seller.name}</h1>
-              <p className="text-[10px] font-medium">{formData.seller.address}</p>
-              <div className="flex justify-center gap-4 text-[10px]">
-                <span>Ph: {formData.seller.phone.join(', ')}</span>
-                <span>Email: {formData.seller.email}</span>
-              </div>
-              <div className="text-[10px] font-bold mt-2">
-                GSTIN: {formData.seller.gstin} | MSME REG NO: {formData.seller.msme_reg_no}
-              </div>
-              <div className="border-t border-b border-black py-1 mt-4">
-                <span className="text-sm font-bold uppercase">{formData.invoiceType}</span>
-              </div>
+            {/* INVOICE HEADER BOX */}
+            <div className="border border-black flex items-center p-4 min-h-[160px] h-auto relative bg-white">
+               <div className="w-24 shrink-0">
+                  <img src="/dvs_logo.jpg" alt="Logo" className="w-20 h-20 object-contain" />
+               </div>
+               <div className="flex-1 text-center px-4">
+                  <h1 className="text-2xl font-black tracking-tight leading-none mb-1">{formData.seller.name}</h1>
+                  <p className="text-[11px] font-bold leading-tight">{formData.seller.address}</p>
+                  <p className="text-[11px] font-bold">Phone: {formData.seller.phone.join(', ')}</p>
+                  <p className="text-[11px] font-bold">E Mail: {formData.seller.email}</p>
+                  <div className="mt-2 pt-1 border-t border-black/10 inline-block px-4">
+                    <p className="text-[12px] font-black uppercase">GSTIN Number : {formData.seller.gstin}</p>
+                  </div>
+               </div>
             </div>
 
-            {/* META INFO */}
-            <div className="grid grid-cols-2 border border-black text-[10px] mb-6">
-              <div className="border-r border-black p-2 space-y-1">
-                <p><span className="font-bold">Invoice No:</span> {formData.invoiceNumber}</p>
-                <p><span className="font-bold">Invoice Date:</span> {formData.invoiceDate}</p>
-                <p><span className="font-bold">Reverse Charge (Y/N):</span> {formData.reverseCharge}</p>
-                <p><span className="font-bold">State:</span> {formData.seller.state} <span className="ml-4 font-bold">Code:</span> {formData.seller.state_code}</p>
-              </div>
-              <div className="p-2 space-y-1">
-                <p><span className="font-bold">Transport Mode:</span> {formData.transportMode}</p>
-                <p><span className="font-bold">Vehicle Number:</span> {formData.vehicleNumber}</p>
-                <p><span className="font-bold">Date of Supply:</span> {formData.dateOfSupply}</p>
-                <p><span className="font-bold">Place of Supply:</span> {formData.placeOfSupply}</p>
-              </div>
+            {/* TITLE BAR */}
+            <div className="border border-black border-t-0 bg-[#d9e5f3] text-center py-1 text-[11px] font-bold">
+               Invoice
             </div>
 
-            {/* PARTY DETAILS */}
-            <div className="grid grid-cols-2 border border-black border-t-0 text-[10px] mb-6">
-              <div className="border-r border-black p-3 space-y-1 min-h-[100px]">
-                <p className="font-bold underline uppercase mb-2">Invoice to Party:</p>
-                <p className="font-bold text-sm">{formData.buyer.name || '-'}</p>
-                <p className="leading-tight">{formData.buyer.address || '-'}</p>
-                <p><span className="font-bold">GSTIN:</span> {formData.buyer.gstin || '-'}</p>
-                <p><span className="font-bold">State:</span> {formData.buyer.state} <span className="ml-4 font-bold">Code:</span> {formData.buyer.state_code}</p>
-              </div>
-              <div className="p-3 space-y-1 min-h-[100px]">
-                <p className="font-bold underline uppercase mb-2">Ship to Party:</p>
-                <p className="font-bold text-sm">{formData.buyer.name || '-'}</p>
-                <p className="leading-tight">{formData.buyer.address || '-'}</p>
-                <p><span className="font-bold">GSTIN:</span> {formData.buyer.gstin || '-'}</p>
-                <p><span className="font-bold">State:</span> {formData.buyer.state} <span className="ml-4 font-bold">Code:</span> {formData.buyer.state_code}</p>
-              </div>
+            {/* TOP META GRID */}
+            <div className="grid grid-cols-2 border border-black border-t-0 text-[12px]">
+               <div className="border-r border-black">
+                  <div className="grid grid-cols-[100px_1fr] border-b border-black">
+                     <span className="p-1 font-bold border-r border-black">Invoice No:</span>
+                     <span className="p-1">{formData.invoiceNumber}</span>
+                  </div>
+                  <div className="grid grid-cols-[100px_1fr] border-b border-black">
+                     <span className="p-1 font-bold border-r border-black">Invoice Date:</span>
+                     <span className="p-1">{formData.invoiceDate}</span>
+                  </div>
+                  <div className="grid grid-cols-[100px_1fr] border-b border-black">
+                     <span className="p-1 font-bold border-r border-black">Reverse Charge:</span>
+                     <span className="p-1">{formData.reverseCharge}</span>
+                  </div>
+                  <div className="grid grid-cols-[100px_1fr_40px_1fr] border-b border-black">
+                     <span className="p-1 font-bold border-r border-black">State:</span>
+                     <span className="p-1 border-r border-black uppercase">{formData.seller.state}</span>
+                     <span className="p-1 font-bold border-r border-black">Code:</span>
+                     <span className="p-1">{formData.seller.stateCode}</span>
+                  </div>
+                  <div className="grid grid-cols-[100px_1fr]">
+                     <span className="p-1 font-bold border-r border-black text-[8px] uppercase leading-tight">MSME REGISTRATION NO.:</span>
+                     <span className="p-1 font-bold">{formData.seller.msmeRegNo}</span>
+                  </div>
+               </div>
+               <div>
+                  <div className="grid grid-cols-[100px_1fr] border-b border-black">
+                     <span className="p-1 font-bold border-r border-black">Transport Mode:</span>
+                     <span className="p-1">{formData.transportMode}</span>
+                  </div>
+                  <div className="grid grid-cols-[100px_1fr] border-b border-black">
+                     <span className="p-1 font-bold border-r border-black">Vehicle number:</span>
+                     <span className="p-1">{formData.vehicleNumber}</span>
+                  </div>
+                  <div className="grid grid-cols-[100px_1fr] border-b border-black">
+                     <span className="p-1 font-bold border-r border-black">Date of Supply:</span>
+                     <span className="p-1">{formData.dateOfSupply}</span>
+                  </div>
+                  <div className="grid grid-cols-[100px_1fr]">
+                     <span className="p-1 font-bold border-r border-black">Place of Supply:</span>
+                     <span className="p-1 uppercase">{formData.placeOfSupply}</span>
+                  </div>
+               </div>
             </div>
 
-            {/* CAMPAIGN DESC */}
-            <div className="bg-gray-100 p-2 border border-black border-t-0 mb-6 italic text-[9px]">
-              {formData.descriptionHeader}
+            {/* PARTY DETAILS HEADER */}
+            <div className="grid grid-cols-2 border border-black border-t-0 text-[10px] bg-[#d9e5f3] font-bold">
+               <div className="border-r border-black text-center py-0.5">Invoice to Party</div>
+               <div className="text-center py-0.5">Ship to Party</div>
+            </div>
+
+            {/* PARTY DETAILS CONTENT */}
+            <div className="grid grid-cols-2 border border-black border-t-0 text-[10px]">
+               <div className="border-r border-black p-1 space-y-1 min-h-[80px]">
+                  <p><span className="font-bold">Name:</span> <span className="font-bold">{formData.buyer.name || '-'}</span></p>
+                  <p className="leading-tight"><span className="font-bold">Address:</span> {formData.buyer.address || '-'}</p>
+                  <p><span className="font-bold">GSTIN:</span> <span className="font-bold">{formData.buyer.gstin || '-'}</span></p>
+                  <div className="grid grid-cols-[40px_1fr_40px_1fr]">
+                     <span className="font-bold">State:</span>
+                     <span className="border-r border-black uppercase">{formData.buyer.state || '-'}</span>
+                     <span className="font-bold ml-1">Code:</span>
+                     <span className="">{formData.buyer.stateCode || '-'}</span>
+                  </div>
+               </div>
+               <div className="p-1 space-y-1 min-h-[80px]">
+                  <p><span className="font-bold">Name:</span> <span className="font-bold">{formData.buyer.name || '-'}</span></p>
+                  <p className="leading-tight"><span className="font-bold">Address:</span> {formData.buyer.address || '-'}</p>
+                  <p><span className="font-bold">GSTIN:</span> <span className="font-bold">{formData.buyer.gstin || '-'}</span></p>
+                  <div className="grid grid-cols-[40px_1fr_40px_1fr]">
+                     <span className="font-bold">State:</span>
+                     <span className="border-r border-black uppercase">{formData.buyer.state || '-'}</span>
+                     <span className="font-bold ml-1">Code:</span>
+                     <span className="">{formData.buyer.stateCode || '-'}</span>
+                  </div>
+               </div>
+            </div>
+
+            {/* DESCRIPTION HEADER BAR */}
+            <div className="border border-black border-t-0 p-1 font-bold text-[9px] bg-white">
+               {formData.descriptionHeader}
             </div>
 
             {/* LINE ITEMS TABLE */}
-            <div className="flex-1 border border-black border-t-0 border-b-0">
-               <table className="w-full text-left border-collapse text-[9px]">
-                  <thead className="bg-gray-50">
-                     <tr className="border-b border-black">
-                        <th className="border-r border-black p-2 text-center w-8">S.N.</th>
-                        <th className="border-r border-black p-2">Product Description</th>
-                        <th className="border-r border-black p-2 text-center">HSN</th>
-                        <th className="border-r border-black p-2 text-center">Qty</th>
-                        <th className="border-r border-black p-2 text-right">Rate</th>
-                        <th className="border-r border-black p-2 text-right">Amount</th>
-                        <th className="border-r border-black p-2 text-right">Disc.</th>
-                        <th className="border-r border-black p-2 text-right font-bold">Taxable</th>
-                        <th className="border-r border-black p-2 text-center">GST%</th>
-                        <th className="p-2 text-right font-bold">Total</th>
-                     </tr>
+            <div className="flex-1 border border-black border-t-0 overflow-hidden">
+               <table className="w-full text-[9px] border-collapse">
+                  <thead>
+                     <tr className="bg-[#d9e5f3] border-b border-black text-center font-bold">
+                        <th rowSpan={2} className="border-r border-black w-8 p-1">S. No.</th>
+                        <th rowSpan={2} className="border-r border-black p-1">Product Description</th>
+                        <th rowSpan={2} className="border-r border-black w-10 p-1">HSN code</th>
+                        <th rowSpan={2} className="border-r border-black w-8 p-1">Qty</th>
+                        <th rowSpan={2} className="border-r border-black w-12 p-1">Rate</th>
+                        <th rowSpan={2} className="border-r border-black w-16 p-1">Amount</th>
+                        <th rowSpan={2} className="border-r border-black w-10 p-1">Discount</th>
+                        <th rowSpan={2} className="border-r border-black w-16 p-1">Taxable Value</th>
+                        {formData.gstConfig === 'INTRA' && (
+                          <>
+                            <th colSpan={2} className="border-r border-black border-b border-black p-1">CGST</th>
+                            <th colSpan={2} className="border-r border-black border-b border-black p-1">SGST</th>
+                          </>
+                        )}
+                        {formData.gstConfig === 'INTER' && (
+                          <th colSpan={2} className="border-r border-black border-b border-black p-1">IGST</th>
+                        )}
+                        {formData.gstConfig === 'NONE' && (
+                          <th className="border-r border-black p-1">Tax (0%)</th>
+                        )}
+                        <th rowSpan={2} className="w-20 p-1">Total</th>
+                      </tr>
+                      <tr className="bg-[#d9e5f3] border-b border-black text-center font-bold">
+                        {formData.gstConfig === 'INTRA' && (
+                          <>
+                            <th className="border-r border-black w-8 p-1">Rate</th>
+                            <th className="border-r border-black w-14 p-1">Amount</th>
+                            <th className="border-r border-black w-8 p-1">Rate</th>
+                            <th className="border-r border-black w-14 p-1">Amount</th>
+                          </>
+                        )}
+                        {formData.gstConfig === 'INTER' && (
+                          <>
+                            <th className="border-r border-black w-8 p-1">Rate</th>
+                            <th className="border-r border-black w-14 p-1">Amount</th>
+                          </>
+                        )}
+                        {formData.gstConfig === 'NONE' && (
+                          <th className="border-r border-black w-14 p-1">Amount</th>
+                        )}
+                      </tr>
                   </thead>
                   <tbody>
                      {totals.items.map((item, i) => (
-                        <tr key={item.id} className="border-b border-black/10 h-12">
-                           <td className="border-r border-black p-2 text-center">{i + 1}</td>
-                           <td className="border-r border-black p-2">
-                              <div className="font-bold">{item.description}</div>
-                           </td>
-                           <td className="border-r border-black p-2 text-center">{item.hsn}</td>
-                           <td className="border-r border-black p-2 text-center">{item.qty}</td>
-                           <td className="border-r border-black p-2 text-right">{item.rate.toLocaleString()}</td>
-                           <td className="border-r border-black p-2 text-right">{item.amount.toLocaleString()}</td>
-                           <td className="border-r border-black p-2 text-right">{item.discount.toLocaleString()}</td>
-                           <td className="border-r border-black p-2 text-right font-bold">{item.taxable.toLocaleString()}</td>
-                           <td className="border-r border-black p-2 text-center">{formData.invoiceType.includes("Inter") ? "18%" : "9+9%"}</td>
-                           <td className="p-2 text-right font-bold">{item.total.toLocaleString()}</td>
+                        <tr key={item.id} className="border-b border-black/10 text-center">
+                           <td className="border-r border-black p-1">{i + 1}</td>
+                           <td className="border-r border-black p-1 text-left font-bold">{item.description}</td>
+                           <td className="border-r border-black p-1">{item.hsn}</td>
+                           <td className="border-r border-black p-1">{item.qty}</td>
+                           <td className="border-r border-black p-1">{item.rate}</td>
+                           <td className="border-r border-black p-1">{item.amount}</td>
+                           <td className="border-r border-black p-1">{item.discount}</td>
+                           <td className="border-r border-black p-1">{item.taxableValue.toFixed(2)}</td>
+                           {formData.gstConfig === 'INTRA' && (
+                             <>
+                               <td className="border-r border-black p-1">{item.cgstRate}%</td>
+                               <td className="border-r border-black p-1">{item.cgstAmount.toFixed(2)}</td>
+                               <td className="border-r border-black p-1">{item.sgstRate}%</td>
+                               <td className="border-r border-black p-1">{item.sgstAmount.toFixed(2)}</td>
+                             </>
+                           )}
+                           {formData.gstConfig === 'INTER' && (
+                             <>
+                               <td className="border-r border-black p-1">{item.igstRate}%</td>
+                               <td className="border-r border-black p-1">{item.igstAmount.toFixed(2)}</td>
+                             </>
+                           )}
+                           {formData.gstConfig === 'NONE' && (
+                             <td className="border-r border-black p-1">0.00</td>
+                           )}
+                           <td className="p-1 font-bold">{item.total.toFixed(2)}</td>
                         </tr>
                      ))}
-                     {/* Filler rows */}
-                     {[...Array(Math.max(0, 10 - totals.items.length))].map((_, i) => (
-                        <tr key={`filler-${i}`} className="h-10 border-b border-black/5">
-                           <td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td></td>
+                     {/* Filler rows to maintain height */}
+                     {[...Array(Math.max(0, 15 - totals.items.length))].map((_, i) => (
+                        <tr key={`filler-${i}`} className="h-6 border-b border-black/5">
+                           <td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td></td>
                         </tr>
                      ))}
                   </tbody>
+                  <tfoot>
+                     <tr className="bg-[#d9e5f3] border-t border-black text-center font-bold">
+                        <td colSpan={3} className="border-r border-black p-1">Total</td>
+                        <td className="border-r border-black p-1">{totals.items.reduce((acc, curr) => acc + curr.qty, 0)}</td>
+                        <td className="border-r border-black p-1">###</td>
+                        <td className="border-r border-black p-1">####</td>
+                        <td className="border-r border-black p-1">{totals.items.reduce((acc, curr) => acc + curr.discount, 0)}</td>
+                        <td className="border-r border-black p-1">{totals.taxableTotal}</td>
+                        <td className="border-r border-black p-1"></td>
+                        <td className="border-r border-black p-1">####</td>
+                        <td className="border-r border-black p-1"></td>
+                        <td className="border-r border-black p-1">###</td>
+                        <td className="p-1">{totals.grandTotal.toFixed(0)}</td>
+                     </tr>
+                  </tfoot>
                </table>
             </div>
 
             {/* TOTALS SUMMARY */}
-            <div className="border border-black flex">
-               <div className="flex-1 p-3 border-r border-black">
-                  <p className="text-[9px] font-bold uppercase underline">Amount in Words:</p>
-                  <p className="text-[11px] font-bold mt-1 leading-tight">{amountToWords(totals.grandTotal)}</p>
-               </div>
-               <div className="w-64">
-                  <div className="flex justify-between p-2 border-b border-black text-[10px]">
-                     <span>Taxable Value:</span>
-                     <span className="font-bold">₹{totals.taxableTotal.toLocaleString()}</span>
+            <div className="grid grid-cols-[1fr_200px] border border-black border-t-0 text-[10px]">
+               <div className="border-r border-black flex flex-col">
+                  <div className="border-b border-black p-1 bg-[#d9e5f3] font-bold text-center uppercase tracking-widest">
+                     Total Invoice Amount in Words
                   </div>
-                  {!formData.invoiceType.includes("Inter") ? (
+                  <div className="flex-1 p-2 flex items-center justify-center text-center italic font-bold text-[12px]">
+                     {numberToWords(Math.round(totals.grandTotal))}
+                  </div>
+               </div>
+               <div className="flex flex-col">
+                  <div className="grid grid-cols-[120px_1fr] border-b border-black">
+                     <span className="p-1 font-bold border-r border-black uppercase text-[8px]">Total Amount Before</span>
+                     <span className="p-1 text-right font-bold">{totals.taxableTotal.toFixed(2)}</span>
+                  </div>
+                  {formData.gstConfig === 'INTRA' && (
                     <>
-                      <div className="flex justify-between p-2 border-b border-black text-[10px]">
-                        <span>Add: CGST (9%):</span>
-                        <span className="font-bold">₹{totals.cgstTotal.toLocaleString()}</span>
+                      <div className="grid grid-cols-[120px_1fr] border-b border-black">
+                        <span className="p-1 font-bold border-r border-black">Add: CGST</span>
+                        <span className="p-1 text-right font-bold">{totals.cgstTotal.toFixed(2)}</span>
                       </div>
-                      <div className="flex justify-between p-2 border-b border-black text-[10px]">
-                        <span>Add: SGST (9%):</span>
-                        <span className="font-bold">₹{totals.sgstTotal.toLocaleString()}</span>
+                      <div className="grid grid-cols-[120px_1fr] border-b border-black">
+                        <span className="p-1 font-bold border-r border-black">Add: SGST</span>
+                        <span className="p-1 text-right font-bold">{totals.sgstTotal.toFixed(2)}</span>
                       </div>
                     </>
-                  ) : (
-                    <div className="flex justify-between p-2 border-b border-black text-[10px]">
-                      <span>Add: IGST (18%):</span>
-                      <span className="font-bold">₹{totals.igstTotal.toLocaleString()}</span>
+                  )}
+                  {formData.gstConfig === 'INTER' && (
+                    <div className="grid grid-cols-[120px_1fr] border-b border-black">
+                      <span className="p-1 font-bold border-r border-black">Add: IGST</span>
+                      <span className="p-1 text-right font-bold">{totals.igstTotal.toFixed(2)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between p-2 bg-gray-50 text-[12px] font-black">
-                     <span>Grand Total:</span>
-                     <span>₹{Math.round(totals.grandTotal).toLocaleString()}</span>
+                  <div className="grid grid-cols-[120px_1fr] border-b border-black">
+                     <span className="p-1 font-bold border-r border-black">Total Tax Amount</span>
+                     <span className="p-1 text-right font-bold">{(totals.cgstTotal + totals.sgstTotal + totals.igstTotal).toFixed(2)}</span>
+                  </div>
+                  <div className="grid grid-cols-[120px_1fr] border-b border-black bg-gray-50">
+                     <span className="p-1 font-bold border-r border-black">Total Amount After T</span>
+                     <span className="p-1 text-right font-bold">{totals.grandTotal.toFixed(2)}</span>
+                  </div>
+                  <div className="grid grid-cols-[120px_1fr]">
+                     <span className="p-1 font-bold border-r border-black uppercase text-[8px]">GST on Reverse Cha</span>
+                     <span className="p-1 text-right font-bold">0</span>
                   </div>
                </div>
             </div>
 
-            {/* FOOTER */}
-            <div className="grid grid-cols-2 border border-black border-t-0 text-[9px]">
-               <div className="border-r border-black p-4 space-y-4">
-                  <div className="space-y-1">
-                     <p className="font-bold underline uppercase">Bank Settlement Details:</p>
-                     <p><span className="font-bold">Bank:</span> {formData.seller.bank.name}</p>
-                     <p><span className="font-bold">Branch:</span> {formData.seller.bank.branch}</p>
-                     <p><span className="font-bold">A/C No:</span> {formData.seller.bank.account_no}</p>
-                     <p><span className="font-bold">IFSC:</span> {formData.seller.bank.ifsc}</p>
+            {/* BANK & FOOTER */}
+            <div className="grid grid-cols-[200px_1fr_200px] border border-black border-t-0 text-[10px]">
+               <div className="border-r border-black">
+                  <div className="border-b border-black bg-[#d9e5f3] font-bold text-center py-0.5">Bank Details</div>
+                  <div className="p-1 space-y-0.5 font-bold flex justify-between items-start">
+                    <div className="space-y-0.5">
+                       <p>Bank Name: {formData.seller.bank.name}</p>
+                       <p>Branch Name: {formData.seller.bank.branch}</p>
+                       <p>Account No: {formData.seller.bank.accountNo}</p>
+                       <p>Bank IFSC: {formData.seller.bank.ifsc}</p>
+                    </div>
+                    {formData.upiId && formData.showUpiQr && (
+                      <div className="flex flex-col items-center ml-1">
+                        <img 
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`upi://pay?pa=${formData.upiId}&pn=${encodeURIComponent(formData.seller.name)}&am=${totals.grandTotal.toFixed(2)}&cu=INR`)}`} 
+                          alt="UPI QR" 
+                          className="w-14 h-14"
+                        />
+                        <span className="text-[7px] mt-0.5 font-bold uppercase">Scan to Pay</span>
+                      </div>
+                    )}
                   </div>
-                  <div className="space-y-1">
-                     <p className="font-bold underline uppercase">Terms & Conditions:</p>
-                     <p className="whitespace-pre-line leading-tight">{formData.terms}</p>
-                  </div>
+                  <div className="border-t border-black bg-white font-bold text-center py-0.5 mt-2">Terms & Conditions</div>
                </div>
-               <div className="p-4 flex flex-col justify-between items-center text-center">
-                  <p className="font-bold">Certified that the particulars given above are true and correct.</p>
-                  <div className="space-y-1">
-                    <p className="font-bold uppercase">For {formData.seller.name}</p>
-                    <div className="h-16"></div>
-                    <p className="font-bold border-t border-black pt-1 w-48">Authorised Signatory</p>
-                  </div>
+               <div className="border-r border-black flex flex-col justify-end">
+                  <div className="border-t border-black text-center py-0.5 bg-white font-bold">Common Seal</div>
                </div>
+               <div className="flex flex-col justify-between p-1">
+                  <p className="text-[7px] italic leading-tight mb-2">Certified that the particulars given above are true and correct.</p>
+                  <div className="mt-auto relative">
+                     <p className="font-bold text-center mb-4 uppercase">For {formData.seller.name}</p>
+                     {formData.showDigitalSignature && (
+                       <div className="absolute left-1/2 -translate-x-1/2 bottom-4 w-24 h-10 flex items-center justify-center overflow-hidden pointer-events-none">
+                         <img 
+                           src={formData.signatureUrl || "https://upload.wikimedia.org/wikipedia/commons/3/3a/Jon_Snow_Signature.png"} 
+                           alt="Signature" 
+                           className="max-w-full max-h-full object-contain opacity-80"
+                         />
+                       </div>
+                     )}
+                     <p className="border-t border-black text-center pt-1 font-bold uppercase text-[8px]">Authorised Signatory</p>
+                  </div>
+              </div>
             </div>
 
           </div>
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default InvoiceGenerator;

@@ -1,19 +1,19 @@
 import { Router } from 'express';
-import prisma from '../prismaClient';
+import { getPrisma } from '../prismaClient.js';
 
 const router = Router();
 
 router.get('/export', async (req, res) => {
   try {
     const [clients, sites, vendors, campaigns, invoices, payments, vendorPayments, expenses] = await Promise.all([
-      prisma.client.findMany(),
-      prisma.site.findMany(),
-      prisma.vendor.findMany(),
-      prisma.campaign.findMany(),
-      prisma.invoice.findMany(),
-      prisma.payment.findMany(),
-      prisma.vendorPayment.findMany(),
-      prisma.expense.findMany()
+      getPrisma().client.findMany(),
+      getPrisma().site.findMany(),
+      getPrisma().vendor.findMany(),
+      getPrisma().campaign.findMany(),
+      getPrisma().invoice.findMany(),
+      getPrisma().payment.findMany(),
+      getPrisma().vendorPayment.findMany(),
+      getPrisma().expense.findMany()
     ]);
 
     const backupData = {

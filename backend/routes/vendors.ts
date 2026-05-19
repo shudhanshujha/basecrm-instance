@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import prisma from '../prismaClient';
+import { getPrisma } from '../prismaClient.js';
 
 const router = Router();
 
 // Get all vendors
 router.get('/', async (req, res) => {
   try {
-    const vendors = await prisma.vendor.findMany({
+    const vendors = await getPrisma().vendor.findMany({
       include: { sites: true, payments: true }
     });
     res.json(vendors);
@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const vendor = await prisma.vendor.findUnique({
+    const vendor = await getPrisma().vendor.findUnique({
       where: { id },
       include: { sites: true, payments: true }
     });
@@ -33,7 +33,7 @@ router.get('/:id', async (req, res) => {
 // Create vendor
 router.post('/', async (req, res) => {
   try {
-    const vendor = await prisma.vendor.create({
+    const vendor = await getPrisma().vendor.create({
       data: req.body
     });
     res.status(201).json(vendor);
@@ -46,7 +46,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const vendor = await prisma.vendor.update({
+    const vendor = await getPrisma().vendor.update({
       where: { id },
       data: req.body
     });
@@ -61,7 +61,7 @@ router.patch('/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    const vendor = await prisma.vendor.update({
+    const vendor = await getPrisma().vendor.update({
       where: { id },
       data: { status }
     });
@@ -75,10 +75,52 @@ router.patch('/:id/status', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.vendor.delete({ where: { id } });
+    await getPrisma().vendor.delete({ where: { id } });
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete vendor' });
+  }
+});
+
+// Add vendor payment
+router.post('/:id/payments', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { amount, paymentDate, month, year, paymentMode, referenceNumber, purpose, notes } = req.body;
+    
+    // Create VendorPayment
+    const payment = await getPrisma().vendorPayment.create({
+      data: {
+        orgId: (req as any).user.orgId,
+        vendorId: id,
+        amount: parseFloat(amount),
+        paymentDate: new Date(paymentDate),
+        month: parseInt(month),
+        year: parseInt(year),
+        paymentMode,
+        referenceNumber,
+        purpose,
+        notes
+      }
+    });
+
+    // Automatically log it in general Expenses as well for the P&L
+    await getPrisma().expense.create({
+      data: {
+        orgId: (req as any).user.orgId,
+        date: new Date(paymentDate),
+        category: 'VENDOR_PAYOUT',
+        amount: parseFloat(amount),
+        description: `Vendor Payout: ${purpose || 'Misc'}`,
+        paymentMode,
+        referenceNumber
+      }
+    });
+
+    res.status(201).json(payment);
+  } catch (error) {
+    console.error('Failed to add vendor payment:', error);
+    res.status(500).json({ error: 'Failed to add vendor payment' });
   }
 });
 

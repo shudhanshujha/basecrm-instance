@@ -1,28 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   FileText, Search, Plus, Filter, 
   ArrowRight, Download, Eye, ExternalLink,
-  ChevronRight, Calendar, Building, DollarSign
+  ChevronRight, Calendar, Building, DollarSign, Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ExportButton from '../components/ui/ExportButton';
 import toast from 'react-hot-toast';
+import api from '../lib/axios';
+import { format } from 'date-fns';
 
 const Invoices: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const invoices = [
-    { id: '1', number: 'DV-2026-0041', client: 'Reliance Retail Ltd', campaign: 'Haryana Roads Q2', date: '10 May 2026', amount: '₹3,20,400', status: 'Paid', bg: 'bg-success' },
-    { id: '2', number: 'DV-2026-0039', client: 'Axis Bank Ltd', campaign: 'ATM Network May', date: '08 May 2026', amount: '₹1,80,000', status: 'Pending', bg: 'bg-warning' },
-    { id: '3', number: 'DV-2026-0037', client: 'Havells India', campaign: 'Summer Push', date: '05 May 2026', amount: '₹90,000', status: 'Overdue', bg: 'bg-danger' },
-    { id: '4', number: 'DV-2026-0035', client: 'LG Electronics', campaign: 'Q1 Branding', date: '28 Apr 2026', amount: '₹12,40,000', status: 'Paid', bg: 'bg-success' },
-  ];
+  useEffect(() => {
+    fetchInvoices();
+  }, []);
+
+  const fetchInvoices = async () => {
+    try {
+      setIsLoading(true);
+      const res = await api.get('/invoices');
+      setInvoices(res.data);
+    } catch (error) {
+      toast.error('Failed to load invoices');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateStatus = async (id: string, newStatus: string) => {
+    try {
+      await api.put(`/invoices/${id}/status`, { status: newStatus.toUpperCase() });
+      toast.success(`Invoice status updated to ${newStatus}`);
+      fetchInvoices();
+    } catch (error) {
+      toast.error('Failed to update status');
+    }
+  };
+
+  const getStatusBg = (status: string) => {
+    const bgMap: any = { 
+      'PAID': 'bg-success', 
+      'PENDING': 'bg-warning', 
+      'OVERDUE': 'bg-danger',
+      'DRAFT': 'bg-text-muted',
+      'CANCELLED': 'bg-bg-surface-2 text-text-muted border border-border'
+    };
+    return bgMap[status?.toUpperCase()] || 'bg-text-muted';
+  };
 
   const filteredInvoices = invoices.filter(inv => 
-    inv.number.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    inv.client.toLowerCase().includes(searchTerm.toLowerCase())
+    (inv.invoiceNumber?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+    (inv.client?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
+
+  const mtdBilled = invoices.filter(i => i.status !== 'CANCELLED' && i.status !== 'DRAFT').reduce((acc, i) => acc + (i.totalAmount || 0), 0);
+  const pendingCollection = invoices.filter(i => i.status === 'PENDING' || i.status === 'OVERDUE').reduce((acc, i) => acc + (i.totalAmount || 0), 0);
+  const gstCollected = invoices.filter(i => i.status === 'PAID').reduce((acc, i) => acc + (i.cgstAmount + i.sgstAmount + i.igstAmount || 0), 0);
+  const settlementRate = mtdBilled > 0 ? ((mtdBilled - pendingCollection) / mtdBilled) * 100 : 0;
 
   return (
     <div className="space-y-6">
@@ -32,7 +71,7 @@ const Invoices: React.FC = () => {
           <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">Fiscal Billing · GST Compliance Ledger</p>
         </div>
         <div className="flex gap-2">
-          <ExportButton data={filteredInvoices} filename="drishtivision_invoices" />
+          <ExportButton data={invoices} filename="drishtivision_invoices" />
           <button 
             onClick={() => navigate('/invoices/new')} 
             className="btn-primary text-[12px] py-1.5 flex items-center gap-2 shadow-lg shadow-accent-orange/30"
@@ -44,20 +83,20 @@ const Invoices: React.FC = () => {
 
       <div className="grid grid-cols-4 gap-4">
          <div className="card border-border/40">
-            <div className="text-[9px] text-text-muted uppercase font-black tracking-widest">Total Billed (MTD)</div>
-            <div className="text-xl font-black text-text-primary mt-2">₹18.4L</div>
+            <div className="text-[9px] text-text-muted uppercase font-black tracking-widest">Total Billed</div>
+            <div className="text-xl font-black text-text-primary mt-2">₹{(mtdBilled / 100000).toFixed(1)}L</div>
          </div>
          <div className="card border-border/40">
             <div className="text-[9px] text-text-muted uppercase font-black tracking-widest">Pending Collections</div>
-            <div className="text-xl font-black text-warning mt-2">₹6.2L</div>
+            <div className="text-xl font-black text-warning mt-2">₹{(pendingCollection / 100000).toFixed(1)}L</div>
          </div>
          <div className="card border-border/40">
             <div className="text-[9px] text-text-muted uppercase font-black tracking-widest">GST Collected</div>
-            <div className="text-xl font-black text-accent-blue mt-2">₹3.3L</div>
+            <div className="text-xl font-black text-accent-blue mt-2">₹{(gstCollected / 100000).toFixed(1)}L</div>
          </div>
          <div className="card bg-success/5 border-success/20">
             <div className="text-[9px] text-success uppercase font-black tracking-widest">Settlement Rate</div>
-            <div className="text-xl font-black text-text-primary mt-2">94.2%</div>
+            <div className="text-xl font-black text-text-primary mt-2">{settlementRate.toFixed(1)}%</div>
          </div>
       </div>
 
@@ -85,31 +124,45 @@ const Invoices: React.FC = () => {
                </tr>
             </thead>
             <tbody className="divide-y divide-border">
-               {filteredInvoices.map((inv) => (
+               {isLoading ? (
+                 <tr><td colSpan={4} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-accent-orange" /></td></tr>
+               ) : filteredInvoices.map((inv) => (
                   <tr key={inv.id} className="hover:bg-bg-surface-2 transition-colors cursor-pointer group">
                      <td className="px-6 py-4">
-                        <div className="text-[13px] font-bold text-text-primary group-hover:text-accent-orange transition-colors">{inv.number}</div>
+                        <div className="text-[13px] font-bold text-text-primary group-hover:text-accent-orange transition-colors">{inv.invoiceNumber}</div>
                         <div className="flex items-center gap-2 text-[10px] text-text-muted mt-1 uppercase font-black tracking-tighter">
-                           <Calendar size={12} className="text-accent-blue" /> {inv.date}
+                           <Calendar size={12} className="text-accent-blue" /> {inv.invoiceDate ? format(new Date(inv.invoiceDate), 'dd MMM yyyy') : 'N/A'}
                         </div>
                      </td>
                      <td className="px-6 py-4">
-                        <div className="text-[12px] font-bold text-text-primary">{inv.client}</div>
-                        <div className="text-[10px] text-text-muted mt-0.5 font-medium uppercase tracking-widest">{inv.campaign}</div>
+                        <div className="text-[12px] font-bold text-text-primary">{inv.client?.name || 'N/A'}</div>
+                        <div className="text-[10px] text-text-muted mt-0.5 font-medium uppercase tracking-widest">{inv.campaign?.campaignName || 'General Billing'}</div>
                      </td>
                      <td className="px-6 py-4 text-center">
-                        <span className={`status-tag ${inv.bg}`}>{inv.status}</span>
+                        <div className="relative group/status inline-block text-left" onClick={(e) => e.stopPropagation()}>
+                           <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(inv.status)}`}>
+                             {inv.status}
+                           </span>
+                           <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-10 top-6 left-1/2 -translate-x-1/2 min-w-[100px]">
+                              {['Draft', 'Pending', 'Paid', 'Overdue', 'Cancelled'].map(s => (
+                                 <button key={s} onClick={() => updateStatus(inv.id, s)} className="text-[10px] text-left hover:text-accent-orange text-text-muted font-bold py-1 uppercase">{s}</button>
+                              ))}
+                           </div>
+                        </div>
                      </td>
                      <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-4">
-                           <div className="text-[14px] font-black text-text-primary">{inv.amount}</div>
-                           <button onClick={(e) => { e.stopPropagation(); navigate('/invoices/new'); }} className="p-2 text-text-muted hover:text-accent-orange border border-transparent hover:border-border rounded-lg transition-all">
+                           <div className="text-[14px] font-black text-text-primary">₹{(inv.totalAmount || 0).toLocaleString()}</div>
+                           <button onClick={(e) => { e.stopPropagation(); navigate(`/invoices/${inv.id}`); }} className="p-2 text-text-muted hover:text-accent-orange border border-transparent hover:border-border rounded-lg transition-all">
                               <Eye size={16} />
                            </button>
                         </div>
                      </td>
                   </tr>
                ))}
+               {!isLoading && filteredInvoices.length === 0 && (
+                 <tr><td colSpan={4} className="py-20 text-center text-text-muted text-[12px] italic">No invoices found</td></tr>
+               )}
             </tbody>
          </table>
       </div>

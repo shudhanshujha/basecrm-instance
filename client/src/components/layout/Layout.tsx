@@ -4,12 +4,13 @@ import TopBar from './TopBar';
 
 interface LayoutProps {
   children: React.ReactNode;
+  onLogout?: () => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
-      <TopBar />
+      <TopBar onLogout={onLogout} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
         <main className="flex-1 overflow-y-auto bg-bg-primary">

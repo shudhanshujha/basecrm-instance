@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import api from '../lib/axios';
 
 export interface Notification {
   id: string;
@@ -10,27 +11,36 @@ export interface Notification {
 
 interface NotificationState {
   notifications: Notification[];
-  addNotification: (notification: Omit<Notification, 'id' | 'date' | 'isRead'>) => void;
+  fetchNotifications: () => Promise<void>;
   markAsRead: (id: string) => void;
   clearAll: () => void;
 }
 
-export const useNotificationStore = create<NotificationState>((set) => ({
-  notifications: [
-    { id: '1', type: 'CAMPAIGN_END', message: 'Campaign "Roads Q2" ending in 3 days for 5 sites', date: new Date().toISOString(), isRead: false },
-    { id: '2', type: 'INVOICE_DUE', message: 'Invoice #DV-0042 is due tomorrow (Reliance)', date: new Date().toISOString(), isRead: false },
-    { id: '3', type: 'PAYMENT_RECEIVED', message: 'Payment received: ₹1.8L from Axis Bank', date: new Date().toISOString(), isRead: false },
-  ],
-  addNotification: (n) => set((state) => ({
-    notifications: [{ 
-      ...n, 
-      id: Math.random().toString(36).substr(2, 9), 
-      date: new Date().toISOString(), 
-      isRead: false 
-    }, ...state.notifications]
-  })),
+export const useNotificationStore = create<NotificationState>((set, get) => ({
+  notifications: [],
+  fetchNotifications: async () => {
+    try {
+      const res = await api.get('/notifications');
+      const apiNotifs = res.data;
+      
+      // Preserve read state from the current store based on IDs
+      const current = get().notifications;
+      const readIds = current.filter(n => n.isRead).map(n => n.id);
+      
+      const merged = apiNotifs.map((n: Notification) => ({
+        ...n,
+        isRead: readIds.includes(n.id)
+      }));
+      
+      set({ notifications: merged });
+    } catch (e) {
+      console.error('Failed to fetch notifications', e);
+    }
+  },
   markAsRead: (id) => set((state) => ({
     notifications: state.notifications.map(n => n.id === id ? { ...n, isRead: true } : n)
   })),
-  clearAll: () => set({ notifications: [] }),
+  clearAll: () => set((state) => ({ 
+    notifications: state.notifications.map(n => ({ ...n, isRead: true })) 
+  })),
 }));

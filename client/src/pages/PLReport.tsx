@@ -14,9 +14,9 @@ const PLReport: React.FC = () => {
   };
 
   const data = {
-    Monthly: { income: '₹20.5L', profit: '₹9.3L', costs: '₹7.9L', gst: '₹3.3L' },
-    Quarterly: { income: '₹68.2L', profit: '₹31.4L', costs: '₹24.8L', gst: '₹11.2L' },
-    Yearly: { income: '₹2.4Cr', profit: '₹1.1Cr', costs: '₹84L', gst: '₹38L' },
+    Monthly: { income: '₹0', profit: '₹0', costs: '₹0', gst: '₹0' },
+    Quarterly: { income: '₹0', profit: '₹0', costs: '₹0', gst: '₹0' },
+    Yearly: { income: '₹0', profit: '₹0', costs: '₹0', gst: '₹0' },
   };
 
   const current = data[period];
@@ -29,7 +29,21 @@ const PLReport: React.FC = () => {
           <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">Fiscal Tracking · Consolidated OOH</p>
         </div>
         <div className="flex gap-2">
-          <ExportButton data={[current]} filename={`drishtivision_pl_${period.toLowerCase()}`} />
+          <ExportButton 
+            data={[
+              { Category: 'Hoarding / Billboard Revenue', Type: 'Income', Amount: '0' },
+              { Category: 'Printing & Production Charges', Type: 'Income', Amount: '0' },
+              { Category: 'Gross Revenue', Type: 'Subtotal', Amount: '0' },
+              { Category: 'Site Lease Costs (Vendors)', Type: 'Expense', Amount: '0' },
+              { Category: 'Mounting & Labour Costs', Type: 'Expense', Amount: '0' },
+              { Category: 'Operating Expenses (Admin/Salaries)', Type: 'Expense', Amount: '0' },
+              { Category: 'Net Operating Profit', Type: 'Subtotal', Amount: '0' },
+              { Category: 'CGST Collected', Type: 'Liability', Amount: '0' },
+              { Category: 'SGST Collected', Type: 'Liability', Amount: '0' },
+              { Category: 'Net Profit', Type: 'Final', Amount: '0' }
+            ]} 
+            filename={`drishtivision_pl_detailed_${period.toLowerCase()}`} 
+          />
           <div className="flex bg-bg-surface p-1 rounded-lg border border-border">
             {['Monthly', 'Quarterly', 'Yearly'].map((r: any) => (
               <button
@@ -79,30 +93,30 @@ const PLReport: React.FC = () => {
             <div className="space-y-1">
               <div className="flex justify-between items-center py-2.5 border-b border-border text-[12px]">
                 <span className="text-text-muted">Hoarding / Billboard Revenue</span>
-                <span className="font-bold text-success">₹18,40,000</span>
+                <span className="font-bold text-success">₹0</span>
               </div>
               <div className="flex justify-between items-center py-2.5 border-b border-border text-[12px]">
                 <span className="text-text-muted">Printing & Production Charges</span>
-                <span className="font-bold text-success">₹2,10,000</span>
+                <span className="font-bold text-success">₹0</span>
               </div>
               <div className="flex justify-between items-center py-3 text-[11px] font-black uppercase tracking-widest text-text-primary bg-bg-surface-2 px-3 rounded-lg mt-2">
                 <span>Gross Revenue</span>
-                <span className="underline decoration-double decoration-accent-orange">₹20,50,000</span>
+                <span className="underline decoration-double decoration-accent-orange">₹0</span>
               </div>
               
               <div className="h-6"></div>
 
               <div className="flex justify-between items-center py-2 border-b border-border text-[12px]">
                 <span className="text-text-muted">Site Lease Costs (Vendors)</span>
-                <span className="font-bold text-danger">- ₹4,80,000</span>
+                <span className="font-bold text-danger">- ₹0</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-border text-[12px]">
                 <span className="text-text-muted">Mounting & Labour Costs</span>
-                <span className="font-bold text-danger">- ₹1,20,000</span>
+                <span className="font-bold text-danger">- ₹0</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-border text-[12px]">
                 <span className="text-text-muted">Operating Expenses (Admin/Salaries)</span>
-                <span className="font-bold text-danger">- ₹1,90,000</span>
+                <span className="font-bold text-danger">- ₹0</span>
               </div>
 
               <div className="h-6"></div>
@@ -112,7 +126,7 @@ const PLReport: React.FC = () => {
                   <span className="text-[10px] text-text-primary uppercase font-black tracking-widest">Net Operating Profit</span>
                   <span className="text-xs text-white mt-1 italic opacity-70">Before GST provisions</span>
                 </div>
-                <span className="text-2xl font-black text-white tracking-tighter">₹12,60,000</span>
+                <span className="text-2xl font-black text-white tracking-tighter">₹0</span>
               </div>
             </div>
          </div>
@@ -130,14 +144,14 @@ const PLReport: React.FC = () => {
                         <span className="text-[10px] text-text-muted font-bold uppercase">CGST (9%)</span>
                         <span className="text-[12px] font-medium text-text-primary mt-1">Output Collected</span>
                      </div>
-                     <span className="text-[13px] font-black text-warning">₹1,65,600</span>
+                     <span className="text-[13px] font-black text-warning">₹0</span>
                   </div>
                   <div className="flex justify-between items-end border-b border-border pb-3">
                      <div className="flex flex-col">
                         <span className="text-[10px] text-text-muted font-bold uppercase">SGST (9%)</span>
                         <span className="text-[12px] font-medium text-text-primary mt-1">Output Collected</span>
                      </div>
-                     <span className="text-[13px] font-black text-warning">₹1,65,600</span>
+                     <span className="text-[13px] font-black text-warning">₹0</span>
                   </div>
                   <div className="flex justify-between items-end border-b border-border pb-3">
                      <div className="flex flex-col">
@@ -150,7 +164,7 @@ const PLReport: React.FC = () => {
                   <div className="p-3 bg-bg-surface-2 rounded-lg mt-4">
                      <div className="flex justify-between text-[11px] font-black text-text-primary uppercase tracking-tighter">
                         <span>Total Net Liability</span>
-                        <span>₹3,31,200</span>
+                        <span>₹0</span>
                      </div>
                   </div>
                </div>

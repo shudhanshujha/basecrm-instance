@@ -27,19 +27,22 @@
   body {
     @apply bg-bg-primary text-text-primary font-sans;
     /* INCREASED GLOBAL FONT SIZE */
-    font-size: 15px; 
+    font-size: 17px; 
     transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   .light body {
     @apply bg-bg-primary-light text-text-primary-light;
+    /* INCREASED GLOBAL FONT SIZE */
+    font-size: 17px; 
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
   
   /* Incremental increase for common elements */
-  h1 { font-size: 1.6rem !important; }
-  h2 { font-size: 1.3rem !important; }
-  h3 { font-size: 1.1rem !important; }
-  input, select, textarea { font-size: 14px !important; }
+  h1 { font-size: 1.8rem !important; }
+  h2 { font-size: 1.5rem !important; }
+  h3 { font-size: 1.3rem !important; }
+  input, select, textarea { font-size: 16px !important; }
 }
 
 @layer components {

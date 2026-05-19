@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import prisma from '../prismaClient';
+import { getPrisma } from '../prismaClient.js';
 
 const router = Router();
 
 // --- Client Payments ---
 router.get('/clients', async (req, res) => {
   try {
-    const payments = await prisma.payment.findMany({
+    const payments = await getPrisma().payment.findMany({
       include: { client: true, invoice: true }
     });
     res.json(payments);
@@ -17,10 +17,40 @@ router.get('/clients', async (req, res) => {
 
 router.post('/clients', async (req, res) => {
   try {
-    const payment = await prisma.payment.create({
+    let internalInvoiceId = null;
+    
+    // If the user typed an invoice number in the reference field, let's look it up
+    if (req.body.invoiceId) {
+      const invoice = await getPrisma().invoice.findFirst({
+        where: { 
+          OR: [
+            { id: req.body.invoiceId },
+            { invoiceNumber: req.body.invoiceId }
+          ]
+        }
+      });
+      if (invoice) {
+        internalInvoiceId = invoice.id;
+        req.body.invoiceId = invoice.id; // Correct the relation
+      } else {
+        return res.status(400).json({ error: 'Invoice reference not found. Please provide a valid Invoice Number or ID.' });
+      }
+    } else {
+        return res.status(400).json({ error: 'Invoice reference is required.' });
+    }
+
+    const payment = await getPrisma().payment.create({
       data: req.body
     });
-    // Update invoice status if needed (e.g. if amount matches balance)
+    
+    // Auto-update invoice status to PAID
+    if (internalInvoiceId) {
+      await getPrisma().invoice.update({
+        where: { id: internalInvoiceId },
+        data: { status: 'PAID' }
+      });
+    }
+
     res.status(201).json(payment);
   } catch (error) {
     res.status(500).json({ error: 'Failed to create client payment' });
@@ -30,7 +60,7 @@ router.post('/clients', async (req, res) => {
 // --- Vendor Payments ---
 router.get('/vendors', async (req, res) => {
   try {
-    const payments = await prisma.vendorPayment.findMany({
+    const payments = await getPrisma().vendorPayment.findMany({
       include: { vendor: true }
     });
     res.json(payments);
@@ -41,7 +71,7 @@ router.get('/vendors', async (req, res) => {
 
 router.post('/vendors', async (req, res) => {
   try {
-    const payment = await prisma.vendorPayment.create({
+    const payment = await getPrisma().vendorPayment.create({
       data: req.body
     });
     res.status(201).json(payment);

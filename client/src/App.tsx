@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
+import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import Sites from './pages/Sites';
 import SiteDetails from './pages/sites/SiteDetails';
@@ -21,24 +22,67 @@ import RecurringSites from './pages/RecurringSites';
 import Settings from './pages/Settings';
 import Invoices from './pages/Invoices';
 import InvoiceGenerator from './pages/invoices/InvoiceGenerator';
+import InvoiceDetails from './pages/invoices/InvoiceDetails';
+import { supabase } from './lib/supabase';
 
-const Placeholder = ({ title }: { title: string }) => (
-  <div className="card min-h-[400px] flex flex-col items-center justify-center border-dashed">
-    <div className="w-16 h-16 bg-bg-surface-2 rounded-full flex items-center justify-center mb-4 border border-border">
-       <div className="w-8 h-8 bg-accent-orange/20 rounded-full animate-pulse"></div>
-    </div>
-    <h1 className="text-xl font-bold mb-2 text-text-primary">{title}</h1>
-    <p className="text-text-muted italic max-w-xs text-center text-[12px]">This core module is being optimized for Pan-India operations. Detailed view coming soon.</p>
-  </div>
-);
+import api from './lib/axios';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem('dv_token');
+      if (!token) {
+        setIsAuthenticated(false);
+        return;
+      }
+
+      try {
+        await api.get('/auth/me');
+        setIsAuthenticated(true);
+      } catch (err) {
+        console.error('Session verification failed:', err);
+        localStorage.removeItem('dv_token');
+        localStorage.removeItem('dv_auth');
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  const handleLogin = () => setIsAuthenticated(true);
+
+  const handleLogout = async () => {
+    localStorage.removeItem('dv_token');
+    localStorage.removeItem('dv_auth');
+    setIsAuthenticated(false);
+  };
+
+  if (isAuthenticated === null) {
+    return <div className="min-h-screen bg-bg-primary flex items-center justify-center">
+      <div className="w-8 h-8 border-4 border-accent-orange border-t-transparent rounded-full animate-spin"></div>
+    </div>;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <>
+        <Toaster position="bottom-right" toastOptions={{
+          style: { background: '#181c27', color: '#e8eaf0', border: '1px solid rgba(255,255,255,0.08)', fontSize: '12px' }
+        }} />
+        <LoginPage onLogin={handleLogin} />
+      </>
+    );
+  }
+
   return (
     <BrowserRouter>
       <Toaster position="bottom-right" toastOptions={{
         style: { background: '#181c27', color: '#e8eaf0', border: '1px solid rgba(255,255,255,0.08)', fontSize: '12px' }
       }} />
-      <Layout>
+      <Layout onLogout={handleLogout}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/campaigns" element={<Campaigns />} />
@@ -52,6 +96,7 @@ function App() {
           <Route path="/sites/:id" element={<SiteDetails />} />
           <Route path="/invoices" element={<Invoices />} />
           <Route path="/invoices/new" element={<InvoiceGenerator />} />
+          <Route path="/invoices/:id" element={<InvoiceDetails />} />
           <Route path="/expenses" element={<ExpenseTracker />} />
           <Route path="/payments" element={<Payments />} />
           <Route path="/pl-report" element={<PLReport />} />

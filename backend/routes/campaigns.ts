@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import prisma from '../prismaClient';
+import { getPrisma } from '../prismaClient.js';
 
 const router = Router();
 
 // Get all campaigns
 router.get('/', async (req, res) => {
   try {
-    const campaigns = await prisma.campaign.findMany({
+    const campaigns = await getPrisma().campaign.findMany({
       include: { client: true, campaignSites: { include: { site: true } } }
     });
     res.json(campaigns);
@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const campaign = await prisma.campaign.findUnique({
+    const campaign = await getPrisma().campaign.findUnique({
       where: { id },
       include: { client: true, campaignSites: { include: { site: true } }, invoices: true }
     });
@@ -35,7 +35,7 @@ router.post('/', async (req, res) => {
   try {
     const { campaignSites, ...campaignData } = req.body;
     
-    const campaign = await prisma.campaign.create({
+    const campaign = await getPrisma().campaign.create({
       data: {
         ...campaignData,
         campaignSites: {
@@ -59,7 +59,7 @@ router.put('/:id', async (req, res) => {
 
     // Simplified update: Just update campaign data. 
     // Managing campaignSites update (delete/create/update) might be more complex.
-    const campaign = await prisma.campaign.update({
+    const campaign = await getPrisma().campaign.update({
       where: { id },
       data: campaignData
     });
@@ -74,8 +74,8 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     // Note: CampaignSites should be deleted via cascade or manually if not set up in Prisma
-    await prisma.campaignSite.deleteMany({ where: { campaignId: id } });
-    await prisma.campaign.delete({ where: { id } });
+    await getPrisma().campaignSite.deleteMany({ where: { campaignId: id } });
+    await getPrisma().campaign.delete({ where: { id } });
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete campaign' });

@@ -1,20 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  ArrowLeft, MapPin, Database, 
-  Ruler, Lightbulb, Truck, Clock,
-  Calendar, ExternalLink, Camera,
-  TrendingUp, Tag, ArrowRight, Edit3, X, Check
+  ArrowLeft, MapPin, Ruler, Lightbulb, Truck, 
+  Camera, ArrowRight, Edit3, X, Check
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../lib/axios';
+import FileUpload from '../../components/common/FileUpload';
 
 const SiteDetails: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [site, setSite] = useState<any>({
     siteName: '',
@@ -51,19 +49,6 @@ const SiteDetails: React.FC = () => {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setSite({ ...site, photos: JSON.stringify([base64String]) });
-        toast.success('Site media updated locally. Save to persist changes.');
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleSave = async () => {
     try {
       await api.put(`/sites/${id}`, {
@@ -83,6 +68,10 @@ const SiteDetails: React.FC = () => {
     }
   };
 
+  const handleUploadComplete = () => {
+    fetchSite();
+  };
+
   if (loading) return <div className="p-8 text-center text-text-muted">Loading site data...</div>;
 
   const bgMap: any = {
@@ -95,13 +84,6 @@ const SiteDetails: React.FC = () => {
 
   return (
     <div className="space-y-8 pb-12">
-      <input 
-        type="file" 
-        ref={fileInputRef} 
-        className="hidden" 
-        accept="image/*"
-        onChange={handleFileChange} 
-      />
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
           <button onClick={() => navigate('/sites')} className="p-2 bg-bg-surface border border-border rounded-xl hover:text-accent-orange transition-colors shadow-sm">
@@ -142,7 +124,6 @@ const SiteDetails: React.FC = () => {
            ) : (
              <>
                <button onClick={() => setIsEditing(true)} className="btn-outline px-4 py-1.5 flex items-center gap-2 text-[12px] hover:text-accent-orange"><Edit3 size={14} /> Edit Site Info</button>
-               <button onClick={() => fileInputRef.current?.click()} className="btn-primary text-[12px] py-1.5 flex items-center gap-2 shadow-lg shadow-accent-orange/30"><Camera size={16} /> Update Media</button>
              </>
            )}
         </div>
@@ -154,9 +135,13 @@ const SiteDetails: React.FC = () => {
                {currentPhotos.length > 0 ? (
                  <img src={currentPhotos[0]} className="absolute inset-0 w-full h-full object-cover" alt="Hoarding Preview" />
                ) : (
-                 <div className="text-center space-y-4">
-                    <Camera size={64} className="text-border mx-auto" />
-                    <p className="text-[11px] text-text-muted uppercase font-black tracking-widest">No Media Uploaded</p>
+                 <div className="text-center space-y-4 w-full max-w-xs">
+                    <FileUpload 
+                      entityType="site" 
+                      entityId={id || ''} 
+                      onUploadComplete={handleUploadComplete}
+                      label="Upload Site Media"
+                    />
                  </div>
                )}
                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent z-10 text-white">
@@ -254,6 +239,18 @@ const SiteDetails: React.FC = () => {
                   )}
                </div>
                <button className="w-full mt-4 py-2 text-[11px] font-bold text-accent-blue hover:underline">View Full Logs</button>
+            </div>
+            
+            <div className="card">
+               <h3 className="text-[14px] font-bold text-text-primary mb-4 uppercase tracking-tight">Media Documents</h3>
+               <div className="space-y-4">
+                  <FileUpload 
+                    entityType="site" 
+                    entityId={id || ''} 
+                    onUploadComplete={handleUploadComplete}
+                    label="Add New Media"
+                  />
+               </div>
             </div>
          </div>
       </div>

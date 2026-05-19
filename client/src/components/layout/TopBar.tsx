@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useThemeStore } from '../../store/useThemeStore';
 import { useNotificationStore } from '../../store/useNotificationStore';
-import { Sun, Moon, Bell, CheckCircle2, AlertCircle, IndianRupee } from 'lucide-react';
+import { Sun, Moon, Bell, CheckCircle2, AlertCircle, IndianRupee, LogOut } from 'lucide-react';
 
-const TopBar: React.FC = () => {
+const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
   const { isDarkMode, toggleTheme } = useThemeStore();
-  const { notifications, markAsRead, clearAll } = useNotificationStore();
+  const { notifications, fetchNotifications, markAsRead, clearAll } = useNotificationStore();
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
 
@@ -26,6 +26,12 @@ const TopBar: React.FC = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showNotifications]);
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 5 * 60 * 1000); // refresh every 5 mins
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="h-[52px] bg-bg-surface border-b border-border flex items-center justify-between px-4 shrink-0 relative z-50">
@@ -87,6 +93,16 @@ const TopBar: React.FC = () => {
             </div>
           )}
         </div>
+
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            className="w-8 h-8 rounded-lg hover:bg-danger/10 text-text-muted hover:text-danger flex items-center justify-center transition-colors border border-transparent hover:border-danger/20"
+            title="Logout"
+          >
+            <LogOut size={16} />
+          </button>
+        )}
       </div>
     </div>
   );
