@@ -5,8 +5,8 @@ import { numberToWords } from '../../lib/numberToWords';
 // Define styles to match the HTML preview exactly
 const styles = StyleSheet.create({
   page: {
-    padding: 30,
-    fontSize: 9,
+    padding: 25,
+    fontSize: 8.5,
     fontFamily: 'Helvetica',
     color: '#000',
     backgroundColor: '#fff',
@@ -19,10 +19,10 @@ const styles = StyleSheet.create({
   // Header Section
   header: {
     borderBottom: '1pt solid #000',
-    padding: 10,
+    padding: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 120,
+    minHeight: 100,
   },
   logoBox: {
     width: 80,
@@ -30,30 +30,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    width: 70,
-    height: 70,
+    width: 65,
+    height: 65,
     objectFit: 'contain',
   },
   companyInfo: {
     flex: 1,
     textAlign: 'center',
-    paddingRight: 80, // Offset for logo to keep text centered
+    paddingRight: 80, 
   },
   companyName: {
     fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 2,
     textTransform: 'uppercase',
   },
   companySubInfo: {
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: 'bold',
-    marginBottom: 2,
+    marginBottom: 1,
   },
   gstinBox: {
-    marginTop: 8,
+    marginTop: 6,
     paddingTop: 4,
-    borderTop: '0.5pt solid #ddd',
+    borderTop: '0.5pt solid #ccc',
     alignSelf: 'center',
   },
   gstinText: {
@@ -66,11 +66,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#d9e5f3',
     borderBottom: '1pt solid #000',
     textAlign: 'center',
-    paddingVertical: 2,
+    paddingVertical: 1,
     fontWeight: 'bold',
     fontSize: 11,
   },
-  // Metadata Section
+  // Metadata Grid
   metaGrid: {
     flexDirection: 'row',
     borderBottom: '1pt solid #000',
@@ -81,24 +81,24 @@ const styles = StyleSheet.create({
   metaItem: {
     flexDirection: 'row',
     borderBottom: '1pt solid #000',
-    minHeight: 18,
+    minHeight: 17,
     alignItems: 'center',
   },
   metaItemLast: {
     flexDirection: 'row',
-    minHeight: 18,
+    minHeight: 17,
     alignItems: 'center',
   },
   metaLabel: {
     width: 100,
-    padding: 3,
+    padding: 2,
     fontWeight: 'bold',
     borderRight: '1pt solid #000',
     fontSize: 9,
   },
   metaValue: {
     flex: 1,
-    padding: 3,
+    padding: 2,
     fontSize: 9,
   },
   // Party Section
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   partyHeaderBox: {
     width: '50%',
     textAlign: 'center',
-    paddingVertical: 2,
+    paddingVertical: 1.5,
   },
   partyGrid: {
     flexDirection: 'row',
@@ -120,13 +120,13 @@ const styles = StyleSheet.create({
   },
   partyBox: {
     width: '50%',
-    padding: 5,
-    minHeight: 80,
+    padding: 4,
+    minHeight: 70,
   },
   partyRow: {
     flexDirection: 'row',
-    marginBottom: 2,
-    fontSize: 10,
+    marginBottom: 1,
+    fontSize: 9.5,
   },
   labelBold: {
     fontWeight: 'bold',
@@ -137,10 +137,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   // Table Section
-  descHeaderLine: {
-    padding: 4,
+  descHeaderBar: {
+    padding: 3,
     fontWeight: 'bold',
-    fontSize: 9,
+    fontSize: 8.5,
     borderBottom: '1pt solid #000',
   },
   table: {
@@ -152,15 +152,15 @@ const styles = StyleSheet.create({
     borderBottom: '1pt solid #000',
     fontWeight: 'bold',
     textAlign: 'center',
-    fontSize: 8,
+    fontSize: 7.5,
   },
   tableRow: {
     flexDirection: 'row',
     borderBottom: '0.5pt solid #eee',
-    minHeight: 18,
+    minHeight: 17,
     alignItems: 'center',
     textAlign: 'center',
-    fontSize: 8,
+    fontSize: 8.5,
   },
   tableFooterRow: {
     flexDirection: 'row',
@@ -169,32 +169,31 @@ const styles = StyleSheet.create({
     borderBottom: '1pt solid #000',
     fontWeight: 'bold',
     textAlign: 'center',
-    fontSize: 8,
+    fontSize: 8.5,
     minHeight: 18,
     alignItems: 'center',
   },
-  // Column Widths
+  // Optimized Column Widths to prevent wrapping
   c1: { width: '4%', borderRight: '1pt solid #000', padding: 2 }, // S.No
   c2: { flex: 1, borderRight: '1pt solid #000', padding: 2, textAlign: 'left' }, // Description
   c3: { width: '8%', borderRight: '1pt solid #000', padding: 2 }, // HSN
-  c4: { width: '5%', borderRight: '1pt solid #000', padding: 2 }, // Qty
-  c5: { width: '8%', borderRight: '1pt solid #000', padding: 2 }, // Rate
-  c6: { width: '10%', borderRight: '1pt solid #000', padding: 2 }, // Amount
-  c7: { width: '7%', borderRight: '1pt solid #000', padding: 2 }, // Discount
-  c8: { width: '10%', borderRight: '1pt solid #000', padding: 2 }, // Taxable Val
-  c9: { width: '13%', borderRight: '1pt solid #000' }, // GST Group (Rate+Amount)
-  c10: { width: '10%', padding: 2, fontWeight: 'bold' }, // Total
-  
-  // Bottom Grid
+  c4: { width: '4%', borderRight: '1pt solid #000', padding: 2 }, // Qty
+  c5: { width: '7%', borderRight: '1pt solid #000', padding: 2 }, // Rate
+  c6: { width: '9%', borderRight: '1pt solid #000', padding: 2 }, // Amount
+  c7: { width: '6%', borderRight: '1pt solid #000', padding: 2 }, // Discount
+  c8: { width: '9%', borderRight: '1pt solid #000', padding: 2 }, // Taxable Val
+  c9: { width: '13%', borderRight: '1pt solid #000' }, // GST Group
+  c10: { width: '11%', padding: 2, fontWeight: 'bold' }, // Total
+
+  // Bottom Grid (Summary & Words)
   summaryGrid: {
     flexDirection: 'row',
     borderBottom: '1pt solid #000',
-    minHeight: 90,
+    minHeight: 80,
   },
   wordsBox: {
     flex: 1,
     borderRight: '1pt solid #000',
-    flexDirection: 'column',
   },
   wordsHeader: {
     backgroundColor: '#d9e5f3',
@@ -220,7 +219,7 @@ const styles = StyleSheet.create({
   totalsRow: {
     flexDirection: 'row',
     borderBottom: '1pt solid #000',
-    minHeight: 18,
+    minHeight: 16,
     alignItems: 'center',
   },
   totalsLabel: {
@@ -241,7 +240,7 @@ const styles = StyleSheet.create({
   // Final Row (Bank/Seal/Auth)
   bottomGrid: {
     flexDirection: 'row',
-    minHeight: 100,
+    minHeight: 90,
   },
   bankCol: {
     width: 200,
@@ -251,7 +250,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#d9e5f3',
     borderBottom: '1pt solid #000',
     textAlign: 'center',
-    paddingVertical: 2,
+    paddingVertical: 1.5,
     fontWeight: 'bold',
     fontSize: 10,
   },
@@ -263,11 +262,11 @@ const styles = StyleSheet.create({
   bankText: {
     fontSize: 8,
     fontWeight: 'bold',
-    lineHeight: 1.4,
+    lineHeight: 1.3,
   },
   qrImage: {
-    width: 50,
-    height: 50,
+    width: 48,
+    height: 48,
   },
   sealCol: {
     flex: 1,
@@ -302,10 +301,10 @@ const styles = StyleSheet.create({
   },
   signatureImage: {
     width: 80,
-    height: 30,
+    height: 25,
     objectFit: 'contain',
     alignSelf: 'center',
-    marginVertical: 5,
+    marginVertical: 4,
   },
   bold: {
     fontWeight: 'bold',
@@ -389,7 +388,7 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
       <Page size="A4" style={styles.page}>
         <View style={styles.container}>
           
-          {/* 1. Header Section */}
+          {/* Header */}
           <View style={styles.header}>
             <View style={styles.logoBox}>
               <Image src="/dvs_logo.jpg" style={styles.logo} />
@@ -407,7 +406,7 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
 
           <View style={styles.titleBar}><Text>Invoice</Text></View>
 
-          {/* 2. Metadata Grid */}
+          {/* Metadata */}
           <View style={styles.metaGrid}>
             <View style={[styles.metaCol, { borderRight: '1pt solid #000' }]}>
               <View style={styles.metaItem}><Text style={styles.metaLabel}>Invoice No:</Text><Text style={[styles.metaValue, styles.bold]}>{invoiceData.invoiceNumber}</Text></View>
@@ -421,7 +420,7 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
                   <Text style={styles.metaValue}>{invoiceData.seller.stateCode}</Text>
                 </View>
               </View>
-              <View style={styles.metaItemLast}><Text style={[styles.metaLabel, { fontSize: 7, lineHeight: 1, textTransform: 'uppercase' }]}>MSME REGISTRATION NO.:</Text><Text style={[styles.metaValue, styles.bold]}>{invoiceData.seller.msmeRegNo}</Text></View>
+              <View style={styles.metaItemLast}><Text style={[styles.metaLabel, { fontSize: 7, textTransform: 'uppercase' }]}>MSME REGISTRATION NO.:</Text><Text style={[styles.metaValue, styles.bold]}>{invoiceData.seller.msmeRegNo}</Text></View>
             </View>
             <View style={styles.metaCol}>
               <View style={styles.metaItem}><Text style={styles.metaLabel}>Transport Mode:</Text><Text style={styles.metaValue}>{invoiceData.transportMode || '-'}</Text></View>
@@ -431,7 +430,7 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
             </View>
           </View>
 
-          {/* 3. Party Section */}
+          {/* Party Grid */}
           <View style={styles.partyHeader}>
             <View style={[styles.partyHeaderBox, { borderRight: '1pt solid #000' }]}><Text>Invoice to Party</Text></View>
             <View style={styles.partyHeaderBox}><Text>Ship to Party</Text></View>
@@ -457,65 +456,58 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
             </View>
           </View>
 
-          {/* Description Line */}
-          <View style={styles.descHeaderLine}>
-            <Text>{invoiceData.descriptionHeader}</Text>
-          </View>
+          <View style={styles.descHeaderBar}><Text>{invoiceData.descriptionHeader}</Text></View>
 
-          {/* 4. Table Section */}
+          {/* Table */}
           <View style={styles.table}>
-            {/* Header Level 1 */}
-            <View style={[styles.tableHeaderRow, { minHeight: 12 }]}>
+            <View style={styles.tableHeaderRow}>
               <Text style={styles.c1}></Text><Text style={styles.c2}></Text><Text style={styles.c3}></Text><Text style={styles.c4}></Text><Text style={styles.c5}></Text><Text style={styles.c6}></Text><Text style={styles.c7}></Text><Text style={styles.c8}></Text>
               {isIntraState && <><Text style={[styles.c9, { borderBottom: '0.5pt solid #000' }]}>CGST</Text><Text style={[styles.c9, { borderBottom: '0.5pt solid #000' }]}>SGST</Text></>}
               {isInterState && <Text style={[styles.c9, { borderBottom: '0.5pt solid #000' }]}>IGST</Text>}
               <Text style={styles.c10}></Text>
             </View>
-            {/* Header Level 2 */}
-            <View style={[styles.tableHeaderRow, { minHeight: 14 }]}>
+            <View style={styles.tableHeaderRow}>
               <Text style={styles.c1}>S. No.</Text><Text style={styles.c2}>Product Description</Text><Text style={styles.c3}>HSN code</Text><Text style={styles.c4}>Qty</Text><Text style={styles.c5}>Rate</Text><Text style={styles.c6}>Amount</Text><Text style={styles.c7}>Discount</Text><Text style={styles.c8}>Taxable Value</Text>
               {isIntraState && (
-                <><View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>Rate</Text><Text style={{ flex: 1 }}>Amt</Text></View>
-                  <View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>Rate</Text><Text style={{ flex: 1 }}>Amt</Text></View></>
+                <><View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>Rate</Text><Text style={{ flex: 1.2 }}>Amt</Text></View>
+                  <View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>Rate</Text><Text style={{ flex: 1.2 }}>Amt</Text></View></>
               )}
               {isInterState && (
-                <View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>Rate</Text><Text style={{ flex: 1 }}>Amt</Text></View>
+                <View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>Rate</Text><Text style={{ flex: 1.2 }}>Amt</Text></View>
               )}
               <Text style={styles.c10}>Total</Text>
             </View>
 
-            {/* Rows */}
             {invoiceData.items.map((item, i) => (
               <View key={i} style={styles.tableRow}>
                 <Text style={styles.c1}>{i + 1}</Text><Text style={[styles.c2, styles.bold]}>{item.description}</Text><Text style={styles.c3}>{item.hsn}</Text><Text style={styles.c4}>{item.qty}</Text><Text style={styles.c5}>{item.rate}</Text><Text style={styles.c6}>{item.amount}</Text><Text style={styles.c7}>{item.discount}</Text><Text style={styles.c8}>{item.taxableValue.toFixed(2)}</Text>
                 {isIntraState && (
-                  <><View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000', height: '100%' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>{item.cgstRate}%</Text><Text style={{ flex: 1 }}>{item.cgstAmount?.toFixed(2)}</Text></View>
-                    <View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000', height: '100%' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>{item.sgstRate}%</Text><Text style={{ flex: 1 }}>{item.sgstAmount?.toFixed(2)}</Text></View></>
+                  <><View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000', height: '100%' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>{item.cgstRate}%</Text><Text style={{ flex: 1.2 }}>{item.cgstAmount?.toFixed(2)}</Text></View>
+                    <View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000', height: '100%' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>{item.sgstRate}%</Text><Text style={{ flex: 1.2 }}>{item.sgstAmount?.toFixed(2)}</Text></View></>
                 )}
                 {isInterState && (
-                  <View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000', height: '100%' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>{item.igstRate}%</Text><Text style={{ flex: 1 }}>{item.igstAmount?.toFixed(2)}</Text></View>
+                  <View style={{ width: '13%', flexDirection: 'row', borderRight: '1pt solid #000', height: '100%' }}><Text style={{ flex: 1, borderRight: '0.5pt solid #000' }}>{item.igstRate}%</Text><Text style={{ flex: 1.2 }}>{item.igstAmount?.toFixed(2)}</Text></View>
                 )}
                 <Text style={[styles.c10, { textAlign: 'right' }]}>{item.total.toFixed(2)}</Text>
               </View>
             ))}
 
-            {/* Filler rows */}
-            {Array.from({ length: Math.max(0, 15 - invoiceData.items.length) }).map((_, i) => (
+            {/* Optimized filler count to prevent page overflow */}
+            {Array.from({ length: Math.max(0, 12 - invoiceData.items.length) }).map((_, i) => (
               <View key={i} style={[styles.tableRow, { borderBottom: '0.5pt solid #eee' }]}><Text style={styles.c1}> </Text><Text style={styles.c2}> </Text><Text style={styles.c3}> </Text><Text style={styles.c4}> </Text><Text style={styles.c5}> </Text><Text style={styles.c6}> </Text><Text style={styles.c7}> </Text><Text style={styles.c8}> </Text>{isIntraState && <><View style={{ width: '13%', borderRight: '1pt solid #000' }}><Text> </Text></View><View style={{ width: '13%', borderRight: '1pt solid #000' }}><Text> </Text></View></>}{isInterState && <View style={{ width: '13%', borderRight: '1pt solid #000' }}><Text> </Text></View>}<Text style={styles.c10}> </Text></View>
             ))}
 
-            {/* Table Footer */}
             <View style={styles.tableFooterRow}>
               <Text style={{ width: '12%', borderRight: '1pt solid #000' }}>Total</Text><Text style={{ flex: 1, borderRight: '1pt solid #000' }}></Text><Text style={styles.c3}></Text><Text style={styles.c4}>{invoiceData.items.reduce((acc, curr) => acc + curr.qty, 0)}</Text><Text style={styles.c5}>###</Text><Text style={styles.c6}>####</Text><Text style={styles.c7}>{invoiceData.items.reduce((acc, curr) => acc + curr.discount, 0)}</Text><Text style={styles.c8}>{invoiceData.subtotal.toFixed(2)}</Text>{isIntraState && <><Text style={{ width: '13%', borderRight: '1pt solid #000' }}>####</Text><Text style={{ width: '13%', borderRight: '1pt solid #000' }}>###</Text></>}{isInterState && <Text style={{ width: '13%', borderRight: '1pt solid #000' }}>####</Text>}<Text style={[styles.c10, { textAlign: 'right' }]}>{Math.round(invoiceData.grandTotal)}</Text>
             </View>
           </View>
 
-          {/* 5, 6. Totals Section */}
+          {/* Summary Section */}
           <View style={styles.summaryGrid}>
             <View style={styles.wordsBox}>
               <Text style={styles.wordsHeader}>Total Invoice Amount in Words</Text>
               <View style={styles.wordsContent}>
-                <Text>{numberToWords(Math.round(invoiceData.grandTotal))} ONLY</Text>
+                <Text>{numberToWords(Math.round(invoiceData.grandTotal))}</Text>
               </View>
             </View>
             <View style={styles.totalsBox}>
@@ -528,7 +520,7 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
             </View>
           </View>
 
-          {/* 7, 8, 9. Footer (Bank/Seal/Auth) */}
+          {/* Bottom Grid */}
           <View style={styles.bottomGrid}>
             <View style={styles.bankCol}>
               <Text style={styles.bankHeader}>Bank Details</Text>
@@ -546,7 +538,7 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
                   </View>
                 )}
               </View>
-              <Text style={{ fontSize: 7, textAlign: 'center', borderTop: '0.5pt solid #000', marginTop: 3, fontWeight: 'bold' }}>Terms & Conditions Apply</Text>
+              <Text style={{ fontSize: 7, textAlign: 'center', borderTop: '0.5pt solid #000', marginTop: 2, fontWeight: 'bold' }}>Terms & Conditions Apply</Text>
             </View>
             <View style={styles.sealCol}>
               <Text style={{ borderTop: '1pt solid #000', width: '100%', textAlign: 'center', fontWeight: 'bold', paddingVertical: 1 }}>Common Seal</Text>
