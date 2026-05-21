@@ -2,11 +2,11 @@ import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import { numberToWords } from '../../lib/numberToWords';
 
-// Bug 1: Force fit on 1 single A4 page
+// Define styles for a strictly sequential, single-page A4 layout
 const styles = StyleSheet.create({
   page: {
-    padding: '8mm', // 8mm margins on all sides
-    fontSize: 7,    // Base font size 7pt
+    padding: '8mm', // Bug 1: 8mm margins
+    fontSize: 7.5,   // Bug 1: 7.5pt base font
     fontFamily: 'Helvetica',
     color: '#000',
     backgroundColor: '#fff',
@@ -19,47 +19,46 @@ const styles = StyleSheet.create({
   
   // 1. COMPANY HEADER
   header: {
-    padding: 4,
+    padding: 6,
     borderBottom: '1pt solid #000',
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 70,
+    minHeight: 85,
   },
   logoBox: {
-    width: 60,
+    width: 70,
     alignItems: 'center',
   },
   logo: {
-    width: 50,
-    height: 50,
+    width: 60,
+    height: 60,
     objectFit: 'contain',
   },
   companyInfo: {
     flex: 1,
     textAlign: 'center',
-    paddingRight: 60, 
+    paddingRight: 70, 
   },
   companyName: {
-    fontSize: 22, // Large bold
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 1,
+    marginBottom: 2,
     textTransform: 'uppercase',
   },
   companySubInfo: {
-    fontSize: 8,
-    marginBottom: 0.5,
-  },
-  gstinLine: {
-    marginTop: 2,
-    paddingTop: 2,
-    borderTop: '0.5pt solid #000',
-    alignSelf: 'center',
-    width: '60%',
-  },
-  gstinText: {
     fontSize: 9,
     fontWeight: 'bold',
-    textAlign: 'center',
+    marginBottom: 1,
+  },
+  gstinLine: {
+    marginTop: 4,
+    paddingTop: 3,
+    borderTop: '0.5pt solid #000',
+    alignSelf: 'center',
+  },
+  gstinText: {
+    fontSize: 10,
+    fontWeight: 'bold',
   },
 
   // 2. INVOICE TITLE BAR
@@ -69,7 +68,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingVertical: 1.5,
     fontWeight: 'bold',
-    fontSize: 9,
+    fontSize: 10,
     textTransform: 'uppercase',
   },
 
@@ -84,38 +83,38 @@ const styles = StyleSheet.create({
   metaItem: {
     flexDirection: 'row',
     borderBottom: '1pt solid #000',
-    height: 14, // Bug 6 & 7: Equal row heights
+    height: 15, // Bug 6 & 7: Equal heights
     alignItems: 'center',
   },
   metaItemLastRow: {
     flexDirection: 'row',
-    height: 14,
+    height: 15,
     alignItems: 'center',
   },
   metaLabel: {
-    width: 90,
-    paddingHorizontal: 2,
+    width: 100,
+    paddingHorizontal: 4,
     fontWeight: 'bold',
     borderRight: '1pt solid #000',
-    fontSize: 7,
+    fontSize: 7.5,
   },
   metaValue: {
     flex: 1,
-    paddingHorizontal: 2,
-    fontSize: 7,
+    paddingHorizontal: 4,
+    fontSize: 8,
   },
   msmeRow: {
     flexDirection: 'row',
-    height: 14,
+    height: 16,
     alignItems: 'center',
     borderBottom: '1pt solid #000',
   },
   msmeLabel: {
-    width: 140, // Bug 3: Full label width
-    paddingHorizontal: 2,
+    width: 130, // Bug 3: Full label width
+    paddingHorizontal: 4,
     fontWeight: 'bold',
     borderRight: '1pt solid #000',
-    fontSize: 7,
+    fontSize: 7.5,
   },
 
   // 4. PARTY SECTION
@@ -124,93 +123,89 @@ const styles = StyleSheet.create({
     backgroundColor: '#f2f2f2',
     borderBottom: '1pt solid #000',
     fontWeight: 'bold',
-    fontSize: 8,
+    fontSize: 9,
   },
   partyHeaderBox: {
     width: '50%',
     textAlign: 'center',
-    paddingVertical: 1.5,
+    paddingVertical: 2,
   },
   partyGrid: {
     flexDirection: 'row',
     borderBottom: '1pt solid #000',
-    minHeight: 50,
+    minHeight: 75,
   },
   partyBox: {
     width: '50%',
-    padding: 3,
+    padding: 4,
   },
   partyRow: {
     flexDirection: 'row',
-    marginBottom: 1,
-    fontSize: 7,
+    marginBottom: 1.5,
+    fontSize: 8,
   },
   partyLabel: {
     fontWeight: 'bold',
-    width: 35,
+    width: 45,
   },
   partyValue: {
     flex: 1,
   },
 
-  // 5. SERVICE DESCRIPTION
+  // 5. SERVICE DESCRIPTION LINE
   descLine: {
-    padding: 2,
+    padding: 3,
     fontWeight: 'bold',
     borderBottom: '1pt solid #000',
-    fontSize: 7,
+    fontSize: 8,
+    backgroundColor: '#fff',
   },
 
   // 6. ITEMS TABLE
-  table: {
-    flex: 1,
-  },
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: '#f2f2f2',
     borderBottom: '1pt solid #000',
     fontWeight: 'bold',
     textAlign: 'center',
-    fontSize: 6.5,
+    fontSize: 7,
   },
   tableRow: {
     flexDirection: 'row',
     borderBottom: '0.5pt solid #000',
-    height: 12, // Bug 1: Minimal height
+    minHeight: 16,
     alignItems: 'center',
     textAlign: 'center',
-    fontSize: 7,
+    fontSize: 8,
   },
   emptyRow: {
     flexDirection: 'row',
     borderBottom: '0.5pt solid #000',
-    height: 10, // Bug 1: 10px empty rows
+    height: 12, // Bug 1: Minimal height for empty rows
     alignItems: 'center',
   },
   tableTotalRow: {
     flexDirection: 'row',
     backgroundColor: '#f2f2f2',
     borderBottom: '1pt solid #000',
-    height: 14,
+    height: 18,
     alignItems: 'center',
     textAlign: 'center',
     fontWeight: 'bold',
-    fontSize: 7,
+    fontSize: 8,
   },
 
-  // Bug 4: Specified Percentage Column Widths
+  // FIXED PERCENTAGE COLUMN WIDTHS (Bug 4)
   c1: { width: '4%', borderRight: '1pt solid #000', padding: 1 }, // S.No
-  c2: { width: '20%', borderRight: '1pt solid #000', padding: 2, textAlign: 'left' }, // Prod Desc (adj to 20)
+  c2: { width: '26%', borderRight: '1pt solid #000', padding: 2, textAlign: 'left' }, // Product Description
   c3: { width: '7%', borderRight: '1pt solid #000', padding: 1 }, // HSN
   c4: { width: '5%', borderRight: '1pt solid #000', padding: 1 }, // Qty
   c5: { width: '7%', borderRight: '1pt solid #000', padding: 1 }, // Rate
   c6: { width: '7%', borderRight: '1pt solid #000', padding: 1 }, // Amt
   c7: { width: '6%', borderRight: '1pt solid #000', padding: 1 }, // Disc
   c8: { width: '8%', borderRight: '1pt solid #000', padding: 1 }, // TaxVal
-  c9_grp: { width: '10%', borderRight: '1pt solid #000' }, // CGST Parent (4% + 6%)
-  c9_sub: { width: '40%', borderRight: '0.5pt solid #000', height: '100%', justifyContent: 'center' }, // Rate sub
-  c9_amt: { width: '60%', height: '100%', justifyContent: 'center' }, // Amt sub
-  c10_grp: { width: '10%', borderRight: '1pt solid #000' }, // SGST Parent (4% + 6%)
+  c9_grp: { width: '12%', borderRight: '1pt solid #000' }, // CGST Parent (Rate+Amt)
+  c10_grp: { width: '12%', borderRight: '1pt solid #000' }, // SGST Parent (Rate+Amt)
   c11: { width: '6%', padding: 1, fontWeight: 'bold' }, // Total
 
   // 7. TOTALS SUMMARY
@@ -226,66 +221,68 @@ const styles = StyleSheet.create({
     backgroundColor: '#f2f2f2',
     borderBottom: '1pt solid #000',
     textAlign: 'center',
-    paddingVertical: 1.5,
+    paddingVertical: 2,
     fontWeight: 'bold',
-    fontSize: 7.5,
+    fontSize: 9,
   },
   wordsContent: {
-    padding: 6,
+    padding: 10,
     textAlign: 'center',
-    fontSize: 11, // Large italic bold
+    fontSize: 13, // Bug 2: 11pt-13pt large italic bold
     fontStyle: 'italic',
     fontWeight: 'bold',
     justifyContent: 'center',
     flex: 1,
   },
   totalsContainer: {
-    width: 180,
+    width: 220,
   },
-  totRow: {
+  totalsRow: {
     flexDirection: 'row',
     borderBottom: '1pt solid #000',
-    height: 12,
+    height: 15,
     alignItems: 'center',
   },
   totRowLast: {
     flexDirection: 'row',
-    height: 12,
+    height: 15,
     alignItems: 'center',
   },
   totLabel: {
-    width: 120,
-    paddingHorizontal: 3,
+    width: 140,
+    paddingHorizontal: 4,
     fontWeight: 'bold',
     borderRight: '1pt solid #000',
-    fontSize: 6.5,
+    fontSize: 7.5,
+    textTransform: 'uppercase',
   },
   totValue: {
     flex: 1,
-    paddingHorizontal: 3,
+    paddingHorizontal: 4,
     textAlign: 'right',
     fontWeight: 'bold',
-    fontSize: 7,
+    fontSize: 9,
   },
 
   // 8. BOTTOM FOOTER
   footerRow: {
     flexDirection: 'row',
-    minHeight: 70, // Compressed
+    minHeight: 100,
   },
   footerBank: {
-    width: 200,
+    width: 240,
     borderRight: '1pt solid #000',
   },
   footerCenter: {
     flex: 1,
     borderRight: '1pt solid #000',
+    padding: 6,
+    justifyContent: 'flex-end',
     alignItems: 'center',
-    justifyContent: 'center',
   },
   footerRight: {
-    width: 180,
-    padding: 3,
+    width: 220,
+    padding: 6,
     justifyContent: 'space-between',
   },
 
@@ -293,62 +290,67 @@ const styles = StyleSheet.create({
     backgroundColor: '#f2f2f2',
     borderBottom: '1pt solid #000',
     textAlign: 'center',
-    paddingVertical: 1,
+    paddingVertical: 1.5,
     fontWeight: 'bold',
+    fontSize: 9,
   },
   bankContent: {
-    padding: 3,
+    padding: 4,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   bankDetailsText: {
-    fontSize: 6.5,
-    lineHeight: 1.2,
+    fontSize: 8,
+    lineHeight: 1.4,
     fontWeight: 'bold',
   },
   qrBox: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 4,
+    marginLeft: 5,
   },
   qrImage: {
-    width: 35,
-    height: 35,
+    width: 50,
+    height: 50,
   },
   termsLine: {
     borderTop: '1pt solid #000',
     textAlign: 'center',
-    paddingVertical: 1.5,
+    paddingVertical: 2,
     fontWeight: 'bold',
-    fontSize: 6.5,
+    fontSize: 8,
     marginTop: 'auto',
   },
   sealText: {
     fontWeight: 'bold',
-    fontSize: 9,
+    fontSize: 10,
+    width: '100%',
+    textAlign: 'center',
+    borderTop: '1pt solid #000',
+    paddingVertical: 1.5,
   },
   certText: {
-    fontSize: 6,
+    fontSize: 7,
     fontStyle: 'italic',
   },
   authFor: {
     textAlign: 'center',
     fontWeight: 'bold',
-    fontSize: 7.5,
+    fontSize: 9.5,
     textTransform: 'uppercase',
   },
   signatureImg: {
-    width: 60,
-    height: 20,
+    width: 90,
+    height: 35,
     objectFit: 'contain',
     alignSelf: 'center',
   },
   authLabel: {
     borderTop: '1pt solid #000',
     textAlign: 'center',
-    paddingTop: 2,
+    paddingTop: 4,
     fontWeight: 'bold',
-    fontSize: 7,
+    fontSize: 8.5,
   },
   bold: { fontWeight: 'bold' },
 });
@@ -443,7 +445,6 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
               <View style={styles.metaItemLastRow}>
                 <Text style={styles.metaLabel}>State:</Text>
                 <View style={{ flexDirection: 'row', flex: 1 }}>
-                  {/* Bug 5: Compact alignment */}
                   <Text style={{ flex: 1, paddingLeft: 4 }}>{invoiceData.seller.state}</Text>
                   <Text style={{ width: 40, fontWeight: 'bold', borderLeft: '1pt solid #000', paddingLeft: 4 }}>Code:</Text>
                   <Text style={{ paddingLeft: 4 }}>{invoiceData.seller.stateCode}</Text>
@@ -473,7 +474,7 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
               <View style={styles.partyRow}><Text style={styles.partyLabel}>Name:</Text><Text style={[styles.partyValue, styles.bold]}>{invoiceData.buyer.name || '-'}</Text></View>
               <View style={styles.partyRow}><Text style={styles.partyLabel}>Address:</Text><Text style={styles.partyValue}>{invoiceData.buyer.address || '-'}</Text></View>
               <View style={styles.partyRow}><Text style={styles.partyLabel}>GSTIN:</Text><Text style={[styles.partyValue, styles.bold]}>{invoiceData.buyer.gstin || '-'}</Text></View>
-              {/* Bug 5: State & Code on same line */}
+              {/* Bug 6: State & Code on same line */}
               <View style={styles.partyRow}><Text style={styles.partyLabel}>State:</Text><Text style={styles.partyValue}>{invoiceData.buyer.state || '-'}   <Text style={styles.bold}>Code:</Text> {invoiceData.buyer.stateCode || '-'}</Text></View>
             </View>
             <View style={styles.partyBox}>
@@ -488,64 +489,61 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
           <View style={styles.descLine}><Text>{invoiceData.descriptionHeader}</Text></View>
 
           {/* 6. ITEMS TABLE */}
-          <View style={styles.table}>
+          <View>
             {/* Header Row 1 */}
             <View style={styles.tableHeader}>
               <Text style={styles.c1}></Text><Text style={styles.c2}></Text><Text style={styles.c3}></Text><Text style={styles.c4}></Text><Text style={styles.c5}></Text><Text style={styles.c6}></Text><Text style={styles.c7}></Text><Text style={styles.c8}></Text>
-              {isIntraState && <><View style={[styles.c9_grp, { borderBottom: '1pt solid #000' }]}><Text style={{ padding: 1 }}>CGST</Text></View><View style={[styles.c10_grp, { borderBottom: '1pt solid #000' }]}><Text style={{ padding: 1 }}>SGST</Text></View></>}
-              {isInterState && <View style={[styles.c9_grp, { borderBottom: '1pt solid #000', width: '20%' }]}><Text style={{ padding: 1 }}>IGST</Text></View>}
+              {isIntraState && <><View style={[styles.c9_grp, { borderBottom: '1pt solid #000' }]}><Text style={{ padding: 1.5 }}>CGST</Text></View><View style={[styles.c10_grp, { borderBottom: '1pt solid #000' }]}><Text style={{ padding: 1.5 }}>SGST</Text></View></>}
+              {isInterState && <View style={[styles.c9_grp, { borderBottom: '1pt solid #000', width: '24%' }]}><Text style={{ padding: 1.5 }}>IGST</Text></View>}
               <Text style={styles.c11}></Text>
             </View>
             {/* Header Row 2 */}
             <View style={styles.tableHeader}>
-              <Text style={styles.c1}>S.No</Text><Text style={styles.c2}>Product Description</Text><Text style={styles.c3}>HSN</Text><Text style={styles.c4}>Qty</Text><Text style={styles.c5}>Rate</Text><Text style={styles.c6}>Amt</Text><Text style={styles.c7}>Disc</Text><Text style={styles.c8}>TaxVal</Text>
-              {isIntraState && <><View style={[styles.c9_grp, { flexDirection: 'row' }]}><Text style={styles.c9_sub}>R</Text><Text style={styles.c9_amt}>Amt</Text></View><View style={[styles.c10_grp, { flexDirection: 'row' }]}><Text style={styles.c9_sub}>R</Text><Text style={styles.c9_amt}>Amt</Text></View></>}
-              {isInterState && <View style={[styles.c9_grp, { flexDirection: 'row', width: '20%' }]}><Text style={styles.c9_sub}>Rate</Text><Text style={styles.c9_amt}>Amt</Text></View>}
+              <Text style={styles.c1}>S.No</Text><Text style={styles.c2}>Product Description</Text><Text style={styles.c3}>HSN Code</Text><Text style={styles.c4}>Qty</Text><Text style={styles.c5}>Rate</Text><Text style={styles.c6}>Amt</Text><Text style={styles.c7}>Disc</Text><Text style={styles.c8}>TaxVal</Text>
+              {isIntraState && <><View style={[styles.c9_grp, { flexDirection: 'row' }]}><Text style={{ width: '40%', borderRight: '1pt solid #000' }}>Rate</Text><Text style={{ flex: 1 }}>Amt</Text></View><View style={[styles.c10_grp, { flexDirection: 'row' }]}><Text style={{ width: '40%', borderRight: '1pt solid #000' }}>Rate</Text><Text style={{ flex: 1 }}>Amt</Text></View></>}
+              {isInterState && <View style={[styles.c9_grp, { flexDirection: 'row', width: '24%' }]}><Text style={{ width: '40%', borderRight: '1pt solid #000' }}>Rate</Text><Text style={{ flex: 1 }}>Amt</Text></View>}
               <Text style={styles.c11}>Total</Text>
             </View>
 
             {/* Data Rows */}
-            {invoiceData.items.map((item: any, i: number) => (
+            {invoiceData.items.map((item, i) => (
               <View key={i} style={styles.tableRow}>
                 <Text style={styles.c1}>{i + 1}</Text><Text style={[styles.c2, styles.bold]}>{item.description}</Text><Text style={styles.c3}>{item.hsn}</Text><Text style={styles.c4}>{item.qty}</Text><Text style={styles.c5}>{item.rate}</Text><Text style={styles.c6}>{item.amount}</Text><Text style={styles.c7}>{item.discount}</Text><Text style={styles.c8}>{item.taxableValue.toFixed(2)}</Text>
-                {isIntraState && <><View style={[styles.c9_grp, { flexDirection: 'row', height: '100%' }]}><Text style={styles.c9_sub}>{item.cgstRate}%</Text><Text style={styles.c9_amt}>{item.cgstAmount?.toFixed(2)}</Text></View><View style={[styles.c10_grp, { flexDirection: 'row', height: '100%' }]}><Text style={styles.c9_sub}>{item.sgstRate}%</Text><Text style={styles.c9_amt}>{item.sgstAmount?.toFixed(2)}</Text></View></>}
-                {isInterState && <View style={[styles.c9_grp, { flexDirection: 'row', height: '100%', width: '20%' }]}><Text style={styles.c9_sub}>{item.igstRate}%</Text><Text style={styles.c9_amt}>{item.igstAmount?.toFixed(2)}</Text></View>}
+                {isIntraState && <><View style={[styles.c9_grp, { flexDirection: 'row', height: '100%' }]}><Text style={{ width: '40%', borderRight: '1pt solid #000' }}>{item.cgstRate}%</Text><Text style={{ flex: 1 }}>{item.cgstAmount?.toFixed(2)}</Text></View><View style={[styles.c10_grp, { flexDirection: 'row', height: '100%' }]}><Text style={{ width: '40%', borderRight: '1pt solid #000' }}>{item.sgstRate}%</Text><Text style={{ flex: 1 }}>{item.sgstAmount?.toFixed(2)}</Text></View></>}
+                {isInterState && <View style={[styles.c9_grp, { flexDirection: 'row', height: '100%', width: '24%' }]}><Text style={{ width: '40%', borderRight: '1pt solid #000' }}>{item.igstRate}%</Text><Text style={{ flex: 1 }}>{item.igstAmount?.toFixed(2)}</Text></View>}
                 <Text style={[styles.c11, { textAlign: 'right' }]}>{item.total.toFixed(2)}</Text>
               </View>
             ))}
 
-            {/* Empty filler rows - Bug 1: 10px each */}
-            {Array.from({ length: Math.max(0, 10 - invoiceData.items.length) }).map((_, i) => (
+            {Array.from({ length: Math.max(0, 5 - invoiceData.items.length) }).map((_, i) => (
               <View key={`f-${i}`} style={styles.emptyRow}>
-                <Text style={styles.c1}> </Text><Text style={styles.c2}> </Text><Text style={styles.c3}> </Text><Text style={styles.c4}> </Text><Text style={styles.c5}> </Text><Text style={styles.c6}> </Text><Text style={styles.c7}> </Text><Text style={styles.c8}> </Text>{isIntraState && <><View style={[styles.c9_grp, { height: '100%' }]}></View><View style={[styles.c10_grp, { height: '100%' }]}></View></>}{isInterState && <View style={[styles.c9_grp, { height: '100%', width: '20%' }]}></View>}<Text style={styles.c11}> </Text>
+                <Text style={styles.c1}> </Text><Text style={styles.c2}> </Text><Text style={styles.c3}> </Text><Text style={styles.c4}> </Text><Text style={styles.c5}> </Text><Text style={styles.c6}> </Text><Text style={styles.c7}> </Text><Text style={styles.c8}> </Text>{isIntraState && <><View style={[styles.c9_grp, { height: '100%' }]}></View><View style={[styles.c10_grp, { height: '100%' }]}></View></>}{isInterState && <View style={[styles.c9_grp, { height: '100%', width: '24%' }]}></View>}<Text style={styles.c11}> </Text>
               </View>
             ))}
 
-            {/* Total Row */}
             <View style={styles.tableTotalRow}>
-              <Text style={{ width: '24%', borderRight: '1pt solid #000', padding: 1, textAlign: 'center' }}>Total</Text>
-              <Text style={styles.c3}></Text><Text style={styles.c4}>{invoiceData.items.reduce((acc: any, c: any) => acc + c.qty, 0)}</Text><Text style={styles.c5}></Text><Text style={styles.c6}></Text><Text style={styles.c7}>{invoiceData.items.reduce((acc: any, c: any) => acc + c.discount, 0)}</Text><Text style={styles.c8}>{invoiceData.subtotal.toFixed(2)}</Text>
+              <Text style={{ width: '30%', borderRight: '1pt solid #000', padding: 2, textAlign: 'center' }}>Total</Text>
+              <Text style={styles.c3}></Text><Text style={styles.c4}>{invoiceData.items.reduce((acc, c) => acc + c.qty, 0)}</Text><Text style={styles.c5}></Text><Text style={styles.c6}></Text><Text style={styles.c7}>{invoiceData.items.reduce((acc, c) => acc + c.discount, 0)}</Text><Text style={styles.c8}>{invoiceData.subtotal.toFixed(2)}</Text>
               {isIntraState && <><View style={styles.c9_grp}></View><View style={styles.c10_grp}></View></>}
-              {isInterState && <View style={[styles.c9_grp, {width: '20%'}]}></View>}
+              {isInterState && <View style={[styles.c9_grp, {width: '24%'}]}></View>}
               <Text style={[styles.c11, { textAlign: 'right' }]}>{Math.round(invoiceData.grandTotal)}</Text>
             </View>
           </View>
 
-          {/* Wrapper to prevent page break between summary and footer */}
           <View wrap={false}>
             {/* 7. TOTALS SUMMARY */}
             <View style={styles.summarySection}>
               <View style={styles.wordsContainer}>
                 <Text style={styles.wordsHeader}>TOTAL INVOICE AMOUNT IN WORDS</Text>
-                {/* Bug 2: Fixed duplicate ONLY - using numberToWords without appending */}
+                {/* Bug 2: Fixed duplicate ONLY */}
                 <Text style={styles.wordsContent}>{numberToWords(Math.round(invoiceData.grandTotal))}</Text>
               </View>
               <View style={styles.totalsContainer}>
-                <View style={styles.totRow}><Text style={styles.totLabel}>TOTAL AMOUNT BEFORE TAX</Text><Text style={styles.totValue}>{invoiceData.subtotal.toFixed(2)}</Text></View>
-                {isIntraState && <><View style={styles.totRow}><Text style={styles.totLabel}>ADD: CGST</Text><Text style={styles.totValue}>{invoiceData.cgstTotal.toFixed(2)}</Text></View><View style={styles.totRow}><Text style={styles.totLabel}>ADD: SGST</Text><Text style={styles.totValue}>{invoiceData.sgstTotal.toFixed(2)}</Text></View></>}
-                {isInterState && <View style={styles.totRow}><Text style={styles.totLabel}>ADD: IGST</Text><Text style={styles.totValue}>{invoiceData.igstTotal.toFixed(2)}</Text></View>}
-                <View style={styles.totRow}><Text style={styles.totLabel}>TOTAL TAX AMOUNT</Text><Text style={styles.totValue}>{totalTaxAmt.toFixed(2)}</Text></View>
-                <View style={[styles.totRow, { backgroundColor: '#f2f2f2' }]}><Text style={styles.totLabel}>TOTAL AMOUNT AFTER TAX</Text><Text style={styles.totValue}>{invoiceData.grandTotal.toFixed(2)}</Text></View>
+                <View style={styles.totalsRow}><Text style={styles.totLabel}>TOTAL AMOUNT BEFORE TAX</Text><Text style={styles.totValue}>{invoiceData.subtotal.toFixed(2)}</Text></View>
+                {isIntraState && <><View style={styles.totalsRow}><Text style={styles.totLabel}>ADD: CGST</Text><Text style={styles.totValue}>{invoiceData.cgstTotal.toFixed(2)}</Text></View><View style={styles.totalsRow}><Text style={styles.totLabel}>ADD: SGST</Text><Text style={styles.totValue}>{invoiceData.sgstTotal.toFixed(2)}</Text></View></>}
+                {isInterState && <View style={styles.totalsRow}><Text style={styles.totLabel}>ADD: IGST</Text><Text style={styles.totValue}>{invoiceData.igstTotal.toFixed(2)}</Text></View>}
+                <View style={styles.totalsRow}><Text style={styles.totLabel}>TOTAL TAX AMOUNT</Text><Text style={styles.totValue}>{totalTaxAmt.toFixed(2)}</Text></View>
+                <View style={[styles.totalsRow, { backgroundColor: '#f2f2f2' }]}><Text style={styles.totLabel}>TOTAL AMOUNT AFTER TAX</Text><Text style={styles.totValue}>{invoiceData.grandTotal.toFixed(2)}</Text></View>
                 <View style={styles.totRowLast}><Text style={styles.totLabel}>GST ON REVERSE CHARGE</Text><Text style={styles.totValue}>0.00</Text></View>
               </View>
             </View>
@@ -556,10 +554,10 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
                 <View style={styles.bankHeader}><Text>Bank Details</Text></View>
                 <View style={styles.bankContent}>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.bankDetailsText}>{invoiceData.seller.bank.name}</Text>
-                    <Text style={styles.bankDetailsText}>{invoiceData.seller.bank.branch}</Text>
-                    <Text style={styles.bankDetailsText}>{invoiceData.seller.bank.accountNo}</Text>
-                    <Text style={styles.bankDetailsText}>{invoiceData.seller.bank.ifsc}</Text>
+                    <Text style={styles.bankDetailsText}>Bank Name: {invoiceData.seller.bank.name}</Text>
+                    <Text style={styles.bankDetailsText}>Branch Name: {invoiceData.seller.bank.branch}</Text>
+                    <Text style={styles.bankDetailsText}>Account No: {invoiceData.seller.bank.accountNo}</Text>
+                    <Text style={styles.bankDetailsText}>Bank IFSC: {invoiceData.seller.bank.ifsc}</Text>
                   </View>
                   {invoiceData.upiId && invoiceData.showUpiQr && (
                     <View style={styles.qrBox}>
