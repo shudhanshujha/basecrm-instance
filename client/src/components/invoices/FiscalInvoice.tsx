@@ -162,6 +162,9 @@ const styles = StyleSheet.create({
   },
 
   // 6. ITEMS TABLE
+  table: {
+    flex: 1,
+  },
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: '#f2f2f2',
