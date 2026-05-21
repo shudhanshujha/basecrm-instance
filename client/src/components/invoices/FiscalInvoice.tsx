@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 import { numberToWords } from '../../lib/numberToWords';
 
 // Define styles for an extremely compact, single-page A4 layout
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     paddingRight: 70, 
   },
   companyName: {
-    fontSize: 20, // Reduced from 22 for space
+    fontSize: 20, 
     fontWeight: 'bold',
     marginBottom: 1,
     textTransform: 'uppercase',
@@ -83,16 +83,16 @@ const styles = StyleSheet.create({
   metaItem: {
     flexDirection: 'row',
     borderBottom: '1pt solid #000',
-    minHeight: 14, // Bug 6: Reduced row heights
+    minHeight: 14, 
     alignItems: 'center',
   },
   metaItemLastRow: {
     flexDirection: 'row',
-    minHeight: 14, // Bug 6: Reduced row heights
+    minHeight: 14, 
     alignItems: 'center',
   },
   metaLabel: {
-    width: 115, // Bug 3: Increased width to 115pt for MSME label
+    width: 115, 
     paddingHorizontal: 3,
     fontWeight: 'bold',
     borderRight: '1pt solid #000',
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   tableRow: {
     flexDirection: 'row',
     borderBottom: '0.5pt solid #000',
-    minHeight: 14, // Bug 1: Minimal row height
+    minHeight: 14, 
     alignItems: 'center',
     textAlign: 'center',
     fontSize: 7.5,
@@ -176,17 +176,17 @@ const styles = StyleSheet.create({
     fontSize: 7.5,
   },
 
-  // FIXED COLUMN WIDTHS (Optimized for Bug 4)
-  c1: { width: 22, borderRight: '1pt solid #000', padding: 1 }, // S.No
-  c2: { flex: 1, borderRight: '1pt solid #000', padding: 2, textAlign: 'left' }, // Desc
-  c3: { width: 45, borderRight: '1pt solid #000', padding: 1 }, // HSN
-  c4: { width: 22, borderRight: '1pt solid #000', padding: 1 }, // Qty
-  c5: { width: 40, borderRight: '1pt solid #000', padding: 1 }, // Rate
-  c6: { width: 48, borderRight: '1pt solid #000', padding: 1 }, // Amount (Widened for Bug 4)
-  c7: { width: 38, borderRight: '1pt solid #000', padding: 1 }, // Disc
-  c8: { width: 55, borderRight: '1pt solid #000', padding: 1 }, // Taxable (Widened for Bug 4)
-  c9: { width: 58, borderRight: '1pt solid #000' }, // GST Group (Widened for Bug 4)
-  c10: { width: 55, padding: 1, fontWeight: 'bold' }, // Total (Widened for Bug 4)
+  // FIXED COLUMN WIDTHS
+  c1: { width: 22, borderRight: '1pt solid #000', padding: 1 }, 
+  c2: { flex: 1, borderRight: '1pt solid #000', padding: 2, textAlign: 'left' }, 
+  c3: { width: 45, borderRight: '1pt solid #000', padding: 1 }, 
+  c4: { width: 22, borderRight: '1pt solid #000', padding: 1 }, 
+  c5: { width: 40, borderRight: '1pt solid #000', padding: 1 }, 
+  c6: { width: 48, borderRight: '1pt solid #000', padding: 1 }, 
+  c7: { width: 38, borderRight: '1pt solid #000', padding: 1 }, 
+  c8: { width: 55, borderRight: '1pt solid #000', padding: 1 }, 
+  c9: { width: 58, borderRight: '1pt solid #000' }, 
+  c10: { width: 55, padding: 1, fontWeight: 'bold' }, 
 
   // 7. TOTALS SUMMARY
   summarySection: {
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   wordsContent: {
     padding: 8,
     textAlign: 'center',
-    fontSize: 12, // Reduced for space
+    fontSize: 12, 
     fontStyle: 'italic',
     fontWeight: 'bold',
     justifyContent: 'center',
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   // 8. BOTTOM FOOTER
   footerRow: {
     flexDirection: 'row',
-    minHeight: 90, // Compressed height
+    minHeight: 90, 
   },
   footerBank: {
     width: 230,
@@ -261,6 +261,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 
+  bankTitle: {
+    backgroundColor: '#f2f2f2',
+    borderBottom: '1pt solid #000',
+    textAlign: 'center',
+    paddingVertical: 1.5,
+    fontWeight: 'bold',
+  },
+  bankContent: {
+    padding: 4,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   bankDetailsText: {
     fontSize: 7.5,
     lineHeight: 1.25,
@@ -307,7 +319,50 @@ const styles = StyleSheet.create({
 });
 
 interface FiscalInvoiceProps {
-  invoiceData: any;
+  invoiceData: {
+    invoiceNumber: string;
+    invoiceDate: string;
+    reverseCharge: string;
+    transportMode?: string;
+    vehicleNumber?: string;
+    dateOfSupply: string;
+    placeOfSupply: string;
+    descriptionHeader?: string;
+    seller: {
+      name: string;
+      address: string;
+      phone: string[];
+      email: string;
+      gstin: string;
+      msmeRegNo: string;
+      state: string;
+      stateCode: string;
+      bank: {
+        name: string;
+        branch: string;
+        accountNo: string;
+        ifsc: string;
+      }
+    };
+    buyer: {
+      name: string;
+      address: string;
+      gstin: string;
+      state: string;
+      stateCode: string;
+    };
+    items: any[];
+    subtotal: number;
+    gstConfig: string;
+    cgstTotal: number;
+    sgstTotal: number;
+    igstTotal: number;
+    grandTotal: number;
+    upiId?: string;
+    showUpiQr?: boolean;
+    showDigitalSignature?: boolean;
+    signatureUrl?: string;
+  };
 }
 
 const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
@@ -352,14 +407,12 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
               <View style={styles.metaItem}>
                 <Text style={styles.metaLabel}>State:</Text>
                 <View style={{ flexDirection: 'row', flex: 1 }}>
-                  {/* Bug 5: Compact alignment */}
                   <Text style={{ flex: 1, paddingLeft: 4 }}>{invoiceData.seller.state}</Text>
                   <Text style={{ width: 40, fontWeight: 'bold', borderLeft: '1pt solid #000', paddingLeft: 4 }}>Code:</Text>
                   <Text style={{ paddingLeft: 4 }}>{invoiceData.seller.stateCode}</Text>
                 </View>
               </View>
               <View style={styles.metaItemLastRow}>
-                {/* Bug 3: Full Label */}
                 <Text style={styles.metaLabel}>MSME REGISTRATION NO.:</Text>
                 <Text style={[styles.metaValue, styles.bold]}>{invoiceData.seller.msmeRegNo}</Text>
               </View>
@@ -384,7 +437,6 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
               <View style={styles.partyRow}><Text style={styles.partyLabel}>GSTIN:</Text><Text style={[styles.partyValue, styles.bold]}>{invoiceData.buyer.gstin || '-'}</Text></View>
               <View style={styles.partyRow}>
                 <Text style={styles.partyLabel}>State:</Text>
-                {/* Bug 5: Compact alignment */}
                 <Text style={styles.partyValue}>{invoiceData.buyer.state || '-'}  <Text style={styles.bold}>Code:</Text> {invoiceData.buyer.stateCode || '-'}</Text>
               </View>
             </View>
@@ -403,7 +455,7 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
           <View style={styles.descLine}><Text>{invoiceData.descriptionHeader}</Text></View>
 
           {/* 6. ITEMS TABLE */}
-          <View style={styles.table}>
+          <View>
             {/* Header Row 1 */}
             <View style={styles.tableHeaderRow}>
               <Text style={styles.c1}></Text><Text style={styles.c2}></Text><Text style={styles.c3}></Text><Text style={styles.c4}></Text><Text style={styles.c5}></Text><Text style={styles.c6}></Text><Text style={styles.c7}></Text><Text style={styles.c8}></Text>
@@ -420,7 +472,7 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
             </View>
 
             {/* Data Rows */}
-            {invoiceData.items.map((item: any, i: number) => (
+            {invoiceData.items.map((item, i) => (
               <View key={i} style={styles.tableRow}>
                 <Text style={styles.c1}>{i + 1}</Text><Text style={[styles.c2, styles.bold]}>{item.description}</Text><Text style={styles.c3}>{item.hsn}</Text><Text style={styles.c4}>{item.qty}</Text><Text style={styles.c5}>{item.rate}</Text><Text style={styles.c6}>{item.amount}</Text><Text style={styles.c7}>{item.discount}</Text><Text style={styles.c8}>{item.taxableValue.toFixed(2)}</Text>
                 {isIntraState && <><View style={[styles.c9, { flexDirection: 'row', height: '100%' }]}><Text style={{ width: '40%', borderRight: '1pt solid #000' }}>{item.cgstRate}%</Text><Text style={{ flex: 1 }}>{item.cgstAmount?.toFixed(2)}</Text></View><View style={[styles.c9, { flexDirection: 'row', height: '100%' }]}><Text style={{ width: '40%', borderRight: '1pt solid #000' }}>{item.sgstRate}%</Text><Text style={{ flex: 1 }}>{item.sgstAmount?.toFixed(2)}</Text></View></>}
@@ -429,30 +481,26 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
               </View>
             ))}
 
-            {/* Bug 1: Reduced filler rows to 5 to save space */}
             {Array.from({ length: Math.max(0, 5 - invoiceData.items.length) }).map((_, i) => (
               <View key={`f-${i}`} style={styles.tableRow}>
                 <Text style={styles.c1}> </Text><Text style={styles.c2}> </Text><Text style={styles.c3}> </Text><Text style={styles.c4}> </Text><Text style={styles.c5}> </Text><Text style={styles.c6}> </Text><Text style={styles.c7}> </Text><Text style={styles.c8}> </Text>{isIntraState && <><View style={[styles.c9, { height: '100%' }]}></View><View style={[styles.c9, { height: '100%' }]}></View></>}{isInterState && <View style={[styles.c9, { height: '100%' }]}></View>}<Text style={styles.c10}> </Text>
               </View>
             ))}
 
-            {/* Bug 4: Widened columns in total row to avoid ### */}
             <View style={styles.tableTotalRow}>
               <Text style={{ width: 22 + 45 + 2, borderRight: '1pt solid #000', padding: 2, flex: 1, textAlign: 'center' }}>Total</Text>
-              <Text style={styles.c3}></Text><Text style={styles.c4}>{invoiceData.items.reduce((acc: any, c: any) => acc + c.qty, 0)}</Text><Text style={styles.c5}>###</Text><Text style={styles.c6}>####</Text><Text style={styles.c7}>{invoiceData.items.reduce((acc: any, c: any) => acc + c.discount, 0)}</Text><Text style={styles.c8}>{invoiceData.subtotal.toFixed(2)}</Text>
+              <Text style={styles.c3}></Text><Text style={styles.c4}>{invoiceData.items.reduce((acc, c) => acc + c.qty, 0)}</Text><Text style={styles.c5}>###</Text><Text style={styles.c6}>####</Text><Text style={styles.c7}>{invoiceData.items.reduce((acc, c) => acc + c.discount, 0)}</Text><Text style={styles.c8}>{invoiceData.subtotal.toFixed(2)}</Text>
               {isIntraState && <><View style={styles.c9}><Text style={{fontSize: 6.5}}>#### ###</Text></View><View style={styles.c9}><Text style={{fontSize: 6.5}}>#### ###</Text></View></>}
               {isInterState && <View style={styles.c9}><Text style={{fontSize: 6.5}}>#### ###</Text></View>}
               <Text style={[styles.c10, { textAlign: 'right' }]}>{Math.round(invoiceData.grandTotal)}</Text>
             </View>
           </View>
 
-          {/* Bug 1 & 7: Force footer to stay on page 1 */}
           <View wrap={false}>
             {/* 7. TOTALS SUMMARY */}
             <View style={styles.summarySection}>
               <View style={styles.wordsContainer}>
                 <Text style={styles.wordsHeader}>TOTAL INVOICE AMOUNT IN WORDS</Text>
-                {/* Bug 2: Fixed duplicate ONLY */}
                 <Text style={styles.wordsContent}>{numberToWords(Math.round(invoiceData.grandTotal))}</Text>
               </View>
               <View style={styles.totalsContainer}>
