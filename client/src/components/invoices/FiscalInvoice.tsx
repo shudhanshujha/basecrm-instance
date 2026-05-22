@@ -2,9 +2,9 @@ import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import { numberToWords } from '../../lib/numberToWords';
 
-// Colors — EXACT values
+// Colors — EXACT values as per source of truth
 const COLORS = {
-  headerBg: '#BDD7EE',
+  headerBg: '#BDD7EE', // light steel blue
   black: '#000000',
   white: '#FFFFFF',
   border: '#000000',
@@ -12,7 +12,7 @@ const COLORS = {
 
 const styles = StyleSheet.create({
   page: {
-    padding: '10mm', // Spec: 10mm margins on all sides
+    padding: '10mm', // Spec: 10mm margins
     fontSize: 7,     // Spec: 7pt body text
     fontFamily: 'Helvetica',
     color: COLORS.black,
@@ -24,21 +24,20 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   
-  // SECTION 1: COMPANY HEADER
+  // 1. COMPANY HEADER
   header: {
     padding: 6,
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 80,
-    marginBottom: 4, // ~4mm gap spec
+    minHeight: 85,
   },
   logoBox: {
     width: 60,
     alignItems: 'center',
   },
   logo: {
-    width: 60,
-    height: 60,
+    width: 55,
+    height: 55,
     objectFit: 'contain',
   },
   companyInfo: {
@@ -52,36 +51,35 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   companySubInfo: {
-    fontSize: 9, // Spec: 9pt
+    fontSize: 9, 
     marginBottom: 0.5,
   },
   gstinLineContainer: {
     marginTop: 2,
-    borderTop: '1pt solid ' + COLORS.border, // Spec: horizontal rule
     paddingTop: 3,
+    borderTop: '0.5pt solid ' + COLORS.border,
     alignSelf: 'center',
     width: '100%',
   },
   gstinText: {
-    fontSize: 9, // Spec: 9pt bold centered
+    fontSize: 9, 
     fontWeight: 'bold',
     textAlign: 'center',
   },
 
-  // SECTION 2: INVOICE METADATA GRID
-  metaGrid: {
-    flexDirection: 'column',
-    borderTop: '1pt solid ' + COLORS.border,
-  },
+  // 2. INVOICE TITLE BAR
   invoiceTitleBar: {
     backgroundColor: COLORS.headerBg,
     borderBottom: '1pt solid ' + COLORS.border,
     textAlign: 'center',
     paddingVertical: 1.5,
     fontWeight: 'bold',
-    fontSize: 8, // Spec: 8pt
+    fontSize: 8,
+    textTransform: 'uppercase',
   },
-  metaTwoCol: {
+
+  // 3. INVOICE METADATA GRID
+  metaGrid: {
     flexDirection: 'row',
     borderBottom: '1pt solid ' + COLORS.border,
   },
@@ -91,7 +89,7 @@ const styles = StyleSheet.create({
   metaItem: {
     flexDirection: 'row',
     borderBottom: '1pt solid ' + COLORS.border,
-    height: 14, // Fixed height to match heights
+    height: 14, 
     alignItems: 'center',
   },
   metaItemLast: {
@@ -100,7 +98,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   metaLabel: {
-    width: 100,
+    width: 90,
     paddingHorizontal: 4,
     fontWeight: 'bold',
     borderRight: '1pt solid ' + COLORS.border,
@@ -111,19 +109,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     fontSize: 8,
   },
-  fullWidthRow: {
+  msmeFullRow: {
     flexDirection: 'row',
     height: 15,
     alignItems: 'center',
     borderBottom: '1pt solid ' + COLORS.border,
   },
-  fullWidthLabel: {
+  msmeLabel: {
+    width: 140, // Bug 3: Full width spec
     paddingHorizontal: 4,
     fontWeight: 'bold',
+    borderRight: '1pt solid ' + COLORS.border,
     fontSize: 8,
   },
 
-  // SECTION 3: PARTY SECTION
+  // 4. PARTY SECTION
   partyHeaderGrid: {
     flexDirection: 'row',
     backgroundColor: COLORS.headerBg,
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   partyDataGrid: {
     flexDirection: 'row',
     borderBottom: '1pt solid ' + COLORS.border,
-    minHeight: 60,
+    minHeight: 65,
   },
   partyBox: {
     width: '50%',
@@ -158,15 +158,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // SECTION 4: SERVICE DESCRIPTION
-  descLine: {
+  // 5. SERVICE DESCRIPTION
+  descHeaderLine: {
     padding: 3,
-    fontSize: 7, // Spec: 7pt
+    fontSize: 7, 
     borderBottom: '1pt solid ' + COLORS.border,
   },
 
-  // SECTION 5: ITEMS TABLE
-  tableHeaderRow: {
+  // 6. ITEMS TABLE
+  table: {
+    flexDirection: 'column',
+  },
+  tableHeader: {
     flexDirection: 'row',
     backgroundColor: COLORS.headerBg,
     borderBottom: '1pt solid ' + COLORS.border,
@@ -176,8 +179,8 @@ const styles = StyleSheet.create({
   },
   tableRow: {
     flexDirection: 'row',
-    borderBottom: '1pt solid ' + COLORS.border,
-    height: 12, // Spec: 12px for empty, keeping consistent
+    borderBottom: '0.5pt solid ' + COLORS.border,
+    height: 12, 
     alignItems: 'center',
     textAlign: 'center',
     fontSize: 7,
@@ -193,27 +196,27 @@ const styles = StyleSheet.create({
     fontSize: 7,
   },
 
-  // FIXED PERCENTAGE COLUMN WIDTHS (Spec Section 5)
+  // SPECIFIC COLUMN WIDTHS
   col1: { width: '4%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
-  col2: { width: '25%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center', textAlign: 'left', paddingLeft: 3 }, // Adjusted 19->25 to reach 100%
+  col2: { width: '19%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center', textAlign: 'left', paddingLeft: 3 },
   col3: { width: '7%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
   col4: { width: '5%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
   col5: { width: '6%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
   col6: { width: '7%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
   col7: { width: '7%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
   col8: { width: '8%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
-  colGstGrp: { width: '12%', borderRight: '1pt solid ' + COLORS.border, height: '100%' }, // Parent for Rate (5%) + Amt (7%)
-  colGstRate: { width: '41.6%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' }, // 5/12
-  colGstAmt: { width: '58.4%', height: '100%', justifyContent: 'center' }, // 7/12
+  colGstGrp: { width: '12%', borderRight: '1pt solid ' + COLORS.border, height: '100%' }, 
+  colGstRate: { width: '41.6%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' }, 
+  colGstAmt: { width: '58.4%', height: '100%', justifyContent: 'center' }, 
   col11: { width: '7%', height: '100%', justifyContent: 'center', fontWeight: 'bold' },
 
-  // SECTION 6: TOTALS SUMMARY
+  // 7. TOTALS SUMMARY
   summaryHeaderRow: {
     flexDirection: 'row',
     backgroundColor: COLORS.headerBg,
     borderBottom: '1pt solid ' + COLORS.border,
   },
-  summaryLeftHeader: {
+  summaryHeaderLeft: {
     width: '65%',
     textAlign: 'center',
     paddingVertical: 2,
@@ -221,70 +224,65 @@ const styles = StyleSheet.create({
     fontSize: 8,
     borderRight: '1pt solid ' + COLORS.border,
   },
-  summaryGrid: {
+  summaryDataGrid: {
     flexDirection: 'row',
     borderBottom: '1pt solid ' + COLORS.border,
   },
-  wordsContainer: {
+  summaryWordsBox: {
     width: '65%',
     borderRight: '1pt solid ' + COLORS.border,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
   },
-  wordsText: {
-    fontSize: 11, // Spec: 11pt
+  summaryWordsText: {
+    fontSize: 11, // Spec: 11pt bold italic centered
     fontStyle: 'italic',
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  totalsContainer: {
+  summaryTotalsBox: {
     width: '35%',
   },
-  totRow: {
+  totalsRow: {
     flexDirection: 'row',
     borderBottom: '1pt solid ' + COLORS.border,
     height: 14,
     alignItems: 'center',
   },
-  totRowLast: {
-    flexDirection: 'row',
-    height: 14,
-    alignItems: 'center',
-  },
-  totLabel: {
+  totalsLabel: {
     width: '65%',
     paddingHorizontal: 4,
     fontWeight: 'bold',
     borderRight: '1pt solid ' + COLORS.border,
-    fontSize: 6.5,
+    fontSize: 7,
   },
-  totValue: {
+  totalsValue: {
     width: '35%',
     paddingHorizontal: 4,
     textAlign: 'right',
     fontWeight: 'bold',
-    fontSize: 7,
+    fontSize: 7.5,
   },
 
-  // SECTION 7: FOOTER
+  // 8. BOTTOM FOOTER
   footerRow: {
     flexDirection: 'row',
     minHeight: 100,
   },
-  footerLeft: {
+  footerBankBox: {
     width: '35%',
     borderRight: '1pt solid ' + COLORS.border,
   },
-  footerCenter: {
+  footerSealBox: {
     width: '20%',
     borderRight: '1pt solid ' + COLORS.border,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  footerRight: {
+  footerSignBox: {
     width: '45%',
-    padding: 6,
+    padding: 5,
     justifyContent: 'space-between',
   },
 
@@ -302,16 +300,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
-  bankDetailsText: {
+  bankText: {
     fontSize: 8,
     lineHeight: 1.4,
     fontWeight: 'bold',
   },
-  qrContainer: {
+  qrWrap: {
     alignItems: 'center',
-    width: 60,
+    width: 50,
   },
-  qrImage: {
+  qrImg: {
     width: 40,
     height: 40,
   },
@@ -321,7 +319,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 1,
   },
-  termsLine: {
+  termsBox: {
     borderTop: '1pt solid ' + COLORS.border,
     textAlign: 'center',
     paddingVertical: 2,
@@ -331,26 +329,25 @@ const styles = StyleSheet.create({
   },
   sealText: {
     fontWeight: 'bold',
-    fontSize: 8,
+    fontSize: 9,
   },
   certText: {
     fontSize: 7,
     fontStyle: 'italic',
-    textAlign: 'left',
   },
-  authCompany: {
+  authForCompany: {
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: 9,
     textTransform: 'uppercase',
   },
-  signatureLine: {
+  signatureHLine: {
     marginTop: 20,
     borderTop: '1pt solid ' + COLORS.border,
     width: '80%',
     alignSelf: 'center',
   },
-  authLabel: {
+  authSignLabel: {
     textAlign: 'center',
     paddingTop: 2,
     fontWeight: 'bold',
@@ -366,9 +363,9 @@ interface FiscalInvoiceProps {
 const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
   const isIntraState = invoiceData.gstConfig === 'INTRA';
   const isInterState = invoiceData.gstConfig === 'INTER';
-  const totalTaxAmt = (invoiceData.cgstTotal || 0) + (invoiceData.sgstTotal || 0) + (invoiceData.igstTotal || 0);
+  const totalTaxAmountValue = (invoiceData.cgstTotal || 0) + (invoiceData.sgstTotal || 0) + (invoiceData.igstTotal || 0);
 
-  const phoneString = Array.isArray(invoiceData.seller.phone) 
+  const phoneStr = Array.isArray(invoiceData.seller.phone) 
     ? invoiceData.seller.phone.join(', ') 
     : invoiceData.seller.phone;
 
@@ -385,7 +382,7 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
             <View style={styles.companyInfo}>
               <Text style={styles.companyName}>{invoiceData.seller.name}</Text>
               <Text style={styles.companySubInfo}>{invoiceData.seller.address}</Text>
-              <Text style={styles.companySubInfo}>Phone: {phoneString}</Text>
+              <Text style={styles.companySubInfo}>Phone: {phoneStr}</Text>
               <Text style={styles.companySubInfo}>E Mail: {invoiceData.seller.email}</Text>
               <View style={styles.gstinLineContainer}>
                 <Text style={styles.gstinText}>GSTIN NUMBER : {invoiceData.seller.gstin}</Text>
@@ -394,16 +391,16 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
           </View>
 
           {/* SECTION 2: METADATA GRID */}
+          <View style={styles.invoiceTitleBar}><Text>Invoice</Text></View>
           <View style={styles.metaGrid}>
-            <View style={styles.invoiceTitleBar}><Text>Invoice</Text></View>
-            <View style={styles.metaTwoCol}>
+            <View style={{ flexDirection: 'row', borderBottom: '1pt solid ' + COLORS.border }}>
               <View style={[styles.metaCol, { borderRight: '1pt solid ' + COLORS.border }]}>
                 <View style={styles.metaItem}><Text style={styles.metaLabel}>Invoice No:</Text><Text style={styles.metaValue}>{invoiceData.invoiceNumber}</Text></View>
                 <View style={styles.metaItem}><Text style={styles.metaLabel}>Invoice Date:</Text><Text style={styles.metaValue}>{invoiceData.invoiceDate}</Text></View>
                 <View style={styles.metaItem}><Text style={styles.metaLabel}>Reverse Charge:</Text><Text style={styles.metaValue}>{invoiceData.reverseCharge || 'N'}</Text></View>
                 <View style={styles.metaItemLast}>
                   <Text style={styles.metaLabel}>State:</Text>
-                  <Text style={styles.metaValue}>{invoiceData.seller.state}  |  Code: {invoiceData.seller.stateCode}</Text>
+                  <Text style={styles.metaValue}>{invoiceData.seller.state} | Code: {invoiceData.seller.stateCode}</Text>
                 </View>
               </View>
               <View style={styles.metaCol}>
@@ -413,17 +410,18 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
                 <View style={styles.metaItemLast}><Text style={styles.metaLabel}>Place of Supply:</Text><Text style={[styles.metaValue, { textTransform: 'uppercase' }]}>{invoiceData.placeOfSupply}</Text></View>
               </View>
             </View>
-            <View style={styles.fullWidthRow}>
-              <Text style={styles.fullWidthLabel}>MSME REGISTRATION NO.: {invoiceData.seller.msmeRegNo}</Text>
+            <View style={styles.msmeFullRow}>
+              <Text style={styles.msmeLabel}>MSME REGISTRATION NO.:</Text>
+              <Text style={[styles.metaValue, styles.bold]}>{invoiceData.seller.msmeRegNo}</Text>
             </View>
           </View>
 
-          {/* SECTION 3: PARTY SECTION */}
-          <View style={styles.partyHeader}>
-            <Text style={[styles.partyHeaderBox, { borderRight: '1pt solid ' + COLORS.border }]}>Invoice to Party</Text>
-            <Text style={styles.partyHeaderBox}>Ship to Party</Text>
+          {/* SECTION 3: PARTY DETAILS */}
+          <View style={styles.partyHeaderGrid}>
+            <Text style={[styles.partyHeaderCell, { borderRight: '1pt solid ' + COLORS.border }]}>Invoice to Party</Text>
+            <Text style={styles.partyHeaderCell}>Ship to Party</Text>
           </View>
-          <View style={styles.partyGrid}>
+          <View style={styles.partyDataGrid}>
             <View style={[styles.partyBox, { borderRight: '1pt solid ' + COLORS.border }]}>
               <View style={styles.partyLine}><Text style={styles.partyLabel}>Name:</Text><Text style={[styles.partyValue, styles.bold]}>{invoiceData.buyer.name || '-'}</Text></View>
               <View style={styles.partyLine}><Text style={styles.partyLabel}>Address:</Text><Text style={styles.partyValue}>{invoiceData.buyer.address || '-'}</Text></View>
@@ -439,19 +437,19 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
           </View>
 
           {/* SECTION 4: SERVICE DESCRIPTION */}
-          <View style={styles.descLine}><Text>{invoiceData.descriptionHeader}</Text></View>
+          <View style={styles.descHeaderLine}><Text>{invoiceData.descriptionHeader}</Text></View>
 
           {/* SECTION 5: ITEMS TABLE */}
-          <View>
+          <View style={styles.table}>
             {/* Header Row 1 */}
-            <View style={styles.tableHeaderRow}>
+            <View style={styles.tableHeader}>
               <View style={styles.col1}></View><View style={styles.col2}></View><View style={styles.col3}></View><View style={styles.col4}></View><View style={styles.col5}></View><View style={styles.col6}></View><View style={styles.col7}></View><View style={styles.col8}></View>
               {isIntraState && <><View style={[styles.colGstGrp, { borderBottom: '1pt solid ' + COLORS.border }]}><Text style={{ padding: 1 }}>CGST</Text></View><View style={[styles.colGstGrp, { borderBottom: '1pt solid ' + COLORS.border }]}><Text style={{ padding: 1 }}>SGST</Text></View></>}
               {isInterState && <View style={[styles.colGstGrp, { borderBottom: '1pt solid ' + COLORS.border, width: '24%' }]}><Text style={{ padding: 1 }}>IGST</Text></View>}
               <View style={styles.col11}></View>
             </View>
             {/* Header Row 2 */}
-            <View style={styles.tableHeaderRow}>
+            <View style={styles.tableHeader}>
               <Text style={styles.col1}>S.No</Text><Text style={styles.col2}>Product Description</Text><Text style={styles.col3}>HSN</Text><Text style={styles.col4}>Qty</Text><Text style={styles.col5}>Rate</Text><Text style={styles.col6}>Amount</Text><Text style={styles.col7}>Discount</Text><Text style={styles.col8}>TaxVal</Text>
               {isIntraState && <><View style={[styles.colGstGrp, { flexDirection: 'row' }]}><Text style={styles.colGstRate}>Rate</Text><Text style={styles.colGstAmt}>Amt</Text></View><View style={[styles.colGstGrp, { flexDirection: 'row' }]}><Text style={styles.colGstRate}>Rate</Text><Text style={styles.colGstAmt}>Amt</Text></View></>}
               {isInterState && <View style={[styles.colGstGrp, { flexDirection: 'row', width: '24%' }]}><Text style={styles.colGstRate}>Rate</Text><Text style={styles.colGstAmt}>Amt</Text></View>}
@@ -468,16 +466,16 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
               </View>
             ))}
 
-            {/* Empty filler rows - Spec: 10 rows at 12px */}
+            {/* Filler rows - Spec: 10 rows at 12px */}
             {Array.from({ length: 10 }).map((_, i) => (
-              <View key={`f-${i}`} style={[styles.tableRow, { borderBottom: (i === 9 ? '1pt solid ' + COLORS.border : '0.5pt solid ' + COLORS.border) }]}>
+              <View key={i} style={styles.tableRow}>
                 <Text style={styles.col1}> </Text><Text style={styles.col2}> </Text><Text style={styles.col3}> </Text><Text style={styles.col4}> </Text><Text style={styles.col5}> </Text><Text style={styles.col6}> </Text><Text style={styles.col7}> </Text><Text style={styles.col8}> </Text>{isIntraState && <><View style={styles.colGstGrp}></View><View style={styles.colGstGrp}></View></>}{isInterState && <View style={[styles.colGstGrp, {width: '24%'}]}></View>}<Text style={styles.col11}> </Text>
               </View>
             ))}
 
             {/* Total Row */}
             <View style={styles.tableTotalRow}>
-              <Text style={{ width: '29%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center', textAlign: 'center' }}>Total</Text>
+              <Text style={{ width: '30%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center', textAlign: 'center' }}>Total</Text>
               <Text style={styles.col3}></Text><Text style={styles.col4}>{invoiceData.items.reduce((acc: any, c: any) => acc + (parseFloat(c.qty) || 0), 0)}</Text><Text style={styles.col5}></Text><Text style={styles.col6}></Text><Text style={styles.col7}>{invoiceData.items.reduce((acc: any, c: any) => acc + (parseFloat(c.discount) || 0), 0)}</Text><Text style={styles.col8}>{invoiceData.subtotal.toFixed(2)}</Text>
               {isIntraState && <><View style={styles.colGstGrp}></View><View style={styles.colGstGrp}></View></>}
               {isInterState && <View style={[styles.colGstGrp, {width: '24%'}]}></View>}
@@ -486,56 +484,56 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
           </View>
 
           <View wrap={false}>
-            {/* SECTION 6: TOTALS SUMMARY */}
+            {/* SECTION 6: SUMMARY */}
             <View style={styles.summaryHeaderRow}>
-               <Text style={styles.summaryLeftHeader}>TOTAL INVOICE AMOUNT IN WORDS</Text>
-               <View style={styles.totalsContainer}></View>
+               <Text style={styles.summaryHeaderLeft}>TOTAL INVOICE AMOUNT IN WORDS</Text>
+               <View style={styles.summaryTotalsBox}></View>
             </View>
-            <View style={styles.summaryGrid}>
-              <View style={styles.wordsContainer}>
-                <Text style={styles.wordsText}>{numberToWords(Math.round(invoiceData.grandTotal))}</Text>
+            <View style={styles.summaryDataGrid}>
+              <View style={styles.summaryWordsBox}>
+                <Text style={styles.summaryWordsText}>{numberToWords(Math.round(invoiceData.grandTotal))}</Text>
               </View>
-              <View style={styles.totalsContainer}>
-                <View style={styles.totRow}><Text style={styles.totLabel}>TOTAL AMOUNT BEFORE TAX</Text><Text style={styles.totValue}>{invoiceData.subtotal.toFixed(2)}</Text></View>
-                {isIntraState && <><View style={styles.totRow}><Text style={styles.totLabel}>Add: CGST</Text><Text style={styles.totValue}>{invoiceData.cgstTotal.toFixed(2)}</Text></View><View style={styles.totRow}><Text style={styles.totLabel}>Add: SGST</Text><Text style={styles.totValue}>{invoiceData.sgstTotal.toFixed(2)}</Text></View></>}
-                {isInterState && <View style={styles.totRow}><Text style={styles.totLabel}>Add: IGST</Text><Text style={styles.totValue}>{invoiceData.igstTotal.toFixed(2)}</Text></View>}
-                <View style={styles.totRow}><Text style={styles.totLabel}>Total Tax Amount</Text><Text style={styles.totValue}>{totalTaxAmt.toFixed(2)}</Text></View>
-                <View style={[styles.totRow, { backgroundColor: COLORS.white }]}><Text style={styles.totLabel}>Total Amount After Tax</Text><Text style={styles.totValue}>{invoiceData.grandTotal.toFixed(2)}</Text></View>
-                <View style={styles.totRowLast}><Text style={styles.totLabel}>GST ON REVERSE CHARGE</Text><Text style={styles.totValue}>0.00</Text></View>
+              <View style={styles.summaryTotalsBox}>
+                <View style={styles.totalsRow}><Text style={styles.totalsLabel}>TOTAL AMOUNT BEFORE TAX</Text><Text style={styles.totalsValue}>{invoiceData.subtotal.toFixed(2)}</Text></View>
+                {isIntraState && <><View style={styles.totalsRow}><Text style={styles.totalsLabel}>Add: CGST</Text><Text style={styles.totalsValue}>{invoiceData.cgstTotal.toFixed(2)}</Text></View><View style={styles.totalsRow}><Text style={styles.totalsLabel}>Add: SGST</Text><Text style={styles.totalsValue}>{invoiceData.sgstTotal.toFixed(2)}</Text></View></>}
+                {isInterState && <View style={styles.totalsRow}><Text style={styles.totalsLabel}>Add: IGST</Text><Text style={styles.totalsValue}>{invoiceData.igstTotal.toFixed(2)}</Text></View>}
+                <View style={styles.totalsRow}><Text style={styles.totalsLabel}>Total Tax Amount</Text><Text style={styles.totalsValue}>{totalTaxAmountValue.toFixed(2)}</Text></View>
+                <View style={[styles.totalsRow, { backgroundColor: COLORS.white }]}><Text style={styles.totalsLabel}>Total Amount After Tax</Text><Text style={styles.totalsValue}>{invoiceData.grandTotal.toFixed(2)}</Text></View>
+                <View style={{ flexDirection: 'row', height: 14, alignItems: 'center' }}><Text style={styles.totalsLabel}>GST ON REVERSE CHARGE</Text><Text style={styles.totalsValue}>0.00</Text></View>
               </View>
             </View>
 
             {/* SECTION 7: FOOTER */}
             <View style={styles.footerRow}>
-              <View style={styles.footerLeft}>
+              <View style={styles.footerBankBox}>
                 <View style={styles.bankHeader}><Text>Bank Details</Text></View>
                 <View style={styles.bankContent}>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.bankDetailsText}>Bank Name: {invoiceData.seller.bank.name}</Text>
-                    <Text style={styles.bankDetailsText}>Branch Name: {invoiceData.seller.bank.branch}</Text>
-                    <Text style={styles.bankDetailsText}>Account No: {invoiceData.seller.bank.accountNo}</Text>
-                    <Text style={styles.bankDetailsText}>Bank IFSC: {invoiceData.seller.bank.ifsc}</Text>
+                    <Text style={styles.bankText}>Bank Name: {invoiceData.seller.bank.name}</Text>
+                    <Text style={styles.bankText}>Branch Name: {invoiceData.seller.bank.branch}</Text>
+                    <Text style={styles.bankText}>Account No: {invoiceData.seller.bank.accountNo}</Text>
+                    <Text style={styles.bankText}>Bank IFSC: {invoiceData.seller.bank.ifsc}</Text>
                   </View>
                   {invoiceData.upiId && invoiceData.showUpiQr && (
-                    <View style={styles.qrContainer}>
-                      <Image src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`upi://pay?pa=${invoiceData.upiId}&pn=${encodeURIComponent(invoiceData.seller.name)}&am=${invoiceData.grandTotal.toFixed(2)}&cu=INR`)}`} style={styles.qrImage} />
+                    <View style={styles.qrWrap}>
+                      <Image src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`upi://pay?pa=${invoiceData.upiId}&pn=${encodeURIComponent(invoiceData.seller.name)}&am=${invoiceData.grandTotal.toFixed(2)}&cu=INR`)}`} style={styles.qrImg} />
                       <Text style={styles.qrLabel}>SCAN TO PAY</Text>
                     </View>
                   )}
                 </View>
-                <Text style={styles.termsLine}>Terms & Conditions Apply</Text>
+                <Text style={styles.termsBox}>Terms & Conditions Apply</Text>
               </View>
-              <View style={styles.footerCenter}>
+              <View style={styles.footerSealBox}>
                 <Text style={styles.sealText}>Common Seal</Text>
               </View>
-              <View style={styles.footerRight}>
+              <View style={styles.footerSignBox}>
                 <Text style={styles.certText}>Certified that the particulars given above are true and correct.</Text>
-                <View style={{ alignItems: 'center', marginTop: 10 }}>
-                  <Text style={styles.authCompany}>FOR {invoiceData.seller.name}</Text>
-                  {invoiceData.showDigitalSignature && <Image src={invoiceData.signatureUrl} style={styles.signatureImg} />}
+                <View style={{ alignItems: 'center', marginTop: 8 }}>
+                  <Text style={styles.authForCompany}>FOR {invoiceData.seller.name}</Text>
+                  {invoiceData.showDigitalSignature && <Image src={invoiceData.signatureUrl} style={{ width: 80, height: 30, objectFit: 'contain' }} />}
                 </View>
-                <View style={styles.signatureLine}></View>
-                <Text style={styles.authLabel}>AUTHORISED SIGNATORY</Text>
+                <View style={styles.signatureHLine}></View>
+                <Text style={styles.authSignLabel}>AUTHORISED SIGNATORY</Text>
               </View>
             </View>
           </View>
