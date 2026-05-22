@@ -2,31 +2,38 @@ import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import { numberToWords } from '../../lib/numberToWords';
 
-// Define styles for a strictly sequential, single-page A4 layout
+// Colors — EXACT values
+const COLORS = {
+  headerBg: '#BDD7EE',
+  black: '#000000',
+  white: '#FFFFFF',
+  border: '#000000',
+};
+
 const styles = StyleSheet.create({
   page: {
-    padding: '8mm', // Bug 1: 8mm margins
-    fontSize: 7.5,   // Bug 1: 7.5pt base font
+    padding: '10mm', // Spec: 10mm margins on all sides
+    fontSize: 7,     // Spec: 7pt body text
     fontFamily: 'Helvetica',
-    color: '#000',
-    backgroundColor: '#fff',
+    color: COLORS.black,
+    backgroundColor: COLORS.white,
   },
   container: {
-    border: '1pt solid #000',
+    border: '1pt solid ' + COLORS.border,
     flexDirection: 'column',
     width: '100%',
   },
   
-  // 1. COMPANY HEADER
+  // SECTION 1: COMPANY HEADER
   header: {
     padding: 6,
-    borderBottom: '1pt solid #000',
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 85,
+    minHeight: 80,
+    marginBottom: 4, // ~4mm gap spec
   },
   logoBox: {
-    width: 70,
+    width: 60,
     alignItems: 'center',
   },
   logo: {
@@ -37,111 +44,110 @@ const styles = StyleSheet.create({
   companyInfo: {
     flex: 1,
     textAlign: 'center',
-    paddingRight: 70, 
+    paddingRight: 60, 
   },
   companyName: {
-    fontSize: 22,
+    fontSize: 22, // Spec: 22pt bold
     fontWeight: 'bold',
-    marginBottom: 2,
     textTransform: 'uppercase',
   },
   companySubInfo: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    marginBottom: 1,
+    fontSize: 9, // Spec: 9pt
+    marginBottom: 0.5,
   },
-  gstinLine: {
-    marginTop: 4,
+  gstinLineContainer: {
+    marginTop: 2,
+    borderTop: '1pt solid ' + COLORS.border, // Spec: horizontal rule
     paddingTop: 3,
-    borderTop: '0.5pt solid #000',
     alignSelf: 'center',
+    width: '100%',
   },
   gstinText: {
-    fontSize: 10,
+    fontSize: 9, // Spec: 9pt bold centered
     fontWeight: 'bold',
+    textAlign: 'center',
   },
 
-  // 2. INVOICE TITLE BAR
-  titleBar: {
-    backgroundColor: '#f2f2f2',
-    borderBottom: '1pt solid #000',
+  // SECTION 2: INVOICE METADATA GRID
+  metaGrid: {
+    flexDirection: 'column',
+    borderTop: '1pt solid ' + COLORS.border,
+  },
+  invoiceTitleBar: {
+    backgroundColor: COLORS.headerBg,
+    borderBottom: '1pt solid ' + COLORS.border,
     textAlign: 'center',
     paddingVertical: 1.5,
     fontWeight: 'bold',
-    fontSize: 10,
-    textTransform: 'uppercase',
+    fontSize: 8, // Spec: 8pt
   },
-
-  // 3. INVOICE METADATA GRID
-  metaGrid: {
+  metaTwoCol: {
     flexDirection: 'row',
-    borderBottom: '1pt solid #000',
+    borderBottom: '1pt solid ' + COLORS.border,
   },
   metaCol: {
     width: '50%',
   },
   metaItem: {
     flexDirection: 'row',
-    borderBottom: '1pt solid #000',
-    height: 15, // Bug 6 & 7: Equal heights
+    borderBottom: '1pt solid ' + COLORS.border,
+    height: 14, // Fixed height to match heights
     alignItems: 'center',
   },
-  metaItemLastRow: {
+  metaItemLast: {
     flexDirection: 'row',
-    height: 15,
+    height: 14,
     alignItems: 'center',
   },
   metaLabel: {
     width: 100,
     paddingHorizontal: 4,
     fontWeight: 'bold',
-    borderRight: '1pt solid #000',
-    fontSize: 7.5,
+    borderRight: '1pt solid ' + COLORS.border,
+    fontSize: 8,
   },
   metaValue: {
     flex: 1,
     paddingHorizontal: 4,
     fontSize: 8,
   },
-  msmeRow: {
+  fullWidthRow: {
     flexDirection: 'row',
-    height: 16,
+    height: 15,
     alignItems: 'center',
-    borderBottom: '1pt solid #000',
+    borderBottom: '1pt solid ' + COLORS.border,
   },
-  msmeLabel: {
-    width: 130, // Bug 3: Full label width
+  fullWidthLabel: {
     paddingHorizontal: 4,
     fontWeight: 'bold',
-    borderRight: '1pt solid #000',
-    fontSize: 7.5,
+    fontSize: 8,
   },
 
-  // 4. PARTY SECTION
-  partyHeader: {
+  // SECTION 3: PARTY SECTION
+  partyHeaderGrid: {
     flexDirection: 'row',
-    backgroundColor: '#f2f2f2',
-    borderBottom: '1pt solid #000',
-    fontWeight: 'bold',
-    fontSize: 9,
+    backgroundColor: COLORS.headerBg,
+    borderBottom: '1pt solid ' + COLORS.border,
   },
-  partyHeaderBox: {
+  partyHeaderCell: {
     width: '50%',
     textAlign: 'center',
     paddingVertical: 2,
+    fontWeight: 'bold',
+    fontSize: 8,
   },
-  partyGrid: {
+  partyDataGrid: {
     flexDirection: 'row',
-    borderBottom: '1pt solid #000',
-    minHeight: 75,
+    borderBottom: '1pt solid ' + COLORS.border,
+    minHeight: 60,
   },
   partyBox: {
     width: '50%',
     padding: 4,
   },
-  partyRow: {
+  partyLine: {
     flexDirection: 'row',
-    marginBottom: 1.5,
+    marginBottom: 1,
     fontSize: 8,
   },
   partyLabel: {
@@ -152,260 +158,214 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // 5. SERVICE DESCRIPTION LINE
+  // SECTION 4: SERVICE DESCRIPTION
   descLine: {
     padding: 3,
-    fontWeight: 'bold',
-    borderBottom: '1pt solid #000',
-    fontSize: 8,
-    backgroundColor: '#fff',
+    fontSize: 7, // Spec: 7pt
+    borderBottom: '1pt solid ' + COLORS.border,
   },
 
-  // 6. ITEMS TABLE
-  tableHeader: {
+  // SECTION 5: ITEMS TABLE
+  tableHeaderRow: {
     flexDirection: 'row',
-    backgroundColor: '#f2f2f2',
-    borderBottom: '1pt solid #000',
+    backgroundColor: COLORS.headerBg,
+    borderBottom: '1pt solid ' + COLORS.border,
     fontWeight: 'bold',
     textAlign: 'center',
     fontSize: 7,
   },
   tableRow: {
     flexDirection: 'row',
-    borderBottom: '0.5pt solid #000',
-    minHeight: 16,
+    borderBottom: '1pt solid ' + COLORS.border,
+    height: 12, // Spec: 12px for empty, keeping consistent
     alignItems: 'center',
     textAlign: 'center',
-    fontSize: 8,
-  },
-  emptyRow: {
-    flexDirection: 'row',
-    borderBottom: '0.5pt solid #000',
-    height: 12, // Bug 1: Minimal height for empty rows
-    alignItems: 'center',
+    fontSize: 7,
   },
   tableTotalRow: {
     flexDirection: 'row',
-    backgroundColor: '#f2f2f2',
-    borderBottom: '1pt solid #000',
-    height: 18,
+    backgroundColor: COLORS.headerBg,
+    borderBottom: '1pt solid ' + COLORS.border,
+    height: 16,
     alignItems: 'center',
     textAlign: 'center',
     fontWeight: 'bold',
-    fontSize: 8,
+    fontSize: 7,
   },
 
-  // FIXED PERCENTAGE COLUMN WIDTHS (Bug 4)
-  c1: { width: '4%', borderRight: '1pt solid #000', padding: 1 }, // S.No
-  c2: { width: '26%', borderRight: '1pt solid #000', padding: 2, textAlign: 'left' }, // Product Description
-  c3: { width: '7%', borderRight: '1pt solid #000', padding: 1 }, // HSN
-  c4: { width: '5%', borderRight: '1pt solid #000', padding: 1 }, // Qty
-  c5: { width: '7%', borderRight: '1pt solid #000', padding: 1 }, // Rate
-  c6: { width: '7%', borderRight: '1pt solid #000', padding: 1 }, // Amt
-  c7: { width: '6%', borderRight: '1pt solid #000', padding: 1 }, // Disc
-  c8: { width: '8%', borderRight: '1pt solid #000', padding: 1 }, // TaxVal
-  c9_grp: { width: '12%', borderRight: '1pt solid #000' }, // CGST Parent (Rate+Amt)
-  c10_grp: { width: '12%', borderRight: '1pt solid #000' }, // SGST Parent (Rate+Amt)
-  c11: { width: '6%', padding: 1, fontWeight: 'bold' }, // Total
+  // FIXED PERCENTAGE COLUMN WIDTHS (Spec Section 5)
+  col1: { width: '4%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
+  col2: { width: '25%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center', textAlign: 'left', paddingLeft: 3 }, // Adjusted 19->25 to reach 100%
+  col3: { width: '7%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
+  col4: { width: '5%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
+  col5: { width: '6%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
+  col6: { width: '7%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
+  col7: { width: '7%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
+  col8: { width: '8%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
+  colGstGrp: { width: '12%', borderRight: '1pt solid ' + COLORS.border, height: '100%' }, // Parent for Rate (5%) + Amt (7%)
+  colGstRate: { width: '41.6%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' }, // 5/12
+  colGstAmt: { width: '58.4%', height: '100%', justifyContent: 'center' }, // 7/12
+  col11: { width: '7%', height: '100%', justifyContent: 'center', fontWeight: 'bold' },
 
-  // 7. TOTALS SUMMARY
-  summarySection: {
+  // SECTION 6: TOTALS SUMMARY
+  summaryHeaderRow: {
     flexDirection: 'row',
-    borderBottom: '1pt solid #000',
+    backgroundColor: COLORS.headerBg,
+    borderBottom: '1pt solid ' + COLORS.border,
   },
-  wordsContainer: {
-    flex: 1,
-    borderRight: '1pt solid #000',
-  },
-  wordsHeader: {
-    backgroundColor: '#f2f2f2',
-    borderBottom: '1pt solid #000',
+  summaryLeftHeader: {
+    width: '65%',
     textAlign: 'center',
     paddingVertical: 2,
     fontWeight: 'bold',
-    fontSize: 9,
+    fontSize: 8,
+    borderRight: '1pt solid ' + COLORS.border,
   },
-  wordsContent: {
+  summaryGrid: {
+    flexDirection: 'row',
+    borderBottom: '1pt solid ' + COLORS.border,
+  },
+  wordsContainer: {
+    width: '65%',
+    borderRight: '1pt solid ' + COLORS.border,
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 10,
-    textAlign: 'center',
-    fontSize: 13, // Bug 2: 11pt-13pt large italic bold
+  },
+  wordsText: {
+    fontSize: 11, // Spec: 11pt
     fontStyle: 'italic',
     fontWeight: 'bold',
-    justifyContent: 'center',
-    flex: 1,
+    textAlign: 'center',
   },
   totalsContainer: {
-    width: 220,
+    width: '35%',
   },
-  totalsRow: {
+  totRow: {
     flexDirection: 'row',
-    borderBottom: '1pt solid #000',
-    height: 15,
+    borderBottom: '1pt solid ' + COLORS.border,
+    height: 14,
     alignItems: 'center',
   },
   totRowLast: {
     flexDirection: 'row',
-    height: 15,
+    height: 14,
     alignItems: 'center',
   },
   totLabel: {
-    width: 140,
+    width: '65%',
     paddingHorizontal: 4,
     fontWeight: 'bold',
-    borderRight: '1pt solid #000',
-    fontSize: 7.5,
-    textTransform: 'uppercase',
+    borderRight: '1pt solid ' + COLORS.border,
+    fontSize: 6.5,
   },
   totValue: {
-    flex: 1,
+    width: '35%',
     paddingHorizontal: 4,
     textAlign: 'right',
     fontWeight: 'bold',
-    fontSize: 9,
+    fontSize: 7,
   },
 
-  // 8. BOTTOM FOOTER
+  // SECTION 7: FOOTER
   footerRow: {
     flexDirection: 'row',
     minHeight: 100,
   },
-  footerBank: {
-    width: 240,
-    borderRight: '1pt solid #000',
+  footerLeft: {
+    width: '35%',
+    borderRight: '1pt solid ' + COLORS.border,
   },
   footerCenter: {
-    flex: 1,
-    borderRight: '1pt solid #000',
-    padding: 6,
-    justifyContent: 'flex-end',
+    width: '20%',
+    borderRight: '1pt solid ' + COLORS.border,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   footerRight: {
-    width: 220,
+    width: '45%',
     padding: 6,
     justifyContent: 'space-between',
   },
 
   bankHeader: {
-    backgroundColor: '#f2f2f2',
-    borderBottom: '1pt solid #000',
+    backgroundColor: COLORS.headerBg,
+    borderBottom: '1pt solid ' + COLORS.border,
     textAlign: 'center',
     paddingVertical: 1.5,
     fontWeight: 'bold',
-    fontSize: 9,
+    fontSize: 8,
   },
   bankContent: {
     padding: 4,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   bankDetailsText: {
     fontSize: 8,
     lineHeight: 1.4,
     fontWeight: 'bold',
   },
-  qrBox: {
+  qrContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 5,
+    width: 60,
   },
   qrImage: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
+  },
+  qrLabel: {
+    fontSize: 6,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 1,
   },
   termsLine: {
-    borderTop: '1pt solid #000',
+    borderTop: '1pt solid ' + COLORS.border,
     textAlign: 'center',
     paddingVertical: 2,
     fontWeight: 'bold',
-    fontSize: 8,
+    fontSize: 7,
     marginTop: 'auto',
   },
   sealText: {
     fontWeight: 'bold',
-    fontSize: 10,
-    width: '100%',
-    textAlign: 'center',
-    borderTop: '1pt solid #000',
-    paddingVertical: 1.5,
+    fontSize: 8,
   },
   certText: {
     fontSize: 7,
     fontStyle: 'italic',
+    textAlign: 'left',
   },
-  authFor: {
+  authCompany: {
     textAlign: 'center',
     fontWeight: 'bold',
-    fontSize: 9.5,
+    fontSize: 9,
     textTransform: 'uppercase',
   },
-  signatureImg: {
-    width: 90,
-    height: 35,
-    objectFit: 'contain',
+  signatureLine: {
+    marginTop: 20,
+    borderTop: '1pt solid ' + COLORS.border,
+    width: '80%',
     alignSelf: 'center',
   },
   authLabel: {
-    borderTop: '1pt solid #000',
     textAlign: 'center',
-    paddingTop: 4,
+    paddingTop: 2,
     fontWeight: 'bold',
-    fontSize: 8.5,
+    fontSize: 8,
   },
   bold: { fontWeight: 'bold' },
 });
 
 interface FiscalInvoiceProps {
-  invoiceData: {
-    invoiceNumber: string;
-    invoiceDate: string;
-    reverseCharge: string;
-    transportMode?: string;
-    vehicleNumber?: string;
-    dateOfSupply: string;
-    placeOfSupply: string;
-    descriptionHeader?: string;
-    seller: {
-      name: string;
-      address: string;
-      phone: string[];
-      email: string;
-      gstin: string;
-      msmeRegNo: string;
-      state: string;
-      stateCode: string;
-      bank: {
-        name: string;
-        branch: string;
-        accountNo: string;
-        ifsc: string;
-      }
-    };
-    buyer: {
-      name: string;
-      address: string;
-      gstin: string;
-      state: string;
-      stateCode: string;
-    };
-    items: any[];
-    subtotal: number;
-    gstConfig: string;
-    cgstTotal: number;
-    sgstTotal: number;
-    igstTotal: number;
-    grandTotal: number;
-    upiId?: string;
-    showUpiQr?: boolean;
-    showDigitalSignature?: boolean;
-    signatureUrl?: string;
-  };
+  invoiceData: any;
 }
 
 const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
   const isIntraState = invoiceData.gstConfig === 'INTRA';
   const isInterState = invoiceData.gstConfig === 'INTER';
-  const isNone = invoiceData.gstConfig === 'NONE';
   const totalTaxAmt = (invoiceData.cgstTotal || 0) + (invoiceData.sgstTotal || 0) + (invoiceData.igstTotal || 0);
 
   const phoneString = Array.isArray(invoiceData.seller.phone) 
@@ -417,7 +377,7 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
       <Page size="A4" style={styles.page}>
         <View style={styles.container}>
           
-          {/* 1. COMPANY HEADER */}
+          {/* SECTION 1: COMPANY HEADER */}
           <View style={styles.header}>
             <View style={styles.logoBox}>
               <Image src="/dvs_logo.jpg" style={styles.logo} />
@@ -427,130 +387,127 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
               <Text style={styles.companySubInfo}>{invoiceData.seller.address}</Text>
               <Text style={styles.companySubInfo}>Phone: {phoneString}</Text>
               <Text style={styles.companySubInfo}>E Mail: {invoiceData.seller.email}</Text>
-              <View style={styles.gstinLine}>
+              <View style={styles.gstinLineContainer}>
                 <Text style={styles.gstinText}>GSTIN NUMBER : {invoiceData.seller.gstin}</Text>
               </View>
             </View>
           </View>
 
-          {/* 2. TITLE BAR */}
-          <View style={styles.titleBar}><Text>Invoice</Text></View>
-
-          {/* 3. METADATA GRID */}
+          {/* SECTION 2: METADATA GRID */}
           <View style={styles.metaGrid}>
-            <View style={[styles.metaCol, { borderRight: '1pt solid #000' }]}>
-              <View style={styles.metaItem}><Text style={styles.metaLabel}>Invoice No:</Text><Text style={[styles.metaValue, styles.bold]}>{invoiceData.invoiceNumber}</Text></View>
-              <View style={styles.metaItem}><Text style={styles.metaLabel}>Invoice Date:</Text><Text style={styles.metaValue}>{invoiceData.invoiceDate}</Text></View>
-              <View style={styles.metaItem}><Text style={styles.metaLabel}>Reverse Charge:</Text><Text style={styles.metaValue}>{invoiceData.reverseCharge || 'N'}</Text></View>
-              <View style={styles.metaItemLastRow}>
-                <Text style={styles.metaLabel}>State:</Text>
-                <View style={{ flexDirection: 'row', flex: 1 }}>
-                  <Text style={{ flex: 1, paddingLeft: 4 }}>{invoiceData.seller.state}</Text>
-                  <Text style={{ width: 40, fontWeight: 'bold', borderLeft: '1pt solid #000', paddingLeft: 4 }}>Code:</Text>
-                  <Text style={{ paddingLeft: 4 }}>{invoiceData.seller.stateCode}</Text>
+            <View style={styles.invoiceTitleBar}><Text>Invoice</Text></View>
+            <View style={styles.metaTwoCol}>
+              <View style={[styles.metaCol, { borderRight: '1pt solid ' + COLORS.border }]}>
+                <View style={styles.metaItem}><Text style={styles.metaLabel}>Invoice No:</Text><Text style={styles.metaValue}>{invoiceData.invoiceNumber}</Text></View>
+                <View style={styles.metaItem}><Text style={styles.metaLabel}>Invoice Date:</Text><Text style={styles.metaValue}>{invoiceData.invoiceDate}</Text></View>
+                <View style={styles.metaItem}><Text style={styles.metaLabel}>Reverse Charge:</Text><Text style={styles.metaValue}>{invoiceData.reverseCharge || 'N'}</Text></View>
+                <View style={styles.metaItemLast}>
+                  <Text style={styles.metaLabel}>State:</Text>
+                  <Text style={styles.metaValue}>{invoiceData.seller.state}  |  Code: {invoiceData.seller.stateCode}</Text>
                 </View>
               </View>
+              <View style={styles.metaCol}>
+                <View style={styles.metaItem}><Text style={styles.metaLabel}>Transport Mode:</Text><Text style={styles.metaValue}>{invoiceData.transportMode || '-'}</Text></View>
+                <View style={styles.metaItem}><Text style={styles.metaLabel}>Vehicle number:</Text><Text style={styles.metaValue}>{invoiceData.vehicleNumber || '-'}</Text></View>
+                <View style={styles.metaItem}><Text style={styles.metaLabel}>Date of Supply:</Text><Text style={styles.metaValue}>{invoiceData.dateOfSupply}</Text></View>
+                <View style={styles.metaItemLast}><Text style={styles.metaLabel}>Place of Supply:</Text><Text style={[styles.metaValue, { textTransform: 'uppercase' }]}>{invoiceData.placeOfSupply}</Text></View>
+              </View>
             </View>
-            <View style={styles.metaCol}>
-              <View style={styles.metaItem}><Text style={styles.metaLabel}>Transport Mode:</Text><Text style={styles.metaValue}>{invoiceData.transportMode || '-'}</Text></View>
-              <View style={styles.metaItem}><Text style={styles.metaLabel}>Vehicle number:</Text><Text style={styles.metaValue}>{invoiceData.vehicleNumber || '-'}</Text></View>
-              <View style={styles.metaItem}><Text style={styles.metaLabel}>Date of Supply:</Text><Text style={styles.metaValue}>{invoiceData.dateOfSupply}</Text></View>
-              <View style={styles.metaItemLastRow}><Text style={styles.metaLabel}>Place of Supply:</Text><Text style={[styles.metaValue, { textTransform: 'uppercase' }]}>{invoiceData.placeOfSupply}</Text></View>
+            <View style={styles.fullWidthRow}>
+              <Text style={styles.fullWidthLabel}>MSME REGISTRATION NO.: {invoiceData.seller.msmeRegNo}</Text>
             </View>
-          </View>
-          <View style={styles.msmeRow}>
-            {/* Bug 3: Full Label */}
-            <Text style={styles.msmeLabel}>MSME REGISTRATION NO.:</Text>
-            <Text style={[styles.metaValue, styles.bold]}>{invoiceData.seller.msmeRegNo}</Text>
           </View>
 
-          {/* 4. PARTY SECTION */}
+          {/* SECTION 3: PARTY SECTION */}
           <View style={styles.partyHeader}>
-            <View style={[styles.partyHeaderBox, { borderRight: '1pt solid #000' }]}><Text>Invoice to Party</Text></View>
-            <View style={styles.partyHeaderBox}><Text>Ship to Party</Text></View>
+            <Text style={[styles.partyHeaderBox, { borderRight: '1pt solid ' + COLORS.border }]}>Invoice to Party</Text>
+            <Text style={styles.partyHeaderBox}>Ship to Party</Text>
           </View>
           <View style={styles.partyGrid}>
-            <View style={[styles.partyBox, { borderRight: '1pt solid #000' }]}>
-              <View style={styles.partyRow}><Text style={styles.partyLabel}>Name:</Text><Text style={[styles.partyValue, styles.bold]}>{invoiceData.buyer.name || '-'}</Text></View>
-              <View style={styles.partyRow}><Text style={styles.partyLabel}>Address:</Text><Text style={styles.partyValue}>{invoiceData.buyer.address || '-'}</Text></View>
-              <View style={styles.partyRow}><Text style={styles.partyLabel}>GSTIN:</Text><Text style={[styles.partyValue, styles.bold]}>{invoiceData.buyer.gstin || '-'}</Text></View>
-              {/* Bug 6: State & Code on same line */}
-              <View style={styles.partyRow}><Text style={styles.partyLabel}>State:</Text><Text style={styles.partyValue}>{invoiceData.buyer.state || '-'}   <Text style={styles.bold}>Code:</Text> {invoiceData.buyer.stateCode || '-'}</Text></View>
+            <View style={[styles.partyBox, { borderRight: '1pt solid ' + COLORS.border }]}>
+              <View style={styles.partyLine}><Text style={styles.partyLabel}>Name:</Text><Text style={[styles.partyValue, styles.bold]}>{invoiceData.buyer.name || '-'}</Text></View>
+              <View style={styles.partyLine}><Text style={styles.partyLabel}>Address:</Text><Text style={styles.partyValue}>{invoiceData.buyer.address || '-'}</Text></View>
+              <View style={styles.partyLine}><Text style={styles.partyLabel}>GSTIN:</Text><Text style={[styles.partyValue, styles.bold]}>{invoiceData.buyer.gstin || '-'}</Text></View>
+              <View style={styles.partyLine}><Text style={styles.partyLabel}>State:</Text><Text style={styles.partyValue}>{invoiceData.buyer.state || '-'} | Code: {invoiceData.buyer.stateCode || '-'}</Text></View>
             </View>
             <View style={styles.partyBox}>
-              <View style={styles.partyRow}><Text style={styles.partyLabel}>Name:</Text><Text style={[styles.partyValue, styles.bold]}>{invoiceData.buyer.name || '-'}</Text></View>
-              <View style={styles.partyRow}><Text style={styles.partyLabel}>Address:</Text><Text style={styles.partyValue}>{invoiceData.buyer.address || '-'}</Text></View>
-              <View style={styles.partyRow}><Text style={styles.partyLabel}>GSTIN:</Text><Text style={[styles.partyValue, styles.bold]}>{invoiceData.buyer.gstin || '-'}</Text></View>
-              <View style={styles.partyRow}><Text style={styles.partyLabel}>State:</Text><Text style={styles.partyValue}>{invoiceData.buyer.state || '-'}   <Text style={styles.bold}>Code:</Text> {invoiceData.buyer.stateCode || '-'}</Text></View>
+              <View style={styles.partyLine}><Text style={styles.partyLabel}>Name:</Text><Text style={[styles.partyValue, styles.bold]}>{invoiceData.buyer.name || '-'}</Text></View>
+              <View style={styles.partyLine}><Text style={styles.partyLabel}>Address:</Text><Text style={styles.partyValue}>{invoiceData.buyer.address || '-'}</Text></View>
+              <View style={styles.partyLine}><Text style={styles.partyLabel}>GSTIN:</Text><Text style={[styles.partyValue, styles.bold]}>{invoiceData.buyer.gstin || '-'}</Text></View>
+              <View style={styles.partyLine}><Text style={styles.partyLabel}>State:</Text><Text style={styles.partyValue}>{invoiceData.buyer.state || '-'} | Code: {invoiceData.buyer.stateCode || '-'}</Text></View>
             </View>
           </View>
 
-          {/* 5. SERVICE DESCRIPTION */}
+          {/* SECTION 4: SERVICE DESCRIPTION */}
           <View style={styles.descLine}><Text>{invoiceData.descriptionHeader}</Text></View>
 
-          {/* 6. ITEMS TABLE */}
+          {/* SECTION 5: ITEMS TABLE */}
           <View>
             {/* Header Row 1 */}
-            <View style={styles.tableHeader}>
-              <Text style={styles.c1}></Text><Text style={styles.c2}></Text><Text style={styles.c3}></Text><Text style={styles.c4}></Text><Text style={styles.c5}></Text><Text style={styles.c6}></Text><Text style={styles.c7}></Text><Text style={styles.c8}></Text>
-              {isIntraState && <><View style={[styles.c9_grp, { borderBottom: '1pt solid #000' }]}><Text style={{ padding: 1.5 }}>CGST</Text></View><View style={[styles.c10_grp, { borderBottom: '1pt solid #000' }]}><Text style={{ padding: 1.5 }}>SGST</Text></View></>}
-              {isInterState && <View style={[styles.c9_grp, { borderBottom: '1pt solid #000', width: '24%' }]}><Text style={{ padding: 1.5 }}>IGST</Text></View>}
-              <Text style={styles.c11}></Text>
+            <View style={styles.tableHeaderRow}>
+              <View style={styles.col1}></View><View style={styles.col2}></View><View style={styles.col3}></View><View style={styles.col4}></View><View style={styles.col5}></View><View style={styles.col6}></View><View style={styles.col7}></View><View style={styles.col8}></View>
+              {isIntraState && <><View style={[styles.colGstGrp, { borderBottom: '1pt solid ' + COLORS.border }]}><Text style={{ padding: 1 }}>CGST</Text></View><View style={[styles.colGstGrp, { borderBottom: '1pt solid ' + COLORS.border }]}><Text style={{ padding: 1 }}>SGST</Text></View></>}
+              {isInterState && <View style={[styles.colGstGrp, { borderBottom: '1pt solid ' + COLORS.border, width: '24%' }]}><Text style={{ padding: 1 }}>IGST</Text></View>}
+              <View style={styles.col11}></View>
             </View>
             {/* Header Row 2 */}
-            <View style={styles.tableHeader}>
-              <Text style={styles.c1}>S.No</Text><Text style={styles.c2}>Product Description</Text><Text style={styles.c3}>HSN Code</Text><Text style={styles.c4}>Qty</Text><Text style={styles.c5}>Rate</Text><Text style={styles.c6}>Amt</Text><Text style={styles.c7}>Disc</Text><Text style={styles.c8}>TaxVal</Text>
-              {isIntraState && <><View style={[styles.c9_grp, { flexDirection: 'row' }]}><Text style={{ width: '40%', borderRight: '1pt solid #000' }}>Rate</Text><Text style={{ flex: 1 }}>Amt</Text></View><View style={[styles.c10_grp, { flexDirection: 'row' }]}><Text style={{ width: '40%', borderRight: '1pt solid #000' }}>Rate</Text><Text style={{ flex: 1 }}>Amt</Text></View></>}
-              {isInterState && <View style={[styles.c9_grp, { flexDirection: 'row', width: '24%' }]}><Text style={{ width: '40%', borderRight: '1pt solid #000' }}>Rate</Text><Text style={{ flex: 1 }}>Amt</Text></View>}
-              <Text style={styles.c11}>Total</Text>
+            <View style={styles.tableHeaderRow}>
+              <Text style={styles.col1}>S.No</Text><Text style={styles.col2}>Product Description</Text><Text style={styles.col3}>HSN</Text><Text style={styles.col4}>Qty</Text><Text style={styles.col5}>Rate</Text><Text style={styles.col6}>Amount</Text><Text style={styles.col7}>Discount</Text><Text style={styles.col8}>TaxVal</Text>
+              {isIntraState && <><View style={[styles.colGstGrp, { flexDirection: 'row' }]}><Text style={styles.colGstRate}>Rate</Text><Text style={styles.colGstAmt}>Amt</Text></View><View style={[styles.colGstGrp, { flexDirection: 'row' }]}><Text style={styles.colGstRate}>Rate</Text><Text style={styles.colGstAmt}>Amt</Text></View></>}
+              {isInterState && <View style={[styles.colGstGrp, { flexDirection: 'row', width: '24%' }]}><Text style={styles.colGstRate}>Rate</Text><Text style={styles.colGstAmt}>Amt</Text></View>}
+              <Text style={styles.col11}>Total</Text>
             </View>
 
             {/* Data Rows */}
-            {invoiceData.items.map((item, i) => (
+            {invoiceData.items.map((item: any, i: number) => (
               <View key={i} style={styles.tableRow}>
-                <Text style={styles.c1}>{i + 1}</Text><Text style={[styles.c2, styles.bold]}>{item.description}</Text><Text style={styles.c3}>{item.hsn}</Text><Text style={styles.c4}>{item.qty}</Text><Text style={styles.c5}>{item.rate}</Text><Text style={styles.c6}>{item.amount}</Text><Text style={styles.c7}>{item.discount}</Text><Text style={styles.c8}>{item.taxableValue.toFixed(2)}</Text>
-                {isIntraState && <><View style={[styles.c9_grp, { flexDirection: 'row', height: '100%' }]}><Text style={{ width: '40%', borderRight: '1pt solid #000' }}>{item.cgstRate}%</Text><Text style={{ flex: 1 }}>{item.cgstAmount?.toFixed(2)}</Text></View><View style={[styles.c10_grp, { flexDirection: 'row', height: '100%' }]}><Text style={{ width: '40%', borderRight: '1pt solid #000' }}>{item.sgstRate}%</Text><Text style={{ flex: 1 }}>{item.sgstAmount?.toFixed(2)}</Text></View></>}
-                {isInterState && <View style={[styles.c9_grp, { flexDirection: 'row', height: '100%', width: '24%' }]}><Text style={{ width: '40%', borderRight: '1pt solid #000' }}>{item.igstRate}%</Text><Text style={{ flex: 1 }}>{item.igstAmount?.toFixed(2)}</Text></View>}
-                <Text style={[styles.c11, { textAlign: 'right' }]}>{item.total.toFixed(2)}</Text>
+                <Text style={styles.col1}>{i + 1}</Text><Text style={[styles.col2, styles.bold]}>{item.description}</Text><Text style={styles.col3}>{item.hsn}</Text><Text style={styles.col4}>{item.qty}</Text><Text style={styles.col5}>{item.rate}</Text><Text style={styles.col6}>{item.amount}</Text><Text style={styles.col7}>{item.discount}</Text><Text style={styles.col8}>{item.taxableValue.toFixed(2)}</Text>
+                {isIntraState && <><View style={[styles.colGstGrp, { flexDirection: 'row', height: '100%' }]}><Text style={styles.colGstRate}>{item.cgstRate}%</Text><Text style={styles.colGstAmt}>{item.cgstAmount?.toFixed(2)}</Text></View><View style={[styles.colGstGrp, { flexDirection: 'row', height: '100%' }]}><Text style={styles.colGstRate}>{item.sgstRate}%</Text><Text style={styles.colGstAmt}>{item.sgstAmount?.toFixed(2)}</Text></View></>}
+                {isInterState && <View style={[styles.colGstGrp, { flexDirection: 'row', height: '100%', width: '24%' }]}><Text style={styles.colGstRate}>{item.igstRate}%</Text><Text style={styles.colGstAmt}>{item.igstAmount?.toFixed(2)}</Text></View>}
+                <Text style={[styles.col11, { textAlign: 'right' }]}>{item.total.toFixed(2)}</Text>
               </View>
             ))}
 
-            {Array.from({ length: Math.max(0, 5 - invoiceData.items.length) }).map((_, i) => (
-              <View key={`f-${i}`} style={styles.emptyRow}>
-                <Text style={styles.c1}> </Text><Text style={styles.c2}> </Text><Text style={styles.c3}> </Text><Text style={styles.c4}> </Text><Text style={styles.c5}> </Text><Text style={styles.c6}> </Text><Text style={styles.c7}> </Text><Text style={styles.c8}> </Text>{isIntraState && <><View style={[styles.c9_grp, { height: '100%' }]}></View><View style={[styles.c10_grp, { height: '100%' }]}></View></>}{isInterState && <View style={[styles.c9_grp, { height: '100%', width: '24%' }]}></View>}<Text style={styles.c11}> </Text>
+            {/* Empty filler rows - Spec: 10 rows at 12px */}
+            {Array.from({ length: 10 }).map((_, i) => (
+              <View key={`f-${i}`} style={[styles.tableRow, { borderBottom: (i === 9 ? '1pt solid ' + COLORS.border : '0.5pt solid ' + COLORS.border) }]}>
+                <Text style={styles.col1}> </Text><Text style={styles.col2}> </Text><Text style={styles.col3}> </Text><Text style={styles.col4}> </Text><Text style={styles.col5}> </Text><Text style={styles.col6}> </Text><Text style={styles.col7}> </Text><Text style={styles.col8}> </Text>{isIntraState && <><View style={styles.colGstGrp}></View><View style={styles.colGstGrp}></View></>}{isInterState && <View style={[styles.colGstGrp, {width: '24%'}]}></View>}<Text style={styles.col11}> </Text>
               </View>
             ))}
 
+            {/* Total Row */}
             <View style={styles.tableTotalRow}>
-              <Text style={{ width: '30%', borderRight: '1pt solid #000', padding: 2, textAlign: 'center' }}>Total</Text>
-              <Text style={styles.c3}></Text><Text style={styles.c4}>{invoiceData.items.reduce((acc, c) => acc + c.qty, 0)}</Text><Text style={styles.c5}></Text><Text style={styles.c6}></Text><Text style={styles.c7}>{invoiceData.items.reduce((acc, c) => acc + c.discount, 0)}</Text><Text style={styles.c8}>{invoiceData.subtotal.toFixed(2)}</Text>
-              {isIntraState && <><View style={styles.c9_grp}></View><View style={styles.c10_grp}></View></>}
-              {isInterState && <View style={[styles.c9_grp, {width: '24%'}]}></View>}
-              <Text style={[styles.c11, { textAlign: 'right' }]}>{Math.round(invoiceData.grandTotal)}</Text>
+              <Text style={{ width: '29%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center', textAlign: 'center' }}>Total</Text>
+              <Text style={styles.col3}></Text><Text style={styles.col4}>{invoiceData.items.reduce((acc: any, c: any) => acc + (parseFloat(c.qty) || 0), 0)}</Text><Text style={styles.col5}></Text><Text style={styles.col6}></Text><Text style={styles.col7}>{invoiceData.items.reduce((acc: any, c: any) => acc + (parseFloat(c.discount) || 0), 0)}</Text><Text style={styles.col8}>{invoiceData.subtotal.toFixed(2)}</Text>
+              {isIntraState && <><View style={styles.colGstGrp}></View><View style={styles.colGstGrp}></View></>}
+              {isInterState && <View style={[styles.colGstGrp, {width: '24%'}]}></View>}
+              <Text style={[styles.col11, { textAlign: 'right' }]}>{Math.round(invoiceData.grandTotal)}</Text>
             </View>
           </View>
 
           <View wrap={false}>
-            {/* 7. TOTALS SUMMARY */}
-            <View style={styles.summarySection}>
+            {/* SECTION 6: TOTALS SUMMARY */}
+            <View style={styles.summaryHeaderRow}>
+               <Text style={styles.summaryLeftHeader}>TOTAL INVOICE AMOUNT IN WORDS</Text>
+               <View style={styles.totalsContainer}></View>
+            </View>
+            <View style={styles.summaryGrid}>
               <View style={styles.wordsContainer}>
-                <Text style={styles.wordsHeader}>TOTAL INVOICE AMOUNT IN WORDS</Text>
-                {/* Bug 2: Fixed duplicate ONLY */}
-                <Text style={styles.wordsContent}>{numberToWords(Math.round(invoiceData.grandTotal))}</Text>
+                <Text style={styles.wordsText}>{numberToWords(Math.round(invoiceData.grandTotal))}</Text>
               </View>
               <View style={styles.totalsContainer}>
-                <View style={styles.totalsRow}><Text style={styles.totLabel}>TOTAL AMOUNT BEFORE TAX</Text><Text style={styles.totValue}>{invoiceData.subtotal.toFixed(2)}</Text></View>
-                {isIntraState && <><View style={styles.totalsRow}><Text style={styles.totLabel}>ADD: CGST</Text><Text style={styles.totValue}>{invoiceData.cgstTotal.toFixed(2)}</Text></View><View style={styles.totalsRow}><Text style={styles.totLabel}>ADD: SGST</Text><Text style={styles.totValue}>{invoiceData.sgstTotal.toFixed(2)}</Text></View></>}
-                {isInterState && <View style={styles.totalsRow}><Text style={styles.totLabel}>ADD: IGST</Text><Text style={styles.totValue}>{invoiceData.igstTotal.toFixed(2)}</Text></View>}
-                <View style={styles.totalsRow}><Text style={styles.totLabel}>TOTAL TAX AMOUNT</Text><Text style={styles.totValue}>{totalTaxAmt.toFixed(2)}</Text></View>
-                <View style={[styles.totalsRow, { backgroundColor: '#f2f2f2' }]}><Text style={styles.totLabel}>TOTAL AMOUNT AFTER TAX</Text><Text style={styles.totValue}>{invoiceData.grandTotal.toFixed(2)}</Text></View>
+                <View style={styles.totRow}><Text style={styles.totLabel}>TOTAL AMOUNT BEFORE TAX</Text><Text style={styles.totValue}>{invoiceData.subtotal.toFixed(2)}</Text></View>
+                {isIntraState && <><View style={styles.totRow}><Text style={styles.totLabel}>Add: CGST</Text><Text style={styles.totValue}>{invoiceData.cgstTotal.toFixed(2)}</Text></View><View style={styles.totRow}><Text style={styles.totLabel}>Add: SGST</Text><Text style={styles.totValue}>{invoiceData.sgstTotal.toFixed(2)}</Text></View></>}
+                {isInterState && <View style={styles.totRow}><Text style={styles.totLabel}>Add: IGST</Text><Text style={styles.totValue}>{invoiceData.igstTotal.toFixed(2)}</Text></View>}
+                <View style={styles.totRow}><Text style={styles.totLabel}>Total Tax Amount</Text><Text style={styles.totValue}>{totalTaxAmt.toFixed(2)}</Text></View>
+                <View style={[styles.totRow, { backgroundColor: COLORS.white }]}><Text style={styles.totLabel}>Total Amount After Tax</Text><Text style={styles.totValue}>{invoiceData.grandTotal.toFixed(2)}</Text></View>
                 <View style={styles.totRowLast}><Text style={styles.totLabel}>GST ON REVERSE CHARGE</Text><Text style={styles.totValue}>0.00</Text></View>
               </View>
             </View>
 
-            {/* 8. BOTTOM FOOTER */}
+            {/* SECTION 7: FOOTER */}
             <View style={styles.footerRow}>
-              <View style={styles.footerBank}>
+              <View style={styles.footerLeft}>
                 <View style={styles.bankHeader}><Text>Bank Details</Text></View>
                 <View style={styles.bankContent}>
                   <View style={{ flex: 1 }}>
@@ -560,9 +517,9 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
                     <Text style={styles.bankDetailsText}>Bank IFSC: {invoiceData.seller.bank.ifsc}</Text>
                   </View>
                   {invoiceData.upiId && invoiceData.showUpiQr && (
-                    <View style={styles.qrBox}>
+                    <View style={styles.qrContainer}>
                       <Image src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`upi://pay?pa=${invoiceData.upiId}&pn=${encodeURIComponent(invoiceData.seller.name)}&am=${invoiceData.grandTotal.toFixed(2)}&cu=INR`)}`} style={styles.qrImage} />
-                      <Text style={{ fontSize: 5, fontWeight: 'bold', marginTop: 1 }}>SCAN TO PAY</Text>
+                      <Text style={styles.qrLabel}>SCAN TO PAY</Text>
                     </View>
                   )}
                 </View>
@@ -573,10 +530,11 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
               </View>
               <View style={styles.footerRight}>
                 <Text style={styles.certText}>Certified that the particulars given above are true and correct.</Text>
-                <View>
-                  <Text style={styles.authFor}>FOR {invoiceData.seller.name}</Text>
+                <View style={{ alignItems: 'center', marginTop: 10 }}>
+                  <Text style={styles.authCompany}>FOR {invoiceData.seller.name}</Text>
                   {invoiceData.showDigitalSignature && <Image src={invoiceData.signatureUrl} style={styles.signatureImg} />}
                 </View>
+                <View style={styles.signatureLine}></View>
                 <Text style={styles.authLabel}>AUTHORISED SIGNATORY</Text>
               </View>
             </View>
