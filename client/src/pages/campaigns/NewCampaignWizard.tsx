@@ -139,7 +139,7 @@ const NewCampaignWizard: React.FC = () => {
           </div>
         )}
 
-        {step === 2 && ( step === 2 && (
+        {step === 2 && (
           <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
             <div className="flex items-center gap-3 mb-8">
               <div className="w-12 h-12 bg-accent-blue/10 text-accent-blue rounded-2xl flex items-center justify-center shadow-inner">
