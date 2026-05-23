@@ -33,12 +33,65 @@ router.get('/:id', async (req, res) => {
 // Create invoice
 router.post('/', async (req, res) => {
   try {
-    const invoice = await getPrisma().invoice.create({
-      data: req.body
+    const prisma = getPrisma();
+    
+    // 1. Get default Organization (CRITICAL for linking)
+    const org = await prisma.organization.findFirst();
+    if (!org) return res.status(400).json({ error: 'No organization found. Please set up organization first.' });
+
+    const { 
+      invoiceNumber, clientId, campaignId, invoiceDate, dueDate, 
+      subtotal, taxableAmount, cgstAmount, sgstAmount, igstAmount, 
+      totalAmount, lineItems, notes, bankDetails 
+    } = req.body;
+
+    // 2. Parse items if they are passed as a JSON string or array
+    const items = typeof lineItems === 'string' ? JSON.parse(lineItems) : lineItems;
+
+    // 3. Create everything in a Transaction
+    const result = await prisma.$transaction(async (tx) => {
+      const invoice = await tx.invoice.create({
+        data: {
+          orgId: org.id,
+          invoiceNumber,
+          clientId,
+          campaignId: campaignId || null,
+          invoiceDate: invoiceDate ? new Date(invoiceDate) : new Date(),
+          dueDate: dueDate ? new Date(dueDate) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          subtotal: parseFloat(subtotal),
+          taxableAmount: parseFloat(taxableAmount),
+          cgstAmount: parseFloat(cgstAmount),
+          sgstAmount: parseFloat(sgstAmount),
+          igstAmount: parseFloat(igstAmount),
+          totalAmount: parseFloat(totalAmount),
+          notes,
+          bankDetails,
+          status: 'PENDING'
+        }
+      });
+
+      // Create line items linked to this invoice
+      if (items && Array.isArray(items)) {
+        await tx.invoiceItem.createMany({
+          data: items.map((item: any) => ({
+            orgId: org.id,
+            invoiceId: invoice.id,
+            description: item.description,
+            hsn: item.hsn,
+            quantity: parseFloat(item.qty),
+            rate: parseFloat(item.rate),
+            amount: parseFloat(item.amount)
+          }))
+        });
+      }
+
+      return invoice;
     });
-    res.status(201).json(invoice);
+
+    res.status(201).json(result);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create invoice' });
+    console.error('Invoice creation error:', error);
+    res.status(500).json({ error: 'Failed to create invoice and link to database' });
   }
 });
 
