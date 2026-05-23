@@ -44,7 +44,7 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: profile.id, email: profile.email, orgId: profile.orgId },
+      { id: profile.id, email: profile.email, orgId: profile.orgId, role: profile.role },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -68,6 +68,83 @@ router.post('/login', async (req, res) => {
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       hint: 'Check if DATABASE_URL is correct and Supabase is accessible.'
     });
+  }
+});
+
+// Get current user session
+router.get('/me', authMiddleware, async (req: any, res) => {
+  try {
+    const profile = await getPrisma().profile.findUnique({
+      where: { id: req.user.id },
+      include: { organization: true }
+    });
+
+    if (!profile) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      id: profile.id,
+      email: profile.email,
+      fullName: profile.fullName,
+      role: profile.role,
+      orgId: profile.orgId,
+      organization: profile.organization
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch session' });
+  }
+});
+
+// Update User Password (Admin only)
+router.patch('/users/:id/password', authMiddleware, async (req: any, res) => {
+  try {
+    const { id } = req.params;
+    const { newPassword } = req.body;
+    const adminId = req.user.id;
+
+    // Verify admin role
+    const admin = await getPrisma().profile.findUnique({ where: { id: adminId } });
+    if (admin?.role !== 'admin') {
+      return res.status(403).json({ error: 'Only administrators can reset passwords' });
+    }
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await getPrisma().profile.update({
+      where: { id },
+      data: { password: hashedPassword }
+    });
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Failed to update password' });
+  }
+});
+
+// Delete User (Admin only)
+router.delete('/users/:id', authMiddleware, async (req: any, res) => {
+  try {
+    const { id } = req.params;
+    const adminId = req.user.id;
+
+    if (id === adminId) {
+      return res.status(400).json({ error: 'You cannot delete your own administrative account' });
+    }
+
+    // Verify admin role
+    const admin = await getPrisma().profile.findUnique({ where: { id: adminId } });
+    if (admin?.role !== 'admin') {
+      return res.status(403).json({ error: 'Only administrators can delete accounts' });
+    }
+
+    await getPrisma().profile.delete({ where: { id } });
+    res.json({ message: 'User account deleted successfully' });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Failed to delete user' });
   }
 });
 

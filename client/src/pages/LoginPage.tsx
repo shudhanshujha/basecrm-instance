@@ -28,6 +28,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
       if (data.token) {
         localStorage.setItem('dv_token', data.token);
+        localStorage.setItem('dv_user', JSON.stringify(data.user));
         localStorage.setItem('dv_auth', 'true');
         toast.success(`Welcome back, ${data.user.fullName || 'User'}`);
         onLogin();

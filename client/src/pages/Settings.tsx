@@ -21,6 +21,9 @@ const Settings: React.FC = () => {
   // User Management State
   const [userList, setUserList] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const currentUser = JSON.parse(localStorage.getItem('dv_user') || '{}');
+  const isAdmin = currentUser.role === 'admin';
+
   const [newUser, setNewUser] = useState({
     email: '',
     password: '',
@@ -55,6 +58,42 @@ const Settings: React.FC = () => {
       fetchUsers();
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Failed to create user');
+    }
+  };
+
+  const handleDeleteUser = async (id: string, name: string) => {
+    if (!isAdmin) return;
+    if (id === currentUser.id) {
+      toast.error('You cannot delete your own administrative account');
+      return;
+    }
+
+    if (window.confirm(`Are you sure you want to PERMANENTLY delete the account for ${name}? This action cannot be undone.`)) {
+      try {
+        await api.delete(`/auth/users/${id}`);
+        toast.success('User account removed');
+        fetchUsers();
+      } catch (err: any) {
+        toast.error(err.response?.data?.error || 'Failed to delete user');
+      }
+    }
+  };
+
+  const handleResetPassword = async (id: string, name: string) => {
+    if (!isAdmin) return;
+    const newPassword = window.prompt(`Enter new password for ${name}:`, '');
+    
+    if (newPassword === null) return; // Cancelled
+    if (newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+
+    try {
+      await api.patch(`/auth/users/${id}/password`, { newPassword });
+      toast.success(`Password for ${name} has been reset`);
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to reset password');
     }
   };
 
@@ -222,6 +261,26 @@ const Settings: React.FC = () => {
                               </div>
                            </div>
                            <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-2 mr-4">
+                                {isAdmin && user.id !== currentUser.id && (
+                                  <>
+                                    <button 
+                                      onClick={() => handleResetPassword(user.id, user.fullName)}
+                                      className="p-2 text-text-muted hover:text-accent-orange transition-colors"
+                                      title="Reset Password"
+                                    >
+                                      <RefreshCw size={14} />
+                                    </button>
+                                    <button 
+                                      onClick={() => handleDeleteUser(user.id, user.fullName)}
+                                      className="p-2 text-text-muted hover:text-danger transition-colors"
+                                      title="Delete Account"
+                                    >
+                                      <Trash2 size={14} />
+                                    </button>
+                                  </>
+                                )}
+                              </div>
                               <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${user.role === 'admin' ? 'bg-accent-orange text-white' : 'bg-accent-blue text-white'}`}>
                                  {user.role}
                               </span>
@@ -370,7 +429,7 @@ const Settings: React.FC = () => {
                        <div className="p-2 bg-accent-orange/10 text-accent-orange rounded-lg">
                           <Globe size={20} />
                        </div>
-                       <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                       <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full ${
                          healthStatus?.api === 'live' ? 'bg-success text-white' : 'bg-text-muted text-white'
                        }`}>
                           {healthStatus?.api || 'UNKNOWN'}
@@ -389,7 +448,7 @@ const Settings: React.FC = () => {
                           <Database size={20} />
                        </div>
                        <div className="flex flex-col items-end gap-1">
-                          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                          <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full ${
                             healthStatus?.database?.startsWith('connected') ? 'bg-success text-white' : 
                             healthStatus?.database?.startsWith('disconnected') ? 'bg-danger text-white' : 'bg-text-muted text-white'
                           }`}>
@@ -415,7 +474,7 @@ const Settings: React.FC = () => {
                           <Cloud size={20} />
                        </div>
                        <div className="flex flex-col items-end gap-1">
-                          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                          <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full ${
                             healthStatus?.storage?.startsWith('connected') ? 'bg-success text-white' : 
                             healthStatus?.storage?.startsWith('disconnected') ? 'bg-danger text-white' : 'bg-text-muted text-white'
                           }`}>
