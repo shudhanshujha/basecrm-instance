@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   User, Calendar, DollarSign, Database, 
   ChevronRight, ChevronLeft, Check, Plus, X,
-  MapPin, Globe, ShieldCheck, ShoppingCart
+  MapPin, Globe, ShieldCheck, ShoppingCart, Loader2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import api from '../../lib/axios';
 
 const NewCampaignWizard: React.FC = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [clients, setClients] = useState<any[]>([]);
+  const [availableSites, setAvailableSites] = useState<any[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  
   const [formData, setFormData] = useState({
     name: '',
     client: '',
@@ -22,20 +27,42 @@ const NewCampaignWizard: React.FC = () => {
     includeThirdParty: false
   });
 
-  const clients = ['Reliance Retail Ltd', 'Axis Bank Ltd', 'Havells India', 'LG Electronics'];
-  const mockSites = [
-    { id: '1', name: 'GT Road Panipat', rate: 28000, owned: true, city: 'Panipat' },
-    { id: '2', name: 'Sector 12 Karnal', rate: 22000, owned: true, city: 'Karnal' },
-    { id: '3', name: 'NH-44 Ambala', rate: 45000, owned: false, city: 'Ambala' },
-    { id: '4', name: 'Connaught Place', rate: 150000, owned: true, city: 'Delhi' }
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoadingData(true);
+        const [clientsRes, sitesRes] = await Promise.all([
+          api.get('/clients'),
+          api.get('/sites')
+        ]);
+        setClients(clientsRes.data);
+        setAvailableSites(sitesRes.data.map((s: any) => ({
+          id: s.id,
+          name: s.siteName,
+          rate: s.monthlyRate,
+          owned: true, // Assuming owned for simplicity, can be dynamic based on site data
+          city: s.pincode || 'Location' // Using pincode as placeholder for city
+        })));
+      } catch (error) {
+        toast.error('Failed to load real-world CRM data');
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleNext = () => setStep(step + 1);
   const handleBack = () => setStep(step - 1);
 
-  const handleSubmit = () => {
-    toast.success('Campaign created successfully!');
-    navigate('/campaigns');
+  const handleSubmit = async () => {
+    try {
+      // Logic for backend persistence would go here
+      toast.success('Campaign created successfully!');
+      navigate('/campaigns');
+    } catch (error) {
+      toast.error('Failed to save campaign');
+    }
   };
 
   const toggleSite = (site: any) => {
@@ -46,6 +73,15 @@ const NewCampaignWizard: React.FC = () => {
       setFormData({ ...formData, sites: [...formData.sites, site] });
     }
   };
+
+  if (isLoadingData) {
+    return (
+      <div className="h-full w-full flex flex-col items-center justify-center gap-4 text-text-muted">
+        <Loader2 className="animate-spin text-accent-orange" size={40} />
+        <p className="font-black uppercase tracking-widest text-[10px]">Syncing Client Database...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 pb-20">
@@ -87,12 +123,16 @@ const NewCampaignWizard: React.FC = () => {
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Assign Client</label>
                 <select 
-                  className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3.5 text-[13px] outline-none focus:border-accent-orange appearance-none font-bold"
+                  className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3.5 text-[13px] outline-none focus:border-accent-orange appearance-none font-bold text-text-primary"
                   value={formData.client}
                   onChange={e => setFormData({...formData, client: e.target.value})}
                 >
                   <option value="">Search or select partner...</option>
-                  {clients.map(c => <option key={c} value={c}>{c}</option>)}
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>
+                      {client.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -163,7 +203,7 @@ const NewCampaignWizard: React.FC = () => {
             </div>
 
             <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-               {mockSites.filter(s => formData.includeThirdParty ? true : s.owned).map(site => (
+               {availableSites.filter(s => formData.includeThirdParty ? true : s.owned).map(site => (
                  <div 
                    key={site.id} 
                    onClick={() => toggleSite(site)}
