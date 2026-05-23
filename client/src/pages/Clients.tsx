@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Mail, Phone, ExternalLink, MapPin, X, Building, User, Loader2 } from 'lucide-react';
+import { Plus, Search, Mail, Phone, ExternalLink, MapPin, X, Building, User, Loader2, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ExportButton from '../components/ui/ExportButton';
 import toast from 'react-hot-toast';
@@ -36,6 +36,20 @@ const Clients: React.FC = () => {
       toast.error('Failed to load clients');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent, id: string, name: string) => {
+    e.stopPropagation();
+    if (window.confirm(`Are you sure you want to delete ${name}? This will remove all associated invoices and records.`)) {
+      try {
+        await api.delete(`/clients/${id}`);
+        toast.success('Client deleted successfully');
+        fetchClients();
+      } catch (error) {
+        console.error('Failed to delete client:', error);
+        toast.error('Failed to delete client. Ensure they have no active dependencies.');
+      }
     }
   };
 
@@ -118,7 +132,14 @@ const Clients: React.FC = () => {
                   <div className="text-[14px] font-black text-text-primary">{client.campaigns?.length || 0}</div>
                   <div className="text-[9px] text-text-muted uppercase font-bold tracking-tighter">Campaigns</div>
                </div>
-               <div className="pl-4">
+               <div className="flex items-center gap-2 pl-4">
+                  <button 
+                    onClick={(e) => handleDelete(e, client.id, client.name)}
+                    className="p-2 text-text-muted hover:text-danger hover:bg-danger/10 border border-transparent hover:border-danger/20 rounded-lg transition-all"
+                    title="Delete Client"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                   <button className="p-2 text-text-muted group-hover:text-accent-orange transition-colors border border-transparent group-hover:border-border rounded-lg">
                     <ExternalLink size={18} />
                   </button>

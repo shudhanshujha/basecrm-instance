@@ -3,7 +3,7 @@ import {
   Search, Filter, Plus, Database, Map as MapIcon, 
   Table, Download, Upload, Info, ExternalLink,
   ChevronRight, ArrowRight, X, LayoutGrid, List,
-  Truck, ShieldCheck, Home, Camera, Ruler, Lightbulb, MapPin, Loader2
+  Truck, ShieldCheck, Home, Camera, Ruler, Lightbulb, MapPin, Loader2, Trash2
 } from 'lucide-react';
 import api from '../lib/axios';
 import { useNavigate } from 'react-router-dom';
@@ -37,6 +37,20 @@ const Sites: React.FC = () => {
       toast.error('Failed to load inventory');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent, id: string, name: string) => {
+    e.stopPropagation();
+    if (window.confirm(`Are you sure you want to delete ${name}? This will remove all campaign linkages and billing history.`)) {
+      try {
+        await api.delete(`/sites/${id}`);
+        toast.success('Inventory record deleted');
+        fetchSites();
+      } catch (error) {
+        console.error('Failed to delete site:', error);
+        toast.error('Failed to delete site. It may have active dependencies.');
+      }
     }
   };
 
@@ -176,15 +190,24 @@ const Sites: React.FC = () => {
                     <div className="text-[11px] font-black text-accent-blue mt-0.5">₹{site.monthlyRate?.toLocaleString()}</div>
                   </td>
                   <td className="px-4 py-4 text-right">
-                     <div className="relative group/status inline-block text-left" onClick={(e) => e.stopPropagation()}>
-                        <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(site.status)}`}>
-                          {site.status}
-                        </span>
-                        <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-10 top-6 right-0 min-w-[100px]">
-                           {['Available', 'Occupied', 'Maintenance'].map(s => (
-                              <button key={s} onClick={() => updateStatus(site.id, s)} className="text-[10px] text-left hover:text-accent-orange text-text-muted font-bold py-1 uppercase">{s}</button>
-                           ))}
+                     <div className="flex items-center justify-end gap-2">
+                        <div className="relative group/status inline-block text-left" onClick={(e) => e.stopPropagation()}>
+                           <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(site.status)}`}>
+                             {site.status}
+                           </span>
+                           <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-10 top-6 right-0 min-w-[100px]">
+                              {['Available', 'Occupied', 'Maintenance'].map(s => (
+                                 <button key={s} onClick={() => updateStatus(site.id, s)} className="text-[10px] text-left hover:text-accent-orange text-text-muted font-bold py-1 uppercase">{s}</button>
+                              ))}
+                           </div>
                         </div>
+                        <button 
+                          onClick={(e) => handleDelete(e, site.id, site.siteName)}
+                          className="p-1.5 text-text-muted hover:text-danger hover:bg-danger/10 border border-transparent hover:border-danger/20 rounded-lg transition-all"
+                          title="Delete Site"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                      </div>
                   </td>
                 </tr>
@@ -218,13 +241,20 @@ const Sites: React.FC = () => {
                   <div className="absolute bottom-2 right-2"><div className={`w-2 h-2 rounded-full ${site.status === 'OCCUPIED' ? 'bg-warning shadow-[0_0_8px_#eab308]' : site.status === 'AVAILABLE' ? 'bg-success shadow-[0_0_8px_#22c55e]' : 'bg-danger shadow-[0_0_8px_#ef4444]'}`}></div></div>
                </div>
                <div className="p-4">
-                  <h3 className="text-[14px] font-bold text-text-primary group-hover:text-accent-orange transition-colors line-clamp-1 uppercase">{site.name}</h3>
+                  <h3 className="text-[14px] font-bold text-text-primary group-hover:text-accent-orange transition-colors line-clamp-1 uppercase">{site.siteName}</h3>
                   <div className="flex items-center gap-1.5 text-[10px] text-text-muted mt-1 uppercase font-bold tracking-widest">
-                     <MapPin size={10} /> {site.location}
+                     <MapPin size={10} /> {site.city}, {site.state}
                   </div>
                   <div className="flex justify-between items-center mt-4 pt-4 border-t border-border">
                      <div className="text-[13px] font-black text-accent-blue">₹{site.monthlyRate?.toLocaleString()}</div>
                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={(e) => handleDelete(e, site.id, site.siteName)}
+                          className="p-1.5 text-text-muted hover:text-danger hover:bg-danger/10 border border-transparent hover:border-danger/20 rounded-lg transition-all"
+                          title="Delete Site"
+                        >
+                          <Trash2 size={12} />
+                        </button>
                         <span className="text-[8px] font-black text-text-muted uppercase border border-border px-1.5 py-0.5 rounded-md">{site.ownershipType}</span>
                         <div className="p-1.5 bg-bg-surface-2 rounded-lg text-text-muted group-hover:text-accent-orange transition-colors border border-border"><ArrowRight size={12} /></div>
                      </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Plus, Search, Phone, Mail, MapPin, 
   ArrowRight, X, ExternalLink, ShieldCheck,
-  Briefcase, IndianRupee, Download, Loader2, Edit2
+  Briefcase, IndianRupee, Download, Loader2, Edit2, Trash2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ExportButton from '../components/ui/ExportButton';
@@ -54,9 +54,7 @@ const PayoutWizard: React.FC<{ vendor: any; onClose: () => void; onSuccess: () =
             </h2>
             <p className="text-[10px] text-text-muted mt-0.5">Payee: {vendor.vendorName}</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-bg-surface border border-transparent hover:border-border rounded-xl transition-colors">
-            <X size={18} />
-          </button>
+          <button onClick={onClose} className="p-2 hover:bg-bg-surface border border-transparent hover:border-border rounded-xl transition-colors"><X size={18} /></button>
         </div>
 
         {/* Content */}
@@ -218,6 +216,19 @@ const Vendors: React.FC = () => {
     }
   };
 
+  const handleDelete = async (id: string, name: string) => {
+    if (window.confirm(`Are you sure you want to delete ${name}? This will remove all associated inventory linkages and payout records.`)) {
+      try {
+        await api.delete(`/vendors/${id}`);
+        toast.success('Vendor record deleted');
+        fetchVendors();
+      } catch (error) {
+        console.error('Failed to delete vendor:', error);
+        toast.error('Failed to delete vendor. Ensure they have no active sites linked.');
+      }
+    }
+  };
+
   const getStatusBg = (status: string) => {
     const bgMap: any = { 
       'ACTIVE': 'bg-success', 
@@ -350,6 +361,12 @@ const Vendors: React.FC = () => {
                  className="px-3 py-1.5 bg-bg-surface-2 border border-border rounded-lg text-[10px] font-black text-text-muted hover:border-text-primary transition-all flex items-center gap-1"
                >
                  <Edit2 size={12} /> EDIT
+               </button>
+               <button 
+                 onClick={(e) => { e.stopPropagation(); handleDelete(vendor.id, vendor.vendorName); }}
+                 className="p-1.5 text-text-muted hover:text-danger hover:bg-danger/10 border border-transparent hover:border-danger/20 rounded-lg transition-all"
+               >
+                 <Trash2 size={14} />
                </button>
                <div className="pl-2">
                   <button className="p-2 text-text-muted group-hover:text-accent-orange transition-colors border border-transparent group-hover:border-border rounded-lg">

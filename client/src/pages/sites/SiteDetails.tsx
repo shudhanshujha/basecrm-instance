@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, MapPin, Ruler, Lightbulb, Truck, 
-  Camera, ArrowRight, Edit3, X, Check
+  Camera, ArrowRight, Edit3, X, Check, Trash2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../lib/axios';
@@ -54,9 +54,18 @@ const SiteDetails: React.FC = () => {
       await api.put(`/sites/${id}`, {
         siteName: site.siteName,
         address: site.address,
+        city: site.city,
+        state: site.state,
+        district: site.district,
+        siteType: site.siteType,
+        ownershipType: site.ownershipType,
         widthFt: parseFloat(site.widthFt),
         heightFt: parseFloat(site.heightFt),
+        monthlyRate: parseFloat(site.monthlyRate),
+        status: site.status,
         facingSide: site.facingSide,
+        trafficDensity: site.trafficDensity,
+        illuminated: site.illuminated,
         photos: site.photos
       });
       setIsEditing(false);
@@ -65,6 +74,19 @@ const SiteDetails: React.FC = () => {
     } catch (error) {
       console.error('Failed to update site:', error);
       toast.error('Failed to save changes.');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm(`Are you sure you want to delete ${site.siteName}? This will remove all campaign linkages and billing history.`)) {
+      try {
+        await api.delete(`/sites/${id}`);
+        toast.success('Inventory record deleted');
+        navigate('/sites');
+      } catch (error) {
+        console.error('Failed to delete site:', error);
+        toast.error('Failed to delete site. It may have active dependencies.');
+      }
     }
   };
 
@@ -92,24 +114,46 @@ const SiteDetails: React.FC = () => {
           <div className="flex flex-col">
             <div className="flex items-center gap-3">
               {isEditing ? (
-                <input 
-                  className="bg-bg-surface-2 border border-accent-orange rounded-lg px-3 py-1 text-2xl font-bold text-text-primary outline-none"
-                  value={site.siteName}
-                  onChange={(e) => setSite({...site, siteName: e.target.value})}
-                />
+                <div className="flex items-center gap-2">
+                  <input 
+                    className="bg-bg-surface-2 border border-accent-orange rounded-lg px-3 py-1 text-2xl font-bold text-text-primary outline-none"
+                    value={site.siteName}
+                    onChange={(e) => setSite({...site, siteName: e.target.value})}
+                  />
+                  <select 
+                    className="bg-bg-surface-2 border border-border rounded-lg px-2 py-1 text-[10px] font-black uppercase outline-none"
+                    value={site.status}
+                    onChange={(e) => setSite({...site, status: e.target.value})}
+                  >
+                    <option value="AVAILABLE">AVAILABLE</option>
+                    <option value="OCCUPIED">OCCUPIED</option>
+                    <option value="MAINTENANCE">MAINTENANCE</option>
+                  </select>
+                </div>
               ) : (
-                <h1 className="text-2xl font-bold text-text-primary uppercase tracking-tight">{site.siteName}</h1>
+                <>
+                  <h1 className="text-2xl font-bold text-text-primary uppercase tracking-tight">{site.siteName}</h1>
+                  <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white shadow-sm ${bgMap[site.status] || 'bg-text-muted'}`}>
+                    {site.status}
+                  </span>
+                </>
               )}
-              <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white shadow-sm ${bgMap[site.status] || 'bg-text-muted'}`}>
-                {site.status}
-              </span>
             </div>
             {isEditing ? (
-              <input 
-                className="mt-2 bg-bg-surface-2 border border-border rounded-lg px-3 py-1 text-[11px] text-text-muted outline-none w-full"
-                value={site.address}
-                onChange={(e) => setSite({...site, address: e.target.value})}
-              />
+              <div className="flex gap-2 mt-2">
+                <input 
+                  className="bg-bg-surface-2 border border-border rounded-lg px-3 py-1 text-[11px] text-text-muted outline-none flex-1"
+                  placeholder="Street Address"
+                  value={site.address}
+                  onChange={(e) => setSite({...site, address: e.target.value})}
+                />
+                <input 
+                  className="bg-bg-surface-2 border border-border rounded-lg px-3 py-1 text-[11px] text-text-muted outline-none w-32"
+                  placeholder="City"
+                  value={site.city}
+                  onChange={(e) => setSite({...site, city: e.target.value})}
+                />
+              </div>
             ) : (
               <p className="text-[11px] text-text-muted uppercase tracking-widest font-black mt-1">{site.address} · {site.city} · ID: {id?.toUpperCase()}</p>
             )}
@@ -123,6 +167,7 @@ const SiteDetails: React.FC = () => {
              </>
            ) : (
              <>
+               <button onClick={handleDelete} className="p-2.5 text-text-muted hover:text-danger hover:bg-danger/10 border border-border rounded-xl transition-all"><Trash2 size={18} /></button>
                <button onClick={() => setIsEditing(true)} className="btn-outline px-4 py-1.5 flex items-center gap-2 text-[12px] hover:text-accent-orange"><Edit3 size={14} /> Edit Site Info</button>
              </>
            )}
@@ -191,11 +236,34 @@ const SiteDetails: React.FC = () => {
                      </div>
                      <div className="flex justify-between items-center text-[12px]">
                         <span className="flex items-center gap-2 text-text-muted"><Truck size={14} /> Structure</span>
-                        <span className="font-bold text-text-primary uppercase">{site.ownershipType}</span>
+                        {isEditing ? (
+                          <select 
+                            className="bg-bg-surface-2 border border-border rounded px-2 py-0.5 text-right font-bold w-32 outline-none"
+                            value={site.ownershipType}
+                            onChange={(e) => setSite({...site, ownershipType: e.target.value})}
+                          >
+                            <option value="OWNED">OWNED</option>
+                            <option value="LEASED">LEASED</option>
+                          </select>
+                        ) : (
+                          <span className="font-bold text-text-primary uppercase">{site.ownershipType}</span>
+                        )}
                      </div>
                      <div className="flex justify-between items-center text-[12px]">
                         <span className="flex items-center gap-2 text-text-muted"><MapPin size={14} /> Traffic Density</span>
-                        <span className="font-bold text-success uppercase">{site.trafficDensity || 'MEDIUM'}</span>
+                        {isEditing ? (
+                          <select 
+                            className="bg-bg-surface-2 border border-border rounded px-2 py-0.5 text-right font-bold w-32 outline-none"
+                            value={site.trafficDensity || 'MEDIUM'}
+                            onChange={(e) => setSite({...site, trafficDensity: e.target.value})}
+                          >
+                            <option value="HIGH">HIGH</option>
+                            <option value="MEDIUM">MEDIUM</option>
+                            <option value="LOW">LOW</option>
+                          </select>
+                        ) : (
+                          <span className="font-bold text-success uppercase">{site.trafficDensity || 'MEDIUM'}</span>
+                        )}
                      </div>
                   </div>
                </div>
@@ -205,7 +273,15 @@ const SiteDetails: React.FC = () => {
                   <div className="space-y-4">
                      <div className="flex justify-between items-center text-[12px]">
                         <span className="text-text-muted">Inventory Type</span>
-                        <span className="font-bold text-accent-blue uppercase">{site.siteType}</span>
+                        {isEditing ? (
+                          <input 
+                            className="bg-bg-surface-2 border border-border rounded px-2 py-0.5 text-right font-bold w-32 outline-none"
+                            value={site.siteType || ''}
+                            onChange={(e) => setSite({...site, siteType: e.target.value})}
+                          />
+                        ) : (
+                          <span className="font-bold text-accent-blue uppercase">{site.siteType}</span>
+                        )}
                      </div>
                      <div className="flex justify-between items-center text-[12px]">
                         <span className="text-text-muted">Vendor Partner</span>
@@ -213,7 +289,16 @@ const SiteDetails: React.FC = () => {
                      </div>
                      <div className="p-2 bg-bg-surface-2 rounded-lg mt-2 flex justify-between items-center">
                         <span className="text-[10px] text-text-muted font-bold uppercase">Monthly Billing</span>
-                        <span className="text-[14px] font-black text-text-primary">₹{site.monthlyRate?.toLocaleString()}</span>
+                        {isEditing ? (
+                          <input 
+                            type="number"
+                            className="bg-bg-surface border border-border rounded px-2 py-1 text-right font-black w-32 outline-none text-accent-orange"
+                            value={site.monthlyRate}
+                            onChange={(e) => setSite({...site, monthlyRate: e.target.value})}
+                          />
+                        ) : (
+                          <span className="text-[14px] font-black text-text-primary">₹{site.monthlyRate?.toLocaleString()}</span>
+                        )}
                      </div>
                   </div>
                </div>

@@ -4,7 +4,7 @@ import {
   ArrowLeft, Mail, Phone, MapPin, 
   TrendingUp, FileText, CreditCard, 
   ExternalLink, Calendar, ChevronRight, ArrowRight,
-  Edit3, X, Check, Building
+  Edit3, X, Check, Building, Trash2
 } from 'lucide-react';
 import KPICard from '../../components/ui/KPICard';
 import toast from 'react-hot-toast';
@@ -64,6 +64,19 @@ const ClientDetails: React.FC = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (window.confirm(`Are you sure you want to delete ${client.name}? This will remove all associated invoices and records.`)) {
+      try {
+        await api.delete(`/clients/${id}`);
+        toast.success('Client deleted successfully');
+        navigate('/clients');
+      } catch (error) {
+        console.error('Failed to delete client:', error);
+        toast.error('Failed to delete client. Ensure they have no active dependencies.');
+      }
+    }
+  };
+
   if (loading) return <div className="p-8 text-center text-text-muted">Loading client data...</div>;
 
   return (
@@ -96,7 +109,10 @@ const ClientDetails: React.FC = () => {
                <button onClick={handleSave} className="btn-primary px-6 py-1.5 flex items-center gap-2 text-[12px]"><Check size={14} /> Save Partner</button>
              </>
            ) : (
-             <button onClick={() => setIsEditing(true)} className="btn-outline px-4 py-1.5 flex items-center gap-2 text-[12px] hover:text-accent-orange"><Edit3 size={14} /> Edit Client</button>
+             <>
+               <button onClick={handleDelete} className="p-2.5 text-text-muted hover:text-danger hover:bg-danger/10 border border-border rounded-xl transition-all"><Trash2 size={18} /></button>
+               <button onClick={() => setIsEditing(true)} className="btn-outline px-4 py-1.5 flex items-center gap-2 text-[12px] hover:text-accent-orange"><Edit3 size={14} /> Edit Client</button>
+             </>
            )}
         </div>
       </div>
