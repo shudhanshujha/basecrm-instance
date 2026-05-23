@@ -182,16 +182,24 @@ router.post('/register', authMiddleware, async (req: any, res) => {
   }
 });
 
-// Get all users for organization
+// Get all users for organization (Filtering out super_admins for non-super_admins)
 router.get('/users', authMiddleware, async (req: any, res) => {
   try {
     const orgId = await getOrgId(req);
+    const userRole = req.user.role; // Now included in JWT
+
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
 
-    const users = await getPrisma().profile.findMany({
-      where: { orgId },
+    const query: any = { 
+      where: { 
+        orgId,
+        // Hide super_admins from anyone who isn't a super_admin themselves
+        role: userRole === 'super_admin' ? undefined : { not: 'super_admin' }
+      },
       select: { id: true, email: true, fullName: true, role: true, createdAt: true }
-    });
+    };
+
+    const users = await getPrisma().profile.findMany(query);
     res.json(users);
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch users' });
