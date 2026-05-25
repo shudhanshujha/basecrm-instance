@@ -1,12 +1,29 @@
 import { Router } from 'express';
 import { getPrisma } from '../prismaClient.js';
+import { authMiddleware } from '../middleware/auth.js';
 
 const router = Router();
 
+// Apply auth middleware
+router.use(authMiddleware);
+
+// Helper to get org_id
+const getOrgId = async (req: any) => {
+  if (req.user.id === 'bypass-admin') return 'bypass-org';
+  const profile = await getPrisma().profile.findUnique({
+    where: { id: req.user.id }
+  });
+  return profile?.orgId;
+};
+
 // Get all vendors
-router.get('/', async (req, res) => {
+router.get('/', async (req: any, res) => {
   try {
+    const orgId = await getOrgId(req);
+    if (!orgId) return res.status(403).json({ error: 'No organization linked' });
+
     const vendors = await getPrisma().vendor.findMany({
+      where: { orgId },
       include: { sites: true, payments: true }
     });
     res.json(vendors);
@@ -16,11 +33,14 @@ router.get('/', async (req, res) => {
 });
 
 // Get single vendor
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: any, res) => {
   try {
     const { id } = req.params;
-    const vendor = await getPrisma().vendor.findUnique({
-      where: { id },
+    const orgId = await getOrgId(req);
+    if (!orgId) return res.status(403).json({ error: 'No organization linked' });
+
+    const vendor = await getPrisma().vendor.findFirst({
+      where: { id, orgId },
       include: { sites: true, payments: true }
     });
     if (!vendor) return res.status(404).json({ error: 'Vendor not found' });
@@ -31,23 +51,33 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create vendor
-router.post('/', async (req, res) => {
+router.post('/', async (req: any, res) => {
   try {
+    const orgId = await getOrgId(req);
+    if (!orgId) return res.status(403).json({ error: 'No organization linked' });
+
     const vendor = await getPrisma().vendor.create({
-      data: req.body
+      data: {
+        ...req.body,
+        orgId
+      }
     });
     res.status(201).json(vendor);
   } catch (error) {
+    console.error('Create vendor error:', error);
     res.status(500).json({ error: 'Failed to create vendor' });
   }
 });
 
 // Update vendor
-router.put('/:id', async (req, res) => {
+router.put('/:id', async (req: any, res) => {
   try {
     const { id } = req.params;
+    const orgId = await getOrgId(req);
+    if (!orgId) return res.status(403).json({ error: 'No organization linked' });
+
     const vendor = await getPrisma().vendor.update({
-      where: { id },
+      where: { id, orgId },
       data: req.body
     });
     res.json(vendor);
@@ -57,12 +87,15 @@ router.put('/:id', async (req, res) => {
 });
 
 // Update vendor status
-router.patch('/:id/status', async (req, res) => {
+router.patch('/:id/status', async (req: any, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
+    const orgId = await getOrgId(req);
+    if (!orgId) return res.status(403).json({ error: 'No organization linked' });
+
     const vendor = await getPrisma().vendor.update({
-      where: { id },
+      where: { id, orgId },
       data: { status }
     });
     res.json(vendor);
@@ -72,10 +105,13 @@ router.patch('/:id/status', async (req, res) => {
 });
 
 // Delete vendor
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req: any, res) => {
   try {
     const { id } = req.params;
-    await getPrisma().vendor.delete({ where: { id } });
+    const orgId = await getOrgId(req);
+    if (!orgId) return res.status(403).json({ error: 'No organization linked' });
+
+    await getPrisma().vendor.delete({ where: { id, orgId } });
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete vendor' });
