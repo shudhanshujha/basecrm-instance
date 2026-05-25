@@ -57,11 +57,18 @@ const NewCampaignWizard: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      // Logic for backend persistence would go here
+      setIsLoadingData(true);
+      await api.post('/campaigns', {
+        ...formData,
+        budget: parseFloat(formData.budget) || 0
+      });
       toast.success('Campaign created successfully!');
       navigate('/campaigns');
     } catch (error) {
-      toast.error('Failed to save campaign');
+      console.error('Save campaign error:', error);
+      toast.error('Failed to save campaign. Ensure all fields are valid.');
+    } finally {
+      setIsLoadingData(false);
     }
   };
 
@@ -154,7 +161,25 @@ const NewCampaignWizard: React.FC = () => {
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Target State/City</label>
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Start Date</label>
+                    <input 
+                      type="date" 
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-accent-blue"
+                      value={formData.startDate}
+                      onChange={e => setFormData({...formData, startDate: e.target.value})}
+                    />
+                 </div>
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">End Date</label>
+                    <input 
+                      type="date" 
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-accent-blue"
+                      value={formData.endDate}
+                      onChange={e => setFormData({...formData, endDate: e.target.value})}
+                    />
+                 </div>
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Target State/City</label>
                     <div className="relative">
                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
                        <input 
@@ -167,8 +192,14 @@ const NewCampaignWizard: React.FC = () => {
                     </div>
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Total Budget (₹)</label>
-                    <input type="number" placeholder="0.00" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-accent-blue" />
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Total Budget (₹)</label>
+                    <input 
+                      type="number" 
+                      placeholder="0.00" 
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-accent-blue font-bold" 
+                      value={formData.budget}
+                      onChange={e => setFormData({...formData, budget: e.target.value})}
+                    />
                  </div>
               </div>
 
