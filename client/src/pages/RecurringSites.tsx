@@ -359,7 +359,7 @@ const RecurringSites: React.FC = () => {
 
   const filteredData = sites.filter(d =>
     d.siteName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.city.toLowerCase().includes(search.toLowerCase())
+    d.city.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalMonthly = sites.reduce((acc, s) => acc + (s.monthlyRate || 0), 0);
