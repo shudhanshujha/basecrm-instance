@@ -1,13 +1,31 @@
 import { Router } from 'express';
 import { getPrisma } from '../prismaClient.js';
+import { authMiddleware } from '../middleware/auth.js';
 
 const router = Router();
 
-// --- Client Payments ---
-router.get('/clients', async (req, res) => {
+// Apply auth middleware
+router.use(authMiddleware);
+
+// Helper to get org_id
+const getOrgId = async (req: any) => {
+  if (req.user.id === 'bypass-admin') return 'bypass-org';
+  const profile = await getPrisma().profile.findUnique({
+    where: { id: req.user.id }
+  });
+  return profile?.orgId;
+};
+
+// --- Client Payments (Collections) ---
+router.get('/clients', async (req: any, res) => {
   try {
+    const orgId = await getOrgId(req);
+    if (!orgId) return res.status(403).json({ error: 'No organization linked' });
+
     const payments = await getPrisma().payment.findMany({
-      include: { client: true, invoice: true }
+      where: { orgId },
+      include: { client: true, invoice: true },
+      orderBy: { paymentDate: 'desc' }
     });
     res.json(payments);
   } catch (error) {
@@ -15,53 +33,70 @@ router.get('/clients', async (req, res) => {
   }
 });
 
-router.post('/clients', async (req, res) => {
+router.post('/clients', async (req: any, res) => {
   try {
+    const orgId = await getOrgId(req);
+    if (!orgId) return res.status(403).json({ error: 'No organization linked' });
+
+    const { invoiceId, clientId, amount, paymentDate, paymentMode, referenceNumber, notes } = req.body;
     let internalInvoiceId = null;
     
-    // If the user typed an invoice number in the reference field, let's look it up
-    if (req.body.invoiceId) {
+    // Look up invoice by number or ID
+    if (invoiceId) {
       const invoice = await getPrisma().invoice.findFirst({
         where: { 
+          orgId,
           OR: [
-            { id: req.body.invoiceId },
-            { invoiceNumber: req.body.invoiceId }
+            { id: invoiceId },
+            { invoiceNumber: invoiceId }
           ]
         }
       });
       if (invoice) {
         internalInvoiceId = invoice.id;
-        req.body.invoiceId = invoice.id; // Correct the relation
       } else {
-        return res.status(400).json({ error: 'Invoice reference not found. Please provide a valid Invoice Number or ID.' });
+        return res.status(400).json({ error: 'Invoice reference not found.' });
       }
     } else {
         return res.status(400).json({ error: 'Invoice reference is required.' });
     }
 
     const payment = await getPrisma().payment.create({
-      data: req.body
+      data: {
+        orgId,
+        invoiceId: internalInvoiceId,
+        clientId,
+        amount: parseFloat(amount),
+        paymentDate: new Date(paymentDate),
+        paymentMode,
+        referenceNumber,
+        notes
+      }
     });
     
     // Auto-update invoice status to PAID
-    if (internalInvoiceId) {
-      await getPrisma().invoice.update({
-        where: { id: internalInvoiceId },
-        data: { status: 'PAID' }
-      });
-    }
+    await getPrisma().invoice.update({
+      where: { id: internalInvoiceId },
+      data: { status: 'PAID' }
+    });
 
     res.status(201).json(payment);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create client payment' });
+    console.error('Create payment error:', error);
+    res.status(500).json({ error: 'Failed to record collection' });
   }
 });
 
-// --- Vendor Payments ---
-router.get('/vendors', async (req, res) => {
+// --- Vendor Payments (Payouts) ---
+router.get('/vendors', async (req: any, res) => {
   try {
+    const orgId = await getOrgId(req);
+    if (!orgId) return res.status(403).json({ error: 'No organization linked' });
+
     const payments = await getPrisma().vendorPayment.findMany({
-      include: { vendor: true }
+      where: { orgId },
+      include: { vendor: true },
+      orderBy: { paymentDate: 'desc' }
     });
     res.json(payments);
   } catch (error) {
@@ -69,14 +104,45 @@ router.get('/vendors', async (req, res) => {
   }
 });
 
-router.post('/vendors', async (req, res) => {
+router.post('/vendors', async (req: any, res) => {
   try {
+    const orgId = await getOrgId(req);
+    if (!orgId) return res.status(403).json({ error: 'No organization linked' });
+
+    const { vendorId, amount, paymentDate, paymentMode, referenceNumber, purpose, notes, month, year } = req.body;
+
     const payment = await getPrisma().vendorPayment.create({
-      data: req.body
+      data: {
+        orgId,
+        vendorId,
+        amount: parseFloat(amount),
+        paymentDate: new Date(paymentDate),
+        paymentMode,
+        referenceNumber,
+        purpose,
+        notes,
+        month: month ? parseInt(month) : new Date(paymentDate).getMonth() + 1,
+        year: year ? parseInt(year) : new Date(paymentDate).getFullYear()
+      }
     });
+
+    // Log in general Expenses for P&L
+    await getPrisma().expense.create({
+      data: {
+        orgId,
+        date: new Date(paymentDate),
+        category: 'VENDOR_PAYOUT',
+        amount: parseFloat(amount),
+        description: `Vendor Payout: ${purpose || 'Inventory Settlement'}`,
+        paymentMode,
+        referenceNumber
+      }
+    });
+
     res.status(201).json(payment);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create vendor payment' });
+    console.error('Create vendor payment error:', error);
+    res.status(500).json({ error: 'Failed to record payout' });
   }
 });
 
