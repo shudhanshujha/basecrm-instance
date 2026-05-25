@@ -21,10 +21,12 @@ const Sites: React.FC = () => {
   const [newSiteType, setNewSiteType] = useState<'owned' | 'rented'>('owned');
 
   const [sites, setSites] = useState<any[]>([]);
+  const [vendors, setVendors] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   React.useEffect(() => {
     fetchSites();
+    fetchVendors();
   }, []);
 
   const fetchSites = async () => {
@@ -37,6 +39,15 @@ const Sites: React.FC = () => {
       toast.error('Failed to load inventory');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchVendors = async () => {
+    try {
+      const res = await api.get('/vendors');
+      setVendors(res.data);
+    } catch (error) {
+      console.error('Error fetching vendors:', error);
     }
   };
 
@@ -81,7 +92,10 @@ const Sites: React.FC = () => {
     try {
       await api.post('/sites', {
         ...data,
-        monthlyRate: parseFloat(data.monthlyRate as string),
+        widthFt: parseFloat(data.widthFt as string) || 0,
+        heightFt: parseFloat(data.heightFt as string) || 0,
+        monthlyRate: parseFloat(data.monthlyRate as string) || 0,
+        leaseAmount: data.leaseAmount ? parseFloat(data.leaseAmount as string) : undefined,
         ownershipType: newSiteType.toUpperCase(),
         status: 'AVAILABLE'
       });
@@ -89,6 +103,7 @@ const Sites: React.FC = () => {
       setShowAddModal(false);
       fetchSites();
     } catch (error) {
+      console.error('Save site error:', error);
       toast.error('Failed to save site');
     }
   };
@@ -308,10 +323,12 @@ const Sites: React.FC = () => {
                        <input name="city" type="text" required className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none" placeholder="e.g. Gurugram" />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black text-text-muted uppercase ml-1">Structure Dimensions</label>
-                       <div className="relative">
-                          <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={14} />
-                          <input name="widthFt" type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl pl-9 pr-4 py-3 text-[13px] outline-none" placeholder="20x10 ft" />
+                       <label className="text-[10px] font-black text-text-muted uppercase ml-1">Structure Dimensions (W × H ft)</label>
+                       <div className="flex gap-2 items-center bg-bg-surface-2 border border-border rounded-xl px-3 py-1.5 transition-all focus-within:border-accent-orange">
+                          <Ruler className="text-text-muted" size={14} />
+                          <input name="widthFt" type="number" step="0.1" required className="bg-transparent outline-none text-[13px] w-16 text-center font-bold" placeholder="Width" />
+                          <span className="text-text-muted font-bold">×</span>
+                          <input name="heightFt" type="number" step="0.1" required className="bg-transparent outline-none text-[13px] w-16 text-center font-bold" placeholder="Height" />
                        </div>
                     </div>
                     <div className="space-y-2">
@@ -325,7 +342,12 @@ const Sites: React.FC = () => {
                           <div className="grid grid-cols-2 gap-4">
                              <div className="space-y-2">
                                 <label className="text-[9px] font-black text-purple-400 uppercase">Select Vendor Partner</label>
-                                <select name="vendorId" className="w-full bg-bg-surface border border-purple-500/20 rounded-xl px-3 py-2.5 text-[12px] outline-none text-text-primary font-bold"><option value="">Select Vendor</option><option value="1">Haryana Outdoor Media</option><option value="2">North India Hoardings</option></select>
+                                <select name="vendorId" className="w-full bg-bg-surface border border-purple-500/20 rounded-xl px-3 py-2.5 text-[12px] outline-none text-text-primary font-bold">
+                                   <option value="">Select Vendor...</option>
+                                   {vendors.map(v => (
+                                     <option key={v.id} value={v.id}>{v.vendorName}</option>
+                                   ))}
+                                </select>
                              </div>
                              <div className="space-y-2">
                                 <label className="text-[9px] font-black text-purple-400 uppercase">Vendor Payout Rate</label>
