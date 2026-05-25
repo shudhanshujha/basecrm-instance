@@ -3,7 +3,7 @@ import {
   Search, Filter, Plus, Database, Map as MapIcon, 
   Table, Download, Upload, Info, ExternalLink,
   ChevronRight, ArrowRight, X, LayoutGrid, List,
-  Truck, ShieldCheck, Home, Camera, Ruler, Lightbulb, MapPin, Loader2, Trash2
+  Truck, ShieldCheck, Home, Ruler, Lightbulb, MapPin, Loader2, Trash2
 } from 'lucide-react';
 import api from '../lib/axios';
 import { useNavigate } from 'react-router-dom';
@@ -231,6 +231,7 @@ const Sites: React.FC = () => {
           </table>
         </div>
       ) : (
+        <div className="grid grid-cols-3 gap-4">
           {filteredSites.map(site => (
             <div key={site.id} onClick={() => navigate(`/sites/${site.id}`)} className="card bg-bg-surface hover:border-accent-orange transition-all cursor-pointer group flex flex-col p-4 relative shadow-lg border-border/50">
                <div className="flex justify-between items-start">
@@ -261,6 +262,7 @@ const Sites: React.FC = () => {
                </div>
             </div>
           ))}
+        </div>
       )}
 
       {showAddModal && (
