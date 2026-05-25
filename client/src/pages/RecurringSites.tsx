@@ -4,6 +4,7 @@ import {
   Search, Building, MapPin, ChevronRight, Check,
   IndianRupee, Clock, Loader2, AlertCircle, Trash2
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import ExportButton from '../components/ui/ExportButton';
 import toast from 'react-hot-toast';
 import api from '../lib/axios';
@@ -318,6 +319,7 @@ const RecurringWizard: React.FC<{ onClose: () => void; onSuccess: () => void }> 
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 const RecurringSites: React.FC = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [sites, setSites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -357,7 +359,7 @@ const RecurringSites: React.FC = () => {
 
   const filteredData = sites.filter(d =>
     d.siteName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.city.toLowerCase().includes(searchTerm.toLowerCase())
+    d.city.toLowerCase().includes(search.toLowerCase())
   );
 
   const totalMonthly = sites.reduce((acc, s) => acc + (s.monthlyRate || 0), 0);
@@ -428,7 +430,7 @@ const RecurringSites: React.FC = () => {
               </button>
             </div>
           ) : filteredData.map((item) => (
-            <div key={item.id} className="card hover:border-accent-orange transition-all cursor-pointer group flex items-center justify-between bg-bg-surface border-border/50 shadow-md">
+            <div key={item.id} onClick={() => navigate(`/sites/${item.id}`)} className="card hover:border-accent-orange transition-all cursor-pointer group flex items-center justify-between bg-bg-surface border-border/50 shadow-md">
               <div className="flex items-center gap-5">
                 <div className="w-12 h-12 bg-bg-surface-2 rounded-2xl border border-border flex items-center justify-center text-accent-orange shadow-inner">
                   <Repeat size={20} className="group-hover:rotate-180 transition-all duration-1000" />
@@ -466,7 +468,13 @@ const RecurringSites: React.FC = () => {
                   <div className="text-[9px] text-text-muted uppercase font-bold">Monthly Billing</div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <Calendar size={18} className="text-text-muted group-hover:text-accent-orange transition-colors" />
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); navigate(`/sites/${item.id}`); }}
+                    className="p-1.5 text-text-muted hover:text-accent-orange rounded-lg transition-colors border border-transparent hover:border-accent-orange/20"
+                    title="View Billing Details"
+                  >
+                    <Calendar size={18} />
+                  </button>
                   <button 
                     onClick={(e) => handleRemoveRecurring(e, item.id, item.siteName)}
                     className="p-1.5 text-text-muted hover:text-danger hover:bg-danger/10 rounded-lg transition-colors border border-transparent hover:border-danger/20"

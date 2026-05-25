@@ -297,7 +297,12 @@ const SiteDetails: React.FC = () => {
                     <div className="text-[11px] text-text-muted italic">No campaign bookings yet.</div>
                   )}
                </div>
-               <button className="w-full mt-4 py-2 text-[11px] font-bold text-accent-blue hover:underline">View Full Logs</button>
+               <button 
+                 onClick={() => navigate('/analytics')}
+                 className="w-full mt-4 py-2 text-[11px] font-bold text-accent-blue hover:underline"
+               >
+                 View Full Intelligence Logs
+               </button>
             </div>
          </div>
       </div>
