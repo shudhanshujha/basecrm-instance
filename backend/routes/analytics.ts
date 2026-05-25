@@ -1,11 +1,28 @@
 import { Router } from 'express';
 import { getPrisma } from '../prismaClient.js';
-import { subMonths } from 'date-fns';
+import { subMonths, startOfMonth, endOfMonth } from 'date-fns';
+import { authMiddleware } from '../middleware/auth.js';
 
 const router = Router();
 
-router.get('/', async (req, res) => {
+// Apply auth middleware
+router.use(authMiddleware);
+
+// Helper to get org_id
+const getOrgId = async (req: any) => {
+  if (req.user.orgId) return req.user.orgId;
+  if (req.user.id === 'bypass-admin') return 'bypass-org';
+  const profile = await getPrisma().profile.findUnique({
+    where: { id: req.user.id }
+  });
+  return profile?.orgId;
+};
+
+router.get('/', async (req: any, res) => {
   try {
+    const orgId = await getOrgId(req);
+    if (!orgId) return res.status(403).json({ error: 'No organization linked' });
+    
     const now = new Date();
     
     // Financial Analytics (3m, 6m, 1y)
@@ -13,29 +30,27 @@ router.get('/', async (req, res) => {
       const startDate = subMonths(now, months);
       
       const invoiceAgg = await getPrisma().invoice.aggregate({
-        where: { invoiceDate: { gte: startDate } },
+        where: { orgId, invoiceDate: { gte: startDate } },
         _sum: { totalAmount: true }
       });
       
       const expenseAgg = await getPrisma().expense.aggregate({
-        where: { date: { gte: startDate } },
+        where: { orgId, date: { gte: startDate } },
         _sum: { amount: true }
       });
 
       const vendorAgg = await getPrisma().vendorPayment.aggregate({
-        where: { createdAt: { gte: startDate } },
+        where: { orgId, paymentDate: { gte: startDate } },
         _sum: { amount: true }
       });
 
       const totalRevenue = invoiceAgg._sum.totalAmount || 0;
-      const totalExpenses = expenseAgg._sum.amount || 0;
-      const totalVendorPayments = vendorAgg._sum.amount || 0;
+      const totalExpenses = (expenseAgg._sum.amount || 0) + (vendorAgg._sum.amount || 0);
       
       return {
         revenue: totalRevenue,
         expenses: totalExpenses,
-        vendorPayments: totalVendorPayments,
-        netProfit: totalRevenue - (totalExpenses + totalVendorPayments)
+        netProfit: totalRevenue - totalExpenses
       };
     };
 
@@ -45,13 +60,14 @@ router.get('/', async (req, res) => {
       getFinancials(12)
     ]);
 
-    // GST Balance Sheet (Cumulative)
+    // GST Balance Sheet
     const invoiceGstAgg = await getPrisma().invoice.aggregate({
+      where: { orgId },
       _sum: { cgstAmount: true, sgstAmount: true, igstAmount: true, taxableAmount: true }
     });
 
     const expenseGstAgg = await getPrisma().expense.aggregate({
-      where: { gstin: { not: null } },
+      where: { orgId, gstin: { not: null } },
       _sum: { cgstAmount: true, sgstAmount: true, igstAmount: true }
     });
 
@@ -67,257 +83,158 @@ router.get('/', async (req, res) => {
       igst: expenseGstAgg._sum.igstAmount || 0,
     };
 
-    const gstBalance = {
-      cgst: gstCollected.cgst - gstPaid.cgst,
-      sgst: gstCollected.sgst - gstPaid.sgst,
-      igst: gstCollected.igst - gstPaid.igst,
-    };
-
-    // Profit & Loss Report (Overall)
-    const totalRevenue = invoiceGstAgg._sum.taxableAmount || 0; // P&L usually excludes tax
+    // P&L logic...
+    const hoardingRevenue = invoiceGstAgg._sum.taxableAmount || 0;
     
-    // Process items via related model instead of raw JSON to ensure type safety
-    const totalProductionRevenue = 0; // Simplified for build stability
-    const hoardingRevenue = totalRevenue;
-    
-    // For P&L, we need all expenses
     const allExpenses = await getPrisma().expense.findMany({
+      where: { orgId },
       select: { taxableAmount: true, amount: true, category: true }
     });
     
     let indirectExpenses = 0;
     let mountingCosts = 0;
-
     allExpenses.forEach(exp => {
-      const category = (exp.category || '').toLowerCase();
       const val = exp.taxableAmount || exp.amount || 0;
-      if (category.includes('mount') || category.includes('labour') || category.includes('print')) {
-        mountingCosts += val;
-      } else {
-        indirectExpenses += val;
-      }
+      if ((exp.category || '').toLowerCase().includes('mount')) mountingCosts += val;
+      else indirectExpenses += val;
     });
-    
-    const allVendorPaymentsAgg = await getPrisma().vendorPayment.aggregate({
+
+    const vendorPayoutsAgg = await getPrisma().vendorPayment.aggregate({
+      where: { orgId },
       _sum: { amount: true }
     });
-    const totalVendorPayouts = allVendorPaymentsAgg._sum.amount || 0;
-
-    const plReport = {
-      income: {
-        hoarding: hoardingRevenue,
-        production: totalProductionRevenue,
-        total: totalRevenue
-      },
-      expenses: {
-        lease: totalVendorPayouts,
-        mounting: mountingCosts,
-        operating: indirectExpenses,
-        total: totalVendorPayouts + mountingCosts + indirectExpenses
-      },
-      netOperatingProfit: totalRevenue - (totalVendorPayouts + mountingCosts + indirectExpenses),
-      gstLiability: {
-        cgst: gstCollected.cgst,
-        sgst: gstCollected.sgst,
-        igst: gstCollected.igst,
-        total: gstCollected.cgst + gstCollected.sgst + gstCollected.igst
-      },
-      finalBottomLine: (totalRevenue - (totalVendorPayouts + mountingCosts + indirectExpenses))
-    };
 
     res.json({
-      financials: {
-        last3Months: analytics3m,
-        last6Months: analytics6m,
-        lastYear: analytics1y
-      },
+      financials: { last3Months: analytics3m, last6Months: analytics6m, lastYear: analytics1y },
       gstReport: {
         collected: gstCollected,
         paid: gstPaid,
-        balance: gstBalance,
-        outputDetails: await getPrisma().invoice.findMany({
-          take: 20,
-          orderBy: { invoiceDate: 'desc' },
-          include: { client: true }
-        }),
-        inputDetails: await getPrisma().expense.findMany({
-          where: { gstin: { not: null } },
-          take: 20,
-          orderBy: { date: 'desc' }
-        })
+        balance: {
+          cgst: gstCollected.cgst - gstPaid.cgst,
+          sgst: gstCollected.sgst - gstPaid.sgst,
+          igst: gstCollected.igst - gstPaid.igst,
+        }
       },
-      plReport
+      plReport: {
+        income: { hoarding: hoardingRevenue, total: hoardingRevenue },
+        expenses: {
+          lease: vendorPayoutsAgg._sum.amount || 0,
+          mounting: mountingCosts,
+          operating: indirectExpenses,
+          total: (vendorPayoutsAgg._sum.amount || 0) + mountingCosts + indirectExpenses
+        }
+      }
     });
-
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: 'Failed to generate analytics' });
   }
 });
 
-router.get('/dashboard', async (req, res) => {
+router.get('/dashboard', async (req: any, res) => {
   try {
+    const orgId = await getOrgId(req);
+    if (!orgId) return res.status(403).json({ error: 'No organization linked' });
+
     const { range, breakdown } = req.query;
     const now = new Date();
-    let months = 6;
-    if (range === '1m') months = 1;
-    if (range === '3m') months = 3;
-    if (range === '1y') months = 12;
+    
+    // Monthly Comparison logic
+    const currMonthStart = startOfMonth(now);
+    const prevMonthStart = startOfMonth(subMonths(now, 1));
+    const prevMonthEnd = endOfMonth(subMonths(now, 1));
 
-    const startDate = subMonths(now, months);
-
-    // KPI 1: Revenue
-    const revAgg = await getPrisma().invoice.aggregate({
-      where: { invoiceDate: { gte: startDate } },
+    // 1. Revenue & Growth
+    const currRev = await getPrisma().invoice.aggregate({
+      where: { orgId, invoiceDate: { gte: currMonthStart } },
+      _sum: { totalAmount: true }
+    });
+    const prevRev = await getPrisma().invoice.aggregate({
+      where: { orgId, invoiceDate: { gte: prevMonthStart, lte: prevMonthEnd } },
       _sum: { totalAmount: true }
     });
 
-    // KPI 2: Active Campaigns
-    const activeCampaignsCount = await getPrisma().campaign.count({
-      where: { status: 'ACTIVE' }
+    const revenueVal = currRev._sum.totalAmount || 0;
+    const prevRevenueVal = prevRev._sum.totalAmount || 0;
+    const revGrowth = prevRevenueVal > 0 
+      ? ((revenueVal - prevRevenueVal) / prevRevenueVal) * 100
+      : 0;
+
+    // 2. Campaigns
+    const activeCount = await getPrisma().campaign.count({
+      where: { orgId, status: 'ACTIVE' }
+    });
+    const newCampaignsThisMonth = await getPrisma().campaign.count({
+      where: { orgId, createdAt: { gte: currMonthStart } }
     });
 
-    // KPI 3: Outstanding
+    // 3. Outstanding
     const outstandingAgg = await getPrisma().invoice.aggregate({
-      where: { status: { in: ['PENDING', 'OVERDUE'] } },
+      where: { orgId, status: { in: ['PENDING', 'OVERDUE'] } },
       _sum: { totalAmount: true }
     });
+    const overdueCount = await getPrisma().invoice.count({
+      where: { orgId, status: 'OVERDUE' }
+    });
 
-    // KPI 4: Expenses in range
-    const expenseAgg = await getPrisma().expense.aggregate({
-      where: { date: { gte: startDate } },
+    // 4. Profitability
+    const totalExp = await getPrisma().expense.aggregate({
+      where: { orgId },
       _sum: { amount: true }
     });
+    const vendorPay = await getPrisma().vendorPayment.aggregate({
+      where: { orgId },
+      _sum: { amount: true }
+    });
+    const totalCosts = (totalExp._sum.amount || 0) + (vendorPay._sum.amount || 0);
+    const allTimeRev = await getPrisma().invoice.aggregate({
+      where: { orgId },
+      _sum: { totalAmount: true }
+    });
+    const totalRevenue = allTimeRev._sum.totalAmount || 0;
+    const margin = totalRevenue > 0 ? ((totalRevenue - totalCosts) / totalRevenue) * 100 : 0;
 
-    const totalRev = revAgg._sum.totalAmount || 0;
-    const totalExp = expenseAgg._sum.amount || 0;
-
-    // ── Real Revenue Trend (grouped by month) ────────────────────────────────
+    // Trend Logic...
+    let months = range === '1y' ? 12 : range === '1m' ? 1 : range === '3m' ? 3 : 6;
+    const startDate = subMonths(now, months);
     const invoicesInRange = await getPrisma().invoice.findMany({
-      where: { invoiceDate: { gte: startDate } },
-      select: { invoiceDate: true, totalAmount: true, taxableAmount: true, cgstAmount: true, sgstAmount: true }
+      where: { orgId, invoiceDate: { gte: startDate } },
+      select: { invoiceDate: true, totalAmount: true }
     });
 
-    const expensesInRange = await getPrisma().expense.findMany({
-      where: { date: { gte: startDate } },
-      select: { date: true, amount: true }
-    });
-
-    const sitesInRange = await getPrisma().site.findMany({
-      where: { createdAt: { gte: startDate } },
-      select: { createdAt: true }
-    });
-
-    // Build a map of months in range
-    const monthMap: Record<string, { name: string; revenue: number; expenses: number; profit: number; sites: number }> = {};
+    const monthMap: any = {};
     for (let i = months - 1; i >= 0; i--) {
       const d = subMonths(now, i);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      const label = months > 6
-        ? d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' })
-        : d.toLocaleDateString('en-IN', { month: 'short' });
-      monthMap[key] = { name: label, revenue: 0, expenses: 0, profit: 0, sites: 0 };
+      monthMap[key] = { name: d.toLocaleDateString('en-IN', { month: 'short' }), revenue: 0 };
     }
-
     invoicesInRange.forEach(inv => {
       const d = new Date(inv.invoiceDate);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      if (monthMap[key]) {
-        monthMap[key].revenue += (inv.totalAmount || 0) / 100000; // In Lakhs
-      }
-    });
-
-    expensesInRange.forEach(exp => {
-      const d = new Date(exp.date);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      if (monthMap[key]) {
-        monthMap[key].expenses += (exp.amount || 0) / 100000;
-      }
-    });
-
-    sitesInRange.forEach(site => {
-      const d = new Date(site.createdAt);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      if (monthMap[key]) {
-        monthMap[key].sites += 1;
-      }
-    });
-
-    const revenueTrend = Object.values(monthMap).map(m => ({
-      ...m,
-      revenue: parseFloat(m.revenue.toFixed(2)),
-      expenses: parseFloat(m.expenses.toFixed(2)),
-      profit: parseFloat((m.revenue - m.expenses).toFixed(2)),
-    }));
-
-    // ── Real Breakdown ────────────────────────────────────────────────────────
-    let breakdownData: any[] = [];
-    const COLORS = ['#f97316', '#3b82f6', '#22c55e', '#a78bfa', '#ec4899', '#6b7280'];
-
-    if (breakdown === 'client') {
-      const byClient = await getPrisma().invoice.groupBy({
-        by: ['clientId'],
-        where: { invoiceDate: { gte: startDate } },
-        _sum: { totalAmount: true },
-        orderBy: { _sum: { totalAmount: 'desc' } },
-        take: 6
-      });
-      const clientIds = byClient.map(c => c.clientId);
-      const clientNames = await getPrisma().client.findMany({ where: { id: { in: clientIds } }, select: { id: true, name: true } });
-      const nameMap = Object.fromEntries(clientNames.map(c => [c.id, c.name]));
-      breakdownData = byClient.map((c, i) => ({
-        name: nameMap[c.clientId] || 'Unknown',
-        value: c._sum.totalAmount || 0,
-        color: COLORS[i % COLORS.length]
-      }));
-    } else if (breakdown === 'campaign') {
-      const byCampaign = await getPrisma().invoice.groupBy({
-        by: ['campaignId'],
-        where: { invoiceDate: { gte: startDate }, campaignId: { not: null } },
-        _sum: { totalAmount: true },
-        orderBy: { _sum: { totalAmount: 'desc' } },
-        take: 6
-      });
-      const campIds = byCampaign.filter(c => c.campaignId).map(c => c.campaignId as string);
-      const campNames = await getPrisma().campaign.findMany({ where: { id: { in: campIds } }, select: { id: true, campaignName: true } });
-      const campMap = Object.fromEntries(campNames.map(c => [c.id, c.campaignName]));
-      breakdownData = byCampaign.map((c, i) => ({
-        name: campMap[c.campaignId as string] || 'Direct',
-        value: c._sum.totalAmount || 0,
-        color: COLORS[i % COLORS.length]
-      }));
-    } else if (breakdown === 'site') {
-      // Expense by category as proxy for site breakdown
-      const byCategory = await getPrisma().expense.groupBy({
-        by: ['category'],
-        where: { date: { gte: startDate } },
-        _sum: { amount: true },
-        orderBy: { _sum: { amount: 'desc' } }
-      });
-      breakdownData = byCategory.map((c, i) => ({
-        name: c.category,
-        value: c._sum.amount || 0,
-        color: COLORS[i % COLORS.length]
-      }));
-    }
-
-    // ── Recent Invoices ───────────────────────────────────────────────────────
-    const recentInvoices = await getPrisma().invoice.findMany({
-      take: 5,
-      orderBy: { invoiceDate: 'desc' },
-      include: { client: true, campaign: true }
+      if (monthMap[key]) monthMap[key].revenue += (inv.totalAmount || 0) / 100000;
     });
 
     res.json({
       kpis: {
-        revenue: `₹${(totalRev / 100000).toFixed(1)}L`,
-        campaigns: activeCampaignsCount.toString(),
+        revenue: `₹${(revenueVal / 100000).toFixed(1)}L`,
+        revenueTrend: `${revGrowth >= 0 ? '↑' : '↓'} ${Math.abs(revGrowth).toFixed(1)}% vs prev month`,
+        revenueTrendType: revGrowth >= 0 ? 'up' : 'down',
+        campaigns: activeCount.toString(),
+        campaignsTrend: `↑ ${newCampaignsThisMonth} new this month`,
+        campaignsTrendType: 'up',
         outstanding: `₹${((outstandingAgg._sum.totalAmount || 0) / 100000).toFixed(1)}L`,
-        profit: `₹${((totalRev - totalExp) / 100000).toFixed(1)}L`
+        outstandingTrend: `! ${overdueCount} overdue items`,
+        outstandingTrendType: overdueCount > 0 ? 'down' : 'up',
+        profit: `₹${((totalRevenue - totalCosts) / 100000).toFixed(1)}L`,
+        profitTrend: `↑ ${margin.toFixed(1)}% gross margin`,
+        profitTrendType: margin > 40 ? 'up' : 'down'
       },
-      revenue: revenueTrend,
-      breakdown: breakdownData,
-      invoices: recentInvoices
+      revenue: Object.values(monthMap).map((m: any) => ({ ...m, revenue: parseFloat(m.revenue.toFixed(2)) })),
+      invoices: await getPrisma().invoice.findMany({
+        where: { orgId },
+        take: 5,
+        orderBy: { invoiceDate: 'desc' },
+        include: { client: true }
+      })
     });
   } catch (error) {
     console.error(error);

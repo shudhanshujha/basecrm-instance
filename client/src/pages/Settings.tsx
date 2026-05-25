@@ -4,7 +4,7 @@ import {
   ShieldCheck, Globe, Bell, Save, 
   User, Check, X, Smartphone, Mail,
   Download, FileSpreadsheet, FileText, Trash2, AlertCircle, CheckCircle2,
-  Database, Cloud, RefreshCw, Server, UserPlus, Users
+  Database, Cloud, RefreshCw, Server, UserPlus, Users, Loader2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNotificationStore } from '../store/useNotificationStore';
@@ -21,8 +21,21 @@ const Settings: React.FC = () => {
   // User Management State
   const [userList, setUserList] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [savingOrg, setSavingOrg] = useState(false);
   const currentUser = JSON.parse(localStorage.getItem('dv_user') || '{}');
-  const isAdmin = currentUser.role === 'admin';
+  const isAdmin = currentUser.role === 'admin' || currentUser.role === 'super_admin';
+
+  const [org, setOrg] = useState<any>({
+    id: '',
+    name: '',
+    gstin: '',
+    panNumber: '',
+    address: '',
+    bankName: '',
+    upiId: '',
+    accountNumber: '',
+    ifscCode: ''
+  });
 
   const [newUser, setNewUser] = useState({
     email: '',
@@ -30,6 +43,21 @@ const Settings: React.FC = () => {
     fullName: '',
     role: 'member'
   });
+
+  useEffect(() => {
+    fetchInitialData();
+  }, []);
+
+  const fetchInitialData = async () => {
+    try {
+      const res = await api.get('/auth/me');
+      if (res.data.organization) {
+          setOrg(res.data.organization);
+      }
+    } catch (err) {
+      console.error('Failed to fetch profile');
+    }
+  };
 
   useEffect(() => {
     if (activeSection === 'users') {
@@ -46,6 +74,19 @@ const Settings: React.FC = () => {
       console.error('Failed to fetch users');
     } finally {
       setLoadingUsers(false);
+    }
+  };
+
+  const handleOrgSave = async () => {
+    setSavingOrg(true);
+    try {
+      await api.put(`/auth/organization/${org.id}`, org);
+      toast.success('Organization configuration updated!');
+      fetchInitialData();
+    } catch (err) {
+      toast.error('Failed to update organization details');
+    } finally {
+      setSavingOrg(false);
     }
   };
 
@@ -172,6 +213,76 @@ const Settings: React.FC = () => {
         </div>
 
         <div className="col-span-3 space-y-6">
+          {activeSection === 'profile' && (
+            <div className="card space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="flex items-center justify-between border-b border-border pb-4">
+                 <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-accent-orange/10 text-accent-orange rounded-xl flex items-center justify-center shadow-inner">
+                       <Building size={20} />
+                    </div>
+                    <h2 className="text-lg font-bold text-text-primary uppercase tracking-tighter">Business Identity</h2>
+                 </div>
+                 <button onClick={handleOrgSave} disabled={savingOrg} className="btn-primary py-1.5 px-4 text-[11px] flex items-center gap-2">
+                    {savingOrg ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Save Profile
+                 </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                 <div className="col-span-2 space-y-2">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Registered Company Name</label>
+                    <input type="text" value={org.name} onChange={e => setOrg({...org, name: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all" />
+                 </div>
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">GSTIN Number</label>
+                    <input type="text" value={org.gstin || ''} onChange={e => setOrg({...org, gstin: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-mono font-bold text-text-primary outline-none" />
+                 </div>
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">PAN Number</label>
+                    <input type="text" value={org.panNumber || ''} onChange={e => setOrg({...org, panNumber: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-mono font-bold text-text-primary outline-none" />
+                 </div>
+                 <div className="col-span-2 space-y-2">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Corporate Address</label>
+                    <textarea rows={3} value={org.address || ''} onChange={e => setOrg({...org, address: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-medium text-text-primary outline-none focus:border-accent-orange" />
+                 </div>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'banking' && (
+            <div className="card space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="flex items-center justify-between border-b border-border pb-4">
+                 <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-accent-blue/10 text-accent-blue rounded-xl flex items-center justify-center shadow-inner">
+                       <CreditCard size={20} />
+                    </div>
+                    <h2 className="text-lg font-bold text-text-primary uppercase tracking-tighter">Settlement Accounts</h2>
+                 </div>
+                 <button onClick={handleOrgSave} disabled={savingOrg} className="btn-primary py-1.5 px-4 text-[11px] flex items-center gap-2">
+                    {savingOrg ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Update Bank Details
+                 </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Bank Name</label>
+                    <input type="text" value={org.bankName || ''} onChange={e => setOrg({...org, bankName: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-bold text-text-primary outline-none" />
+                 </div>
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">UPI ID for Invoices</label>
+                    <input type="text" value={org.upiId || ''} onChange={e => setOrg({...org, upiId: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-bold text-text-primary outline-none" placeholder="example@upi" />
+                 </div>
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Account Number</label>
+                    <input type="text" value={org.accountNumber || ''} onChange={e => setOrg({...org, accountNumber: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-mono font-bold text-text-primary outline-none" />
+                 </div>
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">IFSC Code</label>
+                    <input type="text" value={org.ifscCode || ''} onChange={e => setOrg({...org, ifscCode: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-mono font-bold text-text-primary outline-none" />
+                 </div>
+              </div>
+            </div>
+          )}
+
           {activeSection === 'users' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                {/* Add User Form */}
@@ -341,66 +452,6 @@ const Settings: React.FC = () => {
                    </div>
                 </div>
              </div>
-          )}
-
-          {activeSection === 'profile' && (
-            <div className="card space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
-              <div className="flex items-center gap-3 border-b border-border pb-4">
-                 <div className="w-10 h-10 bg-accent-orange/10 text-accent-orange rounded-xl flex items-center justify-center shadow-inner">
-                    <Building size={20} />
-                 </div>
-                 <h2 className="text-lg font-bold text-text-primary uppercase tracking-tighter">Business Identity</h2>
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                 <div className="col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Registered Company Name</label>
-                    <input type="text" defaultValue="DrishtiVision Advertising Services" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all" />
-                 </div>
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">GSTIN Number</label>
-                    <input type="text" defaultValue="06AONPP6480J1ZB" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-mono font-bold text-text-primary outline-none" />
-                 </div>
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">PAN Number</label>
-                    <input type="text" defaultValue="AONPP6480J" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-mono font-bold text-text-primary outline-none" />
-                 </div>
-                 <div className="col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Corporate Address</label>
-                    <textarea rows={3} defaultValue="2/182, Arya Nagar, Sonepat, 131001, Haryana" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-medium text-text-primary outline-none focus:border-accent-orange" />
-                 </div>
-              </div>
-            </div>
-          )}
-
-          {activeSection === 'banking' && (
-            <div className="card space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
-              <div className="flex items-center gap-3 border-b border-border pb-4">
-                 <div className="w-10 h-10 bg-accent-blue/10 text-accent-blue rounded-xl flex items-center justify-center shadow-inner">
-                    <CreditCard size={20} />
-                 </div>
-                 <h2 className="text-lg font-bold text-text-primary uppercase tracking-tighter">Settlement Accounts</h2>
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Bank Name</label>
-                    <input type="text" defaultValue="Punjab National Bank" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-bold text-text-primary outline-none" />
-                 </div>
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Account Holder Name</label>
-                    <input type="text" defaultValue="DRISHTI VISION SOLUTION" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-bold text-text-primary outline-none" />
-                 </div>
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Account Number</label>
-                    <input type="text" defaultValue="00561132000617" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-mono font-bold text-text-primary outline-none" />
-                 </div>
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">IFSC Code</label>
-                    <input type="text" defaultValue="PUNB0005610" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-mono font-bold text-text-primary outline-none" />
-                 </div>
-              </div>
-            </div>
           )}
 
           {activeSection === 'infra' && (

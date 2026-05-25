@@ -76,7 +76,7 @@ const Campaigns: React.FC = () => {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-xl font-bold text-text-primary">Campaigns</h1>
-          <p className="text-[11px] text-text-muted mt-1">24 active campaigns · Tracking & Occupancy</p>
+          <p className="text-[11px] text-text-muted mt-1">{campaigns.filter(c => c.status === 'ACTIVE').length} active campaigns · Tracking & Occupancy</p>
         </div>
         <div className="flex gap-2">
           <ExportButton data={campaigns} filename="campaigns_list" />

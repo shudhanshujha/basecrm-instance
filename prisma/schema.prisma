@@ -12,25 +12,35 @@ datasource db {
 }
 
 model Organization {
-  id        String    @id @default(uuid())
-  name      String
-  slug      String    @unique
-  logoUrl   String?   @map("logo_url")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  profiles  Profile[]
-  clients   Client[]
-  vendors   Vendor[]
-  sites     Site[]
-  campaigns Campaign[]
+  id            String    @id @default(uuid())
+  name          String
+  slug          String    @unique
+  logoUrl       String?   @map("logo_url")
+  gstin         String?
+  panNumber     String?   @map("pan_number")
+  address       String?
+  phone         String?
+  email         String?
+  bankName      String?   @map("bank_name")
+  bankBranch    String?   @map("bank_branch")
+  accountNumber String?   @map("account_number")
+  ifscCode      String?   @map("ifsc_code")
+  upiId         String?   @map("upi_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  profiles      Profile[]
+  clients       Client[]
+  vendors       Vendor[]
+  sites         Site[]
+  campaigns     Campaign[]
   campaignSites CampaignSite[]
-  invoices  Invoice[]
-  invoiceItems InvoiceItem[]
-  payments  Payment[]
+  invoices      Invoice[]
+  invoiceItems  InvoiceItem[]
+  payments      Payment[]
   vendorPayments VendorPayment[]
-  expenses  Expense[]
-  files     File[]
-  quotations Quotation[]
+  expenses      Expense[]
+  files         File[]
+  quotations    Quotation[]
 
   @@map("organizations")
 }

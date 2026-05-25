@@ -96,6 +96,42 @@ router.get('/me', authMiddleware, async (req: any, res) => {
   }
 });
 
+// Update Organization Details
+router.put('/organization/:id', authMiddleware, async (req: any, res) => {
+  try {
+    const { id } = req.params;
+    const profile = await getPrisma().profile.findUnique({
+      where: { id: req.user.id }
+    });
+
+    if (!profile || profile.orgId !== id) {
+      return res.status(403).json({ error: 'Unauthorized to update this organization' });
+    }
+
+    const updatedOrg = await getPrisma().organization.update({
+      where: { id },
+      data: {
+        name: req.body.name,
+        gstin: req.body.gstin,
+        panNumber: req.body.panNumber,
+        address: req.body.address,
+        phone: req.body.phone,
+        email: req.body.email,
+        bankName: req.body.bankName,
+        bankBranch: req.body.bankBranch,
+        accountNumber: req.body.accountNumber,
+        ifscCode: req.body.ifscCode,
+        upiId: req.body.upiId
+      }
+    });
+
+    res.json(updatedOrg);
+  } catch (error) {
+    console.error('Org update error:', error);
+    res.status(500).json({ error: 'Failed to update organization' });
+  }
+});
+
 // Update User Password (Admin only)
 router.patch('/users/:id/password', authMiddleware, async (req: any, res) => {
   try {

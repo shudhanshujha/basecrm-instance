@@ -112,7 +112,9 @@ const Expenses = () => {
          </div>
          <div className="card border-success/20 bg-success/5">
             <div className="text-[9px] text-success uppercase font-black tracking-widest">Tax Input (GST)</div>
-            <div className="text-2xl font-black text-text-primary mt-2">₹0.00</div>
+            <div className="text-2xl font-black text-text-primary mt-2">
+              ₹{expenses.reduce((sum, e) => sum + (e.cgstAmount || 0) + (e.sgstAmount || 0) + (e.igstAmount || 0), 0).toLocaleString()}
+            </div>
          </div>
       </div>
 

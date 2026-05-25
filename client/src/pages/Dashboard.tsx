@@ -71,10 +71,10 @@ const Dashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-4 gap-4">
-        <KPICard label="Monthly Revenue" value={kpis.revenue} trend="↑ 12% vs Apr" trendType="up" />
-        <KPICard label="Active Campaigns" value={kpis.campaigns} trend="↑ 3 new" trendType="up" />
-        <KPICard label="Outstanding" value={kpis.outstanding} trend="↓ 3 overdue" trendType="down" />
-        <KPICard label="Gross Profit" value={kpis.profit} trend="↑ 60.3% margin" trendType="up" />
+        <KPICard label="Monthly Revenue" value={kpis.revenue} trend={kpis.revenueTrend} trendType={kpis.revenueTrendType} />
+        <KPICard label="Active Campaigns" value={kpis.campaigns} trend={kpis.campaignsTrend} trendType={kpis.campaignsTrendType} />
+        <KPICard label="Outstanding" value={kpis.outstanding} trend={kpis.outstandingTrend} trendType={kpis.outstandingTrendType} />
+        <KPICard label="Gross Profit" value={kpis.profit} trend={kpis.profitTrend} trendType={kpis.profitTrendType} />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
