@@ -231,53 +231,36 @@ const Sites: React.FC = () => {
           </table>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-4">
           {filteredSites.map(site => (
-            <div key={site.id} onClick={() => navigate(`/sites/${site.id}`)} className="card bg-bg-surface hover:border-accent-orange transition-all cursor-pointer group flex flex-col p-0 overflow-hidden relative shadow-lg border-border/50">
-               <div className="h-36 bg-bg-surface-2 flex items-center justify-center relative border-b border-border overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1541746972996-4e0b0f43e02a?q=80&w=400&auto=format&fit=crop" 
-                    className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-opacity" 
-                    alt="Hoarding"
-                  />
-                  <Camera size={32} className="text-border z-10" />
-                  <div className="absolute top-3 left-3 flex gap-2">
-                     <div className="relative group/status" onClick={(e) => e.stopPropagation()}>
-                        <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(site.status)}`}>
-                          {site.status}
-                        </span>
-                        <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-10 top-5 left-0 min-w-[100px]">
-                           {['Available', 'Occupied', 'Maintenance'].map(s => (
-                              <button key={s} onClick={() => updateStatus(site.id, s)} className="text-[10px] text-left hover:text-accent-orange text-text-muted font-bold py-1 uppercase">{s}</button>
-                           ))}
-                        </div>
-                     </div>
-                  </div>
-                  <div className="absolute bottom-2 right-2"><div className={`w-2 h-2 rounded-full ${site.status === 'OCCUPIED' ? 'bg-warning shadow-[0_0_8px_#eab308]' : site.status === 'AVAILABLE' ? 'bg-success shadow-[0_0_8px_#22c55e]' : 'bg-danger shadow-[0_0_8px_#ef4444]'}`}></div></div>
-               </div>
-               <div className="p-4">
+            <div key={site.id} onClick={() => navigate(`/sites/${site.id}`)} className="card bg-bg-surface hover:border-accent-orange transition-all cursor-pointer group flex flex-col p-4 relative shadow-lg border-border/50">
+               <div className="flex justify-between items-start">
                   <h3 className="text-[14px] font-bold text-text-primary group-hover:text-accent-orange transition-colors line-clamp-1 uppercase">{site.siteName}</h3>
-                  <div className="flex items-center gap-1.5 text-[10px] text-text-muted mt-1 uppercase font-bold tracking-widest">
-                     <MapPin size={10} /> {site.city}, {site.state}
-                  </div>
-                  <div className="flex justify-between items-center mt-4 pt-4 border-t border-border">
-                     <div className="text-[13px] font-black text-accent-blue">₹{site.monthlyRate?.toLocaleString()}</div>
-                     <div className="flex items-center gap-2">
-                        <button 
-                          onClick={(e) => handleDelete(e, site.id, site.siteName)}
-                          className="p-1.5 text-text-muted hover:text-danger hover:bg-danger/10 border border-transparent hover:border-danger/20 rounded-lg transition-all"
-                          title="Delete Site"
-                        >
-                          <Trash2 size={12} />
-                        </button>
-                        <span className="text-[8px] font-black text-text-muted uppercase border border-border px-1.5 py-0.5 rounded-md">{site.ownershipType}</span>
-                        <div className="p-1.5 bg-bg-surface-2 rounded-lg text-text-muted group-hover:text-accent-orange transition-colors border border-border"><ArrowRight size={12} /></div>
-                     </div>
+                  <div className={`w-2 h-2 rounded-full ${site.status === 'OCCUPIED' ? 'bg-warning shadow-[0_0_8px_#eab308]' : site.status === 'AVAILABLE' ? 'bg-success shadow-[0_0_8px_#22c55e]' : 'bg-danger shadow-[0_0_8px_#ef4444]'}`}></div>
+               </div>
+               <div className="flex items-center gap-1.5 text-[10px] text-text-muted mt-1 uppercase font-bold tracking-widest">
+                  <MapPin size={10} /> {site.city}, {site.state}
+               </div>
+               <div className="mt-2">
+                  <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full text-white ${getStatusBg(site.status)}`}>
+                    {site.status}
+                  </span>
+               </div>
+               <div className="flex justify-between items-center mt-4 pt-4 border-t border-border">
+                  <div className="text-[13px] font-black text-accent-blue">₹{site.monthlyRate?.toLocaleString()}</div>
+                  <div className="flex items-center gap-2">
+                     <button 
+                       onClick={(e) => handleDelete(e, site.id, site.siteName)}
+                       className="p-1.5 text-text-muted hover:text-danger hover:bg-danger/10 border border-transparent hover:border-danger/20 rounded-lg transition-all"
+                       title="Delete Site"
+                     >
+                       <Trash2 size={12} />
+                     </button>
+                     <span className="text-[8px] font-black text-text-muted uppercase border border-border px-1.5 py-0.5 rounded-md">{site.ownershipType}</span>
+                     <div className="p-1.5 bg-bg-surface-2 rounded-lg text-text-muted group-hover:text-accent-orange transition-colors border border-border"><ArrowRight size={12} /></div>
                   </div>
                </div>
             </div>
           ))}
-        </div>
       )}
 
       {showAddModal && (
