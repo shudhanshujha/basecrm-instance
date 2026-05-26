@@ -207,12 +207,12 @@ const Sites: React.FC = () => {
                   <td className="px-4 py-4 text-right">
                      <div className="flex items-center justify-end gap-2">
                         <div className="relative group/status inline-block text-left" onClick={(e) => e.stopPropagation()}>
-                           <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(site.status)}`}>
+                           <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(site.status)}`} style={{ fontSize: '8px', lineHeight: '12px' }}>
                              {site.status}
                            </span>
                            <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-[100] top-full right-0 mt-1 min-w-[120px]">
                               {['AVAILABLE', 'OCCUPIED', 'MAINTENANCE'].map(s => (
-                                 <button key={s} onClick={() => updateStatus(site.id, s)} className="text-[10px] text-left hover:text-accent-orange text-text-primary font-bold py-1.5 uppercase transition-colors">{s}</button>
+                                 <button key={s} onClick={() => updateStatus(site.id, s)} className="text-[9px] text-left hover:text-accent-orange text-text-primary font-bold py-1.5 uppercase transition-colors" style={{ fontSize: '9px' }}>{s}</button>
                               ))}
                            </div>
                         </div>
@@ -242,12 +242,12 @@ const Sites: React.FC = () => {
                   <MapPin size={10} /> {site.city}, {site.state}
                </div>
                <div className="mt-2 relative group/status inline-block" onClick={(e) => e.stopPropagation()}>
-                  <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(site.status)}`}>
+                  <span className={`text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(site.status)}`} style={{ fontSize: '7px', lineHeight: '10px' }}>
                     {site.status}
                   </span>
                   <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-[100] top-full left-0 mt-1 min-w-[120px]">
                      {['AVAILABLE', 'OCCUPIED', 'MAINTENANCE'].map(s => (
-                        <button key={s} onClick={() => updateStatus(site.id, s)} className="text-[10px] text-left hover:text-accent-orange text-text-primary font-bold py-1.5 uppercase transition-colors">{s}</button>
+                        <button key={s} onClick={() => updateStatus(site.id, s)} className="text-[9px] text-left hover:text-accent-orange text-text-primary font-bold py-1.5 uppercase transition-colors" style={{ fontSize: '9px' }}>{s}</button>
                      ))}
                   </div>
                </div>

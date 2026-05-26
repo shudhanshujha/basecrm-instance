@@ -140,12 +140,12 @@ const Invoices: React.FC = () => {
                      </td>
                       <td className="px-6 py-4 text-center">
                          <div className="relative group/status inline-block" onClick={(e) => e.stopPropagation()}>
-                            <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(inv.status)}`}>
+                            <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(inv.status)}`} style={{ fontSize: '8px', lineHeight: '12px' }}>
                               {inv.status}
                             </span>
                             <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-[100] top-full left-1/2 -translate-x-1/2 mt-1 min-w-[120px]">
                                {['DRAFT', 'PENDING', 'PAID', 'OVERDUE', 'CANCELLED'].map(s => (
-                                  <button key={s} onClick={() => updateStatus(inv.id, s)} className="text-[10px] text-left hover:text-accent-orange text-text-primary font-bold py-1.5 uppercase transition-colors">{s}</button>
+                                  <button key={s} onClick={() => updateStatus(inv.id, s)} className="text-[9px] text-left hover:text-accent-orange text-text-primary font-bold py-1.5 uppercase transition-colors" style={{ fontSize: '9px' }}>{s}</button>
                                ))}
                             </div>
                          </div>

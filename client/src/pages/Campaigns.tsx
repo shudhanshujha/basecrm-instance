@@ -163,12 +163,12 @@ const Campaigns: React.FC = () => {
                    <div className="flex items-center gap-2">
                       <h3 className="text-[14px] font-bold text-text-primary group-hover:text-accent-orange transition-colors">{camp.campaignName}</h3>
                       <div className="relative group/status" onClick={(e) => e.stopPropagation()}>
-                         <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(camp.status)}`}>
+                         <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(camp.status)}`} style={{ fontSize: '8px', lineHeight: '12px' }}>
                            {camp.status}
                          </span>
                          <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-[100] top-full left-0 mt-1 min-w-[120px]">
                             {['ACTIVE', 'RUNNING', 'PLANNING', 'COMPLETED', 'CANCELLED'].map(s => (
-                               <button key={s} onClick={() => updateStatus(camp.id, s)} className="text-[10px] text-left hover:text-accent-orange text-text-primary font-bold py-1.5 uppercase transition-colors">{s}</button>
+                               <button key={s} onClick={() => updateStatus(camp.id, s)} className="text-[9px] text-left hover:text-accent-orange text-text-primary font-bold py-1.5 uppercase transition-colors" style={{ fontSize: '9px' }}>{s}</button>
                             ))}
                          </div>
                       </div>
