@@ -210,7 +210,7 @@ const Sites: React.FC = () => {
                            <select 
                              value={site.status?.toUpperCase()} 
                              onChange={(e) => updateStatus(site.id, e.target.value)}
-                             className={`appearance-none text-center text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white cursor-pointer outline-none border border-transparent focus:border-border transition-all ${getStatusBg(site.status)}`}
+                             className={`appearance-none text-center text-[9px] font-black uppercase px-2.5 h-[20px] rounded-full text-white cursor-pointer outline-none border border-transparent focus:border-border transition-all ${getStatusBg(site.status)}`}
                            >
                               {['AVAILABLE', 'OCCUPIED', 'MAINTENANCE'].map(s => (
                                  <option key={s} value={s} className="bg-bg-surface text-text-primary uppercase font-bold text-[10px]">{s}</option>
@@ -246,7 +246,7 @@ const Sites: React.FC = () => {
                   <select 
                     value={site.status?.toUpperCase()} 
                     onChange={(e) => updateStatus(site.id, e.target.value)}
-                    className={`appearance-none text-center text-[8px] font-black uppercase px-2 py-0.5 rounded-full text-white cursor-pointer outline-none border border-transparent focus:border-border transition-all ${getStatusBg(site.status)}`}
+                    className={`appearance-none text-center text-[8px] font-black uppercase px-2 h-[16px] rounded-full text-white cursor-pointer outline-none border border-transparent focus:border-border transition-all ${getStatusBg(site.status)}`}
                   >
                      {['AVAILABLE', 'OCCUPIED', 'MAINTENANCE'].map(s => (
                         <option key={s} value={s} className="bg-bg-surface text-text-primary uppercase font-bold text-[10px]">{s}</option>

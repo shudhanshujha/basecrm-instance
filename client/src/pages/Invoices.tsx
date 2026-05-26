@@ -143,7 +143,7 @@ const Invoices: React.FC = () => {
                             <select 
                               value={inv.status?.toUpperCase()} 
                               onChange={(e) => updateStatus(inv.id, e.target.value)}
-                              className={`appearance-none text-center text-[9px] font-black uppercase px-3 py-1 rounded-full text-white cursor-pointer outline-none border border-transparent focus:border-border transition-all ${getStatusBg(inv.status)}`}
+                              className={`appearance-none text-center text-[9px] font-black uppercase px-2.5 h-[20px] rounded-full text-white cursor-pointer outline-none border border-transparent focus:border-border transition-all ${getStatusBg(inv.status)}`}
                             >
                                {['DRAFT', 'PENDING', 'PAID', 'OVERDUE', 'CANCELLED'].map(s => (
                                   <option key={s} value={s} className="bg-bg-surface text-text-primary uppercase font-bold text-[10px]">{s}</option>
