@@ -166,7 +166,7 @@ const Campaigns: React.FC = () => {
                          <select 
                            value={camp.status?.toUpperCase()} 
                            onChange={(e) => updateStatus(camp.id, e.target.value)}
-                           className={`appearance-none text-center text-[9px] font-black uppercase px-2.5 h-[20px] rounded-full text-white cursor-pointer outline-none border border-transparent focus:border-border transition-all ${getStatusBg(camp.status)}`}
+                           className={`appearance-none text-center text-[9px] font-black uppercase px-2.5 !h-[18px] min-h-[18px] leading-[18px] !py-0 rounded-full text-white cursor-pointer outline-none border border-transparent focus:border-border transition-all ${getStatusBg(camp.status)}`}
                          >
                             {['ACTIVE', 'RUNNING', 'PLANNING', 'COMPLETED', 'CANCELLED'].map(s => (
                                <option key={s} value={s} className="bg-bg-surface text-text-primary uppercase font-bold text-[10px]">{s}</option>
