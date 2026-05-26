@@ -73,7 +73,7 @@ router.post('/upload', async (req: any, res) => {
     // Convert BigInt for JSON serialization
     const responseRecord = {
       ...fileRecord,
-      fileSize: fileRecord.fileSize.toString()
+      fileSize: (fileRecord.fileSize ?? BigInt(0)).toString()
     };
 
     res.status(200).json({ uploadUrl, fileKey, fileRecord: responseRecord });

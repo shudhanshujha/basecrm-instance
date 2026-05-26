@@ -38,6 +38,24 @@ function App() {
         return;
       }
 
+      // Fast-guard locally against expired JWT to avoid layout flicker or redundant API queries
+      try {
+        const payload = JSON.parse(window.atob(token.split('.')[1]));
+        if (payload.exp && payload.exp * 1000 < Date.now()) {
+          console.warn('Session expired (local check)');
+          localStorage.removeItem('dv_token');
+          localStorage.removeItem('dv_auth');
+          setIsAuthenticated(false);
+          return;
+        }
+      } catch (e) {
+        // Clear session on malformed token
+        localStorage.removeItem('dv_token');
+        localStorage.removeItem('dv_auth');
+        setIsAuthenticated(false);
+        return;
+      }
+
       try {
         await api.get('/auth/me');
         setIsAuthenticated(true);
@@ -96,6 +114,7 @@ function App() {
           <Route path="/sites/:id" element={<SiteDetails />} />
           <Route path="/invoices" element={<Invoices />} />
           <Route path="/invoices/new" element={<InvoiceGenerator />} />
+          <Route path="/invoices/edit/:id" element={<InvoiceGenerator />} />
           <Route path="/invoices/:id" element={<InvoiceDetails />} />
           <Route path="/expenses" element={<ExpenseTracker />} />
           <Route path="/payments" element={<Payments />} />

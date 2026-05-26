@@ -31,7 +31,12 @@ const GSTBalance: React.FC = () => {
 
   if (loading) return <div className="p-20 text-center"><Loader2 className="animate-spin mx-auto text-accent-orange" /></div>;
 
-  const gst = data?.gstReport || { collected: {}, paid: {}, balance: {}, outputDetails: [], inputDetails: [] };
+  const gst = data?.gstReport || {};
+  const collected = gst.collected || { cgst: 0, sgst: 0, igst: 0 };
+  const paid = gst.paid || { cgst: 0, sgst: 0, igst: 0 };
+  const balance = gst.balance || { cgst: 0, sgst: 0, igst: 0 };
+  const outputDetails = gst.outputDetails || [];
+  const inputDetails = gst.inputDetails || [];
 
   return (
     <div className="space-y-6">
@@ -41,24 +46,24 @@ const GSTBalance: React.FC = () => {
           <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">Fiscal Compliance · Input Tax Credit Ledger</p>
         </div>
         <div className="flex gap-2">
-          <ExportButton data={[...gst.outputDetails, ...gst.inputDetails]} filename={`drishtivision_gst_ledger_all_time`} />
+          <ExportButton data={[...outputDetails, ...inputDetails]} filename={`drishtivision_gst_ledger_all_time`} />
         </div>
       </div>
 
       <div className="grid grid-cols-4 gap-4">
          <div className="card border-border/40">
             <div className="text-[9px] text-text-muted uppercase font-black tracking-widest">Output GST (Total)</div>
-            <div className="text-xl font-black text-text-primary mt-2">₹{(gst.collected.cgst + gst.collected.sgst + gst.collected.igst)?.toLocaleString() || 0}</div>
+            <div className="text-xl font-black text-text-primary mt-2">₹{((collected.cgst || 0) + (collected.sgst || 0) + (collected.igst || 0))?.toLocaleString() || 0}</div>
             <p className="text-[9px] text-success font-bold mt-2 uppercase tracking-tighter">Tax from Sales</p>
          </div>
          <div className="card border-border/40">
             <div className="text-[9px] text-text-muted uppercase font-black tracking-widest">Available ITC</div>
-            <div className="text-xl font-black text-text-primary mt-2">₹{(gst.paid.cgst + gst.paid.sgst + gst.paid.igst)?.toLocaleString() || 0}</div>
+            <div className="text-xl font-black text-text-primary mt-2">₹{((paid.cgst || 0) + (paid.sgst || 0) + (paid.igst || 0))?.toLocaleString() || 0}</div>
             <p className="text-[9px] text-accent-blue font-bold mt-2 uppercase tracking-tighter">Tax on Purchases</p>
          </div>
          <div className="card bg-accent-orange border-accent-orange shadow-lg shadow-accent-orange/20">
             <div className="text-[9px] text-white/80 uppercase font-black tracking-widest">Net Payable</div>
-            <div className="text-xl font-black text-white mt-2">₹{(gst.balance.cgst + gst.balance.sgst + gst.balance.igst)?.toLocaleString() || 0}</div>
+            <div className="text-xl font-black text-white mt-2">₹{((balance.cgst || 0) + (balance.sgst || 0) + (balance.igst || 0))?.toLocaleString() || 0}</div>
             <p className="text-[9px] text-white/60 mt-2 font-bold italic uppercase tracking-tighter">Final Liability</p>
          </div>
          <div className="card border-border/40 bg-bg-surface-2/50">
@@ -88,9 +93,9 @@ const GSTBalance: React.FC = () => {
                      </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                     {gst.outputDetails.length === 0 ? (
+                     {outputDetails.length === 0 ? (
                         <tr><td colSpan={6} className="p-12 text-center text-text-muted italic">No sales recorded.</td></tr>
-                     ) : gst.outputDetails.map((row: any) => (
+                     ) : outputDetails.map((row: any) => (
                         <tr key={row.id} className="hover:bg-bg-surface-2 transition-colors">
                            <td className="px-6 py-4">
                               <div className="text-[13px] font-bold text-text-primary">{row.client?.name}</div>
@@ -127,9 +132,9 @@ const GSTBalance: React.FC = () => {
                      </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                     {gst.inputDetails.length === 0 ? (
+                     {inputDetails.length === 0 ? (
                         <tr><td colSpan={6} className="p-12 text-center text-text-muted italic">No procurement recorded.</td></tr>
-                     ) : gst.inputDetails.map((row: any) => (
+                     ) : inputDetails.map((row: any) => (
                         <tr key={row.id} className="hover:bg-bg-surface-2 transition-colors">
                            <td className="px-6 py-4">
                               <div className="text-[13px] font-bold text-text-primary">{row.description}</div>

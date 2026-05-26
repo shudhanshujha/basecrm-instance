@@ -1,8 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
@@ -12,332 +9,351 @@ datasource db {
 }
 
 model Organization {
-  id            String    @id @default(uuid())
-  name          String
-  slug          String    @unique
-  logoUrl       String?   @map("logo_url")
-  gstin         String?
-  panNumber     String?   @map("pan_number")
-  address       String?
-  phone         String?
-  email         String?
-  bankName      String?   @map("bank_name")
-  bankBranch    String?   @map("bank_branch")
-  accountNumber String?   @map("account_number")
-  ifscCode      String?   @map("ifsc_code")
-  upiId         String?   @map("upi_id")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  profiles      Profile[]
-  clients       Client[]
-  vendors       Vendor[]
-  sites         Site[]
-  campaigns     Campaign[]
-  campaignSites CampaignSite[]
-  invoices      Invoice[]
-  invoiceItems  InvoiceItem[]
-  payments      Payment[]
+  id             String          @id @default(uuid())
+  name           String
+  slug           String          @unique
+  logoUrl        String?         @map("logo_url")
+  gstin          String?
+  panNumber      String?         @map("pan_number")
+  address        String?
+  phone          String?
+  email          String?
+  bankName       String?         @map("bank_name")
+  bankBranch     String?         @map("bank_branch")
+  accountNumber  String?         @map("account_number")
+  ifscCode       String?         @map("ifsc_code")
+  upiId          String?         @map("upi_id")
+  msmeRegNo      String?         @map("msme_reg_no")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  campaignSites  CampaignSite[]
+  campaigns      Campaign[]
+  clients        Client[]
+  expenses       Expense[]
+  files          File[]
+  invoiceItems   InvoiceItem[]
+  invoices       Invoice[]
+  payments       Payment[]
+  profiles       Profile[]
+  quotations     Quotation[]
+  sites          Site[]
   vendorPayments VendorPayment[]
-  expenses      Expense[]
-  files         File[]
-  quotations    Quotation[]
+  vendors        Vendor[]
 
   @@map("organizations")
 }
 
 model Profile {
-  id        String       @id @default(uuid()) @map("id")
-  email     String       @unique
-  password  String
-  orgId     String       @map("org_id")
-  organization Organization @relation(fields: [orgId], references: [id])
-  fullName  String?      @map("full_name")
-  role      String       // 'admin', 'member'
-  createdAt DateTime     @default(now()) @map("created_at")
-  updatedAt DateTime     @updatedAt @map("updated_at")
-  uploadedFiles File[]   @relation("UploadedBy")
+  id            String       @id @default(uuid()) @map("id")
+  email         String       @unique
+  password      String
+  orgId         String       @map("org_id")
+  fullName      String?      @map("full_name")
+  role          String
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+  uploadedFiles File[]       @relation("UploadedBy")
+  organization  Organization @relation(fields: [orgId], references: [id])
 
   @@map("profiles")
 }
 
 model Client {
-  id            String     @id @default(uuid())
-  orgId         String     @map("org_id")
-  organization  Organization @relation(fields: [orgId], references: [id])
+  id            String       @id @default(uuid())
+  orgId         String       @map("org_id")
   name          String
-  contactPerson String?    @map("contact_person")
+  contactPerson String?      @map("contact_person")
   phone         String?
   email         String?
   address       String?
   city          String?
-  state         String     @default("Haryana")
+  state         String       @default("Haryana")
   pincode       String?
   gstin         String?
-  panNumber     String?    @map("pan_number")
-  clientType    String     @default("REGULAR") @map("client_type")
+  panNumber     String?      @map("pan_number")
+  clientType    String       @default("REGULAR") @map("client_type")
   notes         String?
-  createdAt     DateTime   @default(now()) @map("created_at")
-  updatedAt     DateTime   @updatedAt @map("updated_at")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
   campaigns     Campaign[]
+  organization  Organization @relation(fields: [orgId], references: [id])
+  files         File[]
   invoices      Invoice[]
   payments      Payment[]
-  files         File[]
   quotations    Quotation[]
 
   @@map("clients")
 }
 
 model Vendor {
-  id              String    @id @default(uuid())
-  orgId           String    @map("org_id")
-  organization    Organization @relation(fields: [orgId], references: [id])
-  vendorName      String    @map("vendor_name")
-  contactPerson   String?   @map("contact_person")
-  phone           String?
-  email           String?
-  address         String?
-  city            String?
-  gstin           String?
-  panNumber       String?   @map("pan_number")
-  vendorType      String?   @map("vendor_type")
-  bankName        String?   @map("bank_name")
-  accountNumber   String?   @map("account_number")
-  ifscCode        String?   @map("ifsc_code")
-  status          String    @default("ACTIVE")
-  notes           String?
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-  sites           Site[]
-  payments        VendorPayment[]
+  id            String          @id @default(uuid())
+  orgId         String          @map("org_id")
+  vendorName    String          @map("vendor_name")
+  contactPerson String?         @map("contact_person")
+  phone         String?
+  email         String?
+  address       String?
+  city          String?
+  gstin         String?
+  panNumber     String?         @map("pan_number")
+  vendorType    String?         @map("vendor_type")
+  bankName      String?         @map("bank_name")
+  accountNumber String?         @map("account_number")
+  ifscCode      String?         @map("ifsc_code")
+  status        String          @default("ACTIVE")
+  notes         String?
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  sites         Site[]
+  payments      VendorPayment[]
+  organization  Organization    @relation(fields: [orgId], references: [id])
 
   @@map("vendors")
 }
 
 model Site {
-  id              String       @id @default(uuid())
-  orgId           String       @map("org_id")
-  organization    Organization @relation(fields: [orgId], references: [id])
-  siteName        String       @map("site_name")
-  address         String?
-  city            String?
-  district        String?
-  state           String       @default("Haryana")
-  latitude        Float?
-  longitude       Float?
-  siteType        String?      @map("site_type")
-  ownershipType   String?      @map("ownership_type")
-  vendorId        String?      @map("vendor_id")
-  vendor          Vendor?      @relation(fields: [vendorId], references: [id])
-  leaseAmount     Float?       @map("lease_amount")
-  leaseStartDate  DateTime?    @map("lease_start_date")
-  leaseEndDate    DateTime?    @map("lease_end_date")
-  widthFt         Float?       @map("width_ft")
-  heightFt        Float?       @map("height_ft")
-  printingType    String?      @map("printing_type")
-  mountingType    String?      @map("mounting_type")
-  illuminated     Boolean      @default(false)
-  facingSide      String?      @map("facing_side")
-  trafficDensity  String?      @map("traffic_density")
-  monthlyRate     Float        @map("monthly_rate")
-  status          String       @default("AVAILABLE")
-  isRecurring     Boolean      @default(false) @map("is_recurring")
-  notes           String?
-  createdAt       DateTime     @default(now()) @map("created_at")
-  updatedAt       DateTime     @updatedAt @map("updated_at")
-  campaignSites   CampaignSite[]
-  invoiceItems    InvoiceItem[]
-  files           File[]
+  id             String         @id @default(uuid())
+  orgId          String         @map("org_id")
+  siteName       String         @map("site_name")
+  address        String?
+  city           String?
+  district       String?
+  state          String         @default("Haryana")
+  latitude       Float?
+  longitude      Float?
+  siteType       String?        @map("site_type")
+  ownershipType  String?        @map("ownership_type")
+  vendorId       String?        @map("vendor_id")
+  leaseAmount    Float?         @map("lease_amount")
+  leaseStartDate DateTime?      @map("lease_start_date")
+  leaseEndDate   DateTime?      @map("lease_end_date")
+  widthFt        Float?         @map("width_ft")
+  heightFt       Float?         @map("height_ft")
+  printingType   String?        @map("printing_type")
+  mountingType   String?        @map("mounting_type")
+  illuminated    Boolean        @default(false)
+  facingSide     String?        @map("facing_side")
+  trafficDensity String?        @map("traffic_density")
+  monthlyRate    Float          @map("monthly_rate")
+  status         String         @default("AVAILABLE")
+  isRecurring    Boolean        @default(false) @map("is_recurring")
+  notes          String?
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  campaignSites  CampaignSite[]
+  files          File[]
+  invoiceItems   InvoiceItem[]
+  organization   Organization   @relation(fields: [orgId], references: [id])
+  vendor         Vendor?        @relation(fields: [vendorId], references: [id])
 
   @@map("sites")
 }
 
 model Campaign {
-  id              String         @id @default(uuid())
-  orgId           String         @map("org_id")
-  organization    Organization   @relation(fields: [orgId], references: [id])
-  campaignName    String         @map("campaign_name")
-  clientId        String         @map("client_id")
-  client          Client         @relation(fields: [clientId], references: [id])
-  startDate       DateTime       @map("start_date")
-  endDate         DateTime       @map("end_date")
-  totalBudget     Float?         @map("total_budget")
-  campaignType    String?        @map("campaign_type")
-  status          String         @default("PLANNING")
-  notes           String?
-  createdAt       DateTime       @default(now()) @map("created_at")
-  updatedAt       DateTime       @updatedAt @map("updated_at")
-  campaignSites   CampaignSite[]
-  invoices        Invoice[]
-  files           File[]
+  id            String         @id @default(uuid())
+  orgId         String         @map("org_id")
+  campaignName  String         @map("campaign_name")
+  clientId      String         @map("client_id")
+  startDate     DateTime       @map("start_date")
+  endDate       DateTime       @map("end_date")
+  totalBudget   Float?         @map("total_budget")
+  campaignType  String?        @map("campaign_type")
+  status        String         @default("PLANNING")
+  notes         String?
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  campaignSites CampaignSite[]
+  client        Client         @relation(fields: [clientId], references: [id])
+  organization  Organization   @relation(fields: [orgId], references: [id])
+  files         File[]
+  invoices      Invoice[]
 
   @@map("campaigns")
 }
 
 model CampaignSite {
-  id              String    @id @default(uuid())
-  orgId           String    @map("org_id")
-  organization    Organization @relation(fields: [orgId], references: [id])
-  campaignId      String    @map("campaign_id")
-  campaign        Campaign  @relation(fields: [campaignId], references: [id])
-  siteId          String    @map("site_id")
-  site            Site      @relation(fields: [siteId], references: [id])
-  startDate       DateTime  @map("start_date")
-  endDate         DateTime  @map("end_date")
-  agreedRate      Float     @map("agreed_rate")
-  printingCost    Float?    @map("printing_cost")
-  mountingCost    Float?    @map("mounting_cost")
-  printingVendorId String?  @map("printing_vendor_id")
-  printingSize    String?   @map("printing_size")
-  printingType    String?   @map("printing_type")
-  mounted         Boolean   @default(false)
-  mountedDate     DateTime? @map("mounted_date")
-  dismantled      Boolean   @default(false)
-  dismantledDate  DateTime? @map("dismantled_date")
-  notes           String?
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-  files           File[]
+  id               String       @id @default(uuid())
+  orgId            String       @map("org_id")
+  campaignId       String       @map("campaign_id")
+  siteId           String       @map("site_id")
+  startDate        DateTime     @map("start_date")
+  endDate          DateTime     @map("end_date")
+  agreedRate       Float        @map("agreed_rate")
+  printingCost     Float?       @map("printing_cost")
+  mountingCost     Float?       @map("mounting_cost")
+  printingVendorId String?      @map("printing_vendor_id")
+  printingSize     String?      @map("printing_size")
+  printingType     String?      @map("printing_type")
+  mounted          Boolean      @default(false)
+  mountedDate      DateTime?    @map("mounted_date")
+  dismantled       Boolean      @default(false)
+  dismantledDate   DateTime?    @map("dismantled_date")
+  notes            String?
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+  campaign         Campaign     @relation(fields: [campaignId], references: [id])
+  organization     Organization @relation(fields: [orgId], references: [id])
+  site             Site         @relation(fields: [siteId], references: [id])
+  files            File[]
 
   @@unique([campaignId, siteId, startDate])
   @@map("campaign_sites")
 }
 
 model Invoice {
-  id              String        @id @default(uuid())
-  orgId           String        @map("org_id")
-  organization    Organization  @relation(fields: [orgId], references: [id])
-  invoiceNumber   String        @map("invoice_number")
-  clientId        String        @map("client_id")
-  client          Client        @relation(fields: [clientId], references: [id])
-  campaignId      String?       @map("campaign_id")
-  campaign        Campaign?     @relation(fields: [campaignId], references: [id])
-  invoiceDate     DateTime      @default(now()) @map("invoice_date")
-  dueDate         DateTime      @map("due_date")
-  subtotal        Float
-  discountAmount  Float         @default(0) @map("discount_amount")
-  discountPercent Float         @default(0) @map("discount_percent")
-  taxableAmount   Float         @map("taxable_amount")
-  cgstRate        Float         @default(9) @map("cgst_rate")
-  sgstRate        Float         @default(9) @map("sgst_rate")
-  igstRate        Float         @default(0) @map("igst_rate")
-  cgstAmount      Float         @map("cgst_amount")
-  sgstAmount      Float         @map("sgst_amount")
-  igstAmount      Float         @map("igst_amount")
-  totalAmount     Float         @map("total_amount")
-  amountInWords   String?       @map("amount_in_words")
-  status          String        @default("PENDING")
-  notes           String?
-  bankDetails     Json?         @map("bank_details")
-  paymentTerms    String?       @map("payment_terms")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-  invoiceItems    InvoiceItem[]
-  payments        Payment[]
-  files           File[]
+  id                   String        @id @default(uuid())
+  orgId                String        @map("org_id")
+  invoiceNumber        String        @map("invoice_number")
+  clientId             String        @map("client_id")
+  campaignId           String?       @map("campaign_id")
+  invoiceDate          DateTime      @default(now()) @map("invoice_date")
+  dueDate              DateTime      @map("due_date")
+  subtotal             Float
+  discountAmount       Float         @default(0) @map("discount_amount")
+  discountPercent      Float         @default(0) @map("discount_percent")
+  taxableAmount        Float         @map("taxable_amount")
+  cgstRate             Float         @default(9) @map("cgst_rate")
+  sgstRate             Float         @default(9) @map("sgst_rate")
+  igstRate             Float         @default(0) @map("igst_rate")
+  cgstAmount           Float         @map("cgst_amount")
+  sgstAmount           Float         @map("sgst_amount")
+  igstAmount           Float         @map("igst_amount")
+  totalAmount          Float         @map("total_amount")
+  amountInWords        String?       @map("amount_in_words")
+  status               String        @default("PENDING")
+  notes                String?
+  bankDetails          Json?         @map("bank_details")
+  paymentTerms         String?       @map("payment_terms")
+  reverseCharge        String?       @default("N") @map("reverse_charge")
+  upiId                String?       @map("upi_id")
+  showUpiQr            Boolean?      @default(true) @map("show_upi_qr")
+  showDigitalSignature Boolean?      @default(false) @map("show_digital_signature")
+  signatureUrl         String?       @map("signature_url")
+  transportMode        String?       @map("transport_mode")
+  vehicleNumber        String?       @map("vehicle_number")
+  dateOfSupply         DateTime?     @map("date_of_supply")
+  placeOfSupply        String?       @map("place_of_supply")
+  createdAt            DateTime      @default(now()) @map("created_at")
+  updatedAt            DateTime      @updatedAt @map("updated_at")
+  files                File[]
+  invoiceItems         InvoiceItem[]
+  campaign             Campaign?     @relation(fields: [campaignId], references: [id])
+  client               Client        @relation(fields: [clientId], references: [id])
+  organization         Organization  @relation(fields: [orgId], references: [id])
+  payments             Payment[]
 
   @@unique([orgId, invoiceNumber])
   @@map("invoices")
 }
 
 model InvoiceItem {
-  id          String    @id @default(uuid())
-  orgId       String    @map("org_id")
+  id           String       @id @default(uuid())
+  orgId        String       @map("org_id")
+  invoiceId    String       @map("invoice_id")
+  siteId       String?      @map("site_id")
+  siteName     String?      @map("site_name")
+  description  String?
+  fromDate     DateTime?    @map("from_date")
+  toDate       DateTime?    @map("to_date")
+  quantity     Float        @default(1)
+  rate         Float
+  amount       Float
+  hsn          String?
+  discount     Float?       @default(0)
+  cgstRate     Float?       @default(9)  @map("cgst_rate")
+  sgstRate     Float?       @default(9)  @map("sgst_rate")
+  igstRate     Float?       @default(0)  @map("igst_rate")
+  cgstAmount   Float?       @default(0)  @map("cgst_amount")
+  sgstAmount   Float?       @default(0)  @map("sgst_amount")
+  igstAmount   Float?       @default(0)  @map("igst_amount")
+  total        Float?       @default(0)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  invoice      Invoice      @relation(fields: [invoiceId], references: [id])
   organization Organization @relation(fields: [orgId], references: [id])
-  invoiceId   String    @map("invoice_id")
-  invoice     Invoice   @relation(fields: [invoiceId], references: [id])
-  siteId      String?   @map("site_id")
-  site        Site?     @relation(fields: [siteId], references: [id])
-  siteName    String?   @map("site_name")
-  description String?
-  fromDate    DateTime? @map("from_date")
-  toDate      DateTime? @map("to_date")
-  quantity    Float     @default(1)
-  rate        Float
-  amount      Float
-  createdAt   DateTime  @default(now()) @map("created_at")
+  site         Site?        @relation(fields: [siteId], references: [id])
 
   @@map("invoice_items")
 }
 
 model Payment {
-  id              String        @id @default(uuid())
-  orgId           String        @map("org_id")
-  organization    Organization  @relation(fields: [orgId], references: [id])
-  invoiceId       String        @map("invoice_id")
-  invoice         Invoice       @relation(fields: [invoiceId], references: [id])
-  clientId        String        @map("client_id")
-  client          Client        @relation(fields: [clientId], references: [id])
-  paymentDate     DateTime      @map("payment_date")
+  id              String       @id @default(uuid())
+  orgId           String       @map("org_id")
+  invoiceId       String       @map("invoice_id")
+  clientId        String       @map("client_id")
+  paymentDate     DateTime     @map("payment_date")
   amount          Float
-  paymentMode     String        @map("payment_mode")
-  referenceNumber String?       @map("reference_number")
-  bankName        String?       @map("bank_name")
-  chequeNumber    String?       @map("cheque_number")
-  chequeDate      DateTime?     @map("cheque_date")
-  notes           String?       @map("notes")
-  createdAt       DateTime      @default(now()) @map("created_at")
+  paymentMode     String       @map("payment_mode")
+  referenceNumber String?      @map("reference_number")
+  bankName        String?      @map("bank_name")
+  chequeNumber    String?      @map("cheque_number")
+  chequeDate      DateTime?    @map("cheque_date")
+  notes           String?      @map("notes")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  client          Client       @relation(fields: [clientId], references: [id])
+  invoice         Invoice      @relation(fields: [invoiceId], references: [id])
+  organization    Organization @relation(fields: [orgId], references: [id])
 
   @@map("payments")
 }
 
 model VendorPayment {
-  id              String      @id @default(uuid())
-  orgId           String      @map("org_id")
-  organization    Organization @relation(fields: [orgId], references: [id])
-  vendorId        String      @map("vendor_id")
-  vendor          Vendor      @relation(fields: [vendorId], references: [id])
-  paymentDate     DateTime    @map("payment_date")
+  id              String       @id @default(uuid())
+  orgId           String       @map("org_id")
+  vendorId        String       @map("vendor_id")
+  paymentDate     DateTime     @map("payment_date")
   amount          Float
   month           Int?
   year            Int?
-  paymentMode     String      @map("payment_mode")
-  referenceNumber String?     @map("reference_number")
+  paymentMode     String       @map("payment_mode")
+  referenceNumber String?      @map("reference_number")
   purpose         String?
   notes           String?
-  createdAt       DateTime    @default(now()) @map("created_at")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  organization    Organization @relation(fields: [orgId], references: [id])
+  vendor          Vendor       @relation(fields: [vendorId], references: [id])
 
   @@map("vendor_payments")
 }
 
 model Quotation {
-  id              String    @id @default(uuid())
-  orgId           String    @map("org_id")
-  organization    Organization @relation(fields: [orgId], references: [id])
-  quotationNumber String    @map("quotation_number")
-  clientId        String    @map("client_id")
-  client          Client    @relation(fields: [clientId], references: [id])
-  quotationDate   DateTime  @default(now()) @map("quotation_date")
-  validUntil      DateTime  @map("valid_until")
-  lineItems       Json      @map("line_items")
+  id              String       @id @default(uuid())
+  orgId           String       @map("org_id")
+  quotationNumber String       @map("quotation_number")
+  clientId        String       @map("client_id")
+  quotationDate   DateTime     @default(now()) @map("quotation_date")
+  validUntil      DateTime     @map("valid_until")
+  lineItems       Json         @map("line_items")
   subtotal        Float
-  gstAmount       Float     @map("gst_amount")
-  totalAmount     Float     @map("total_amount")
-  status          String    @default("DRAFT")
+  gstAmount       Float        @map("gst_amount")
+  totalAmount     Float        @map("total_amount")
+  status          String       @default("DRAFT")
   notes           String?
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  client          Client       @relation(fields: [clientId], references: [id])
+  organization    Organization @relation(fields: [orgId], references: [id])
 
   @@unique([orgId, quotationNumber])
   @@map("quotations")
 }
 
 model Expense {
-  id              String    @id @default(uuid())
-  orgId           String    @map("org_id")
-  organization    Organization @relation(fields: [orgId], references: [id])
-  date            DateTime  @default(now())
+  id              String       @id @default(uuid())
+  orgId           String       @map("org_id")
+  date            DateTime     @default(now())
   category        String
   amount          Float
   description     String?
-  paymentMode     String?   @map("payment_mode")
-  referenceNumber String?   @map("reference_number")
+  paymentMode     String?      @map("payment_mode")
+  referenceNumber String?      @map("reference_number")
   gstin           String?
-  taxableAmount   Float?    @map("taxable_amount")
-  cgstAmount      Float?    @map("cgst_amount")
-  sgstAmount      Float?    @map("sgst_amount")
-  igstAmount      Float?    @map("igst_amount")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
+  taxableAmount   Float?       @map("taxable_amount")
+  cgstAmount      Float?       @map("cgst_amount")
+  sgstAmount      Float?       @map("sgst_amount")
+  igstAmount      Float?       @map("igst_amount")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  organization    Organization @relation(fields: [orgId], references: [id])
   files           File[]
 
   @@map("expenses")
@@ -346,28 +362,26 @@ model Expense {
 model File {
   id             String        @id @default(uuid())
   orgId          String        @map("org_id")
-  organization   Organization  @relation(fields: [orgId], references: [id])
-  
   siteId         String?       @map("site_id")
-  site           Site?         @relation(fields: [siteId], references: [id])
   campaignId     String?       @map("campaign_id")
-  campaign       Campaign?     @relation(fields: [campaignId], references: [id])
   campaignSiteId String?       @map("campaign_site_id")
-  campaignSite   CampaignSite? @relation(fields: [campaignSiteId], references: [id])
   invoiceId      String?       @map("invoice_id")
-  invoice        Invoice?      @relation(fields: [invoiceId], references: [id])
   expenseId      String?       @map("expense_id")
-  expense        Expense?      @relation(fields: [expenseId], references: [id])
   clientId       String?       @map("client_id")
-  client         Client?       @relation(fields: [clientId], references: [id])
-
   fileName       String        @map("file_name")
   fileKey        String        @map("file_key")
   fileSize       BigInt?       @map("file_size")
   mimeType       String?       @map("mime_type")
   uploadedBy     String?       @map("uploaded_by")
-  uploader       Profile?      @relation("UploadedBy", fields: [uploadedBy], references: [id])
   createdAt      DateTime      @default(now()) @map("created_at")
+  campaign       Campaign?     @relation(fields: [campaignId], references: [id])
+  campaignSite   CampaignSite? @relation(fields: [campaignSiteId], references: [id])
+  client         Client?       @relation(fields: [clientId], references: [id])
+  expense        Expense?      @relation(fields: [expenseId], references: [id])
+  invoice        Invoice?      @relation(fields: [invoiceId], references: [id])
+  organization   Organization  @relation(fields: [orgId], references: [id])
+  site           Site?         @relation(fields: [siteId], references: [id])
+  uploader       Profile?      @relation("UploadedBy", fields: [uploadedBy], references: [id])
 
   @@map("files")
 }

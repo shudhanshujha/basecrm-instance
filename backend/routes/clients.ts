@@ -9,6 +9,7 @@ router.use(authMiddleware);
 
 // Helper to get org_id
 const getOrgId = async (req: any) => {
+  if (req.user.orgId) return req.user.orgId;
   if (req.user.id === 'bypass-admin') return 'bypass-org';
   const profile = await getPrisma().profile.findUnique({
     where: { id: req.user.id }
@@ -28,6 +29,7 @@ router.get('/', async (req, res) => {
     });
     res.json(clients);
   } catch (error) {
+    console.error('[API ERROR] Failed to fetch clients:', error);
     res.status(500).json({ error: 'Failed to fetch clients' });
   }
 });
@@ -46,6 +48,7 @@ router.get('/:id', async (req, res) => {
     if (!client) return res.status(404).json({ error: 'Client not found' });
     res.json(client);
   } catch (error) {
+    console.error(`[API ERROR] Failed to fetch client ${req.params.id}:`, error);
     res.status(500).json({ error: 'Failed to fetch client' });
   }
 });
@@ -64,6 +67,7 @@ router.post('/', async (req, res) => {
     });
     res.status(201).json(client);
   } catch (error) {
+    console.error('[API ERROR] Failed to create client:', error);
     res.status(500).json({ error: 'Failed to create client' });
   }
 });
@@ -85,6 +89,7 @@ router.put('/:id', async (req, res) => {
     });
     res.json(client);
   } catch (error) {
+    console.error(`[API ERROR] Failed to update client ${req.params.id}:`, error);
     res.status(500).json({ error: 'Failed to update client' });
   }
 });
@@ -103,6 +108,7 @@ router.delete('/:id', async (req, res) => {
     await getPrisma().client.delete({ where: { id } });
     res.status(204).send();
   } catch (error) {
+    console.error(`[API ERROR] Failed to delete client ${req.params.id}:`, error);
     res.status(500).json({ error: 'Failed to delete client' });
   }
 });

@@ -107,4 +107,22 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// Update site status
+router.patch('/:id/status', async (req: any, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const orgId = await getOrgId(req);
+    if (!orgId) return res.status(403).json({ error: 'No organization linked' });
+
+    const site = await getPrisma().site.update({
+      where: { id, orgId },
+      data: { status: status.toUpperCase() }
+    });
+    res.json(site);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update site status' });
+  }
+});
+
 export default router;

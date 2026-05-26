@@ -162,15 +162,16 @@ const Campaigns: React.FC = () => {
                 <div className="space-y-1">
                    <div className="flex items-center gap-2">
                       <h3 className="text-[14px] font-bold text-text-primary group-hover:text-accent-orange transition-colors">{camp.campaignName}</h3>
-                      <div className="relative group/status">
-                         <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(camp.status)}`}>
-                           {camp.status}
-                         </span>
-                         <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-10 top-6 left-0 min-w-[100px]">
-                            {['Active', 'Running', 'Planning', 'Completed', 'Cancelled'].map(s => (
-                               <button key={s} onClick={() => updateStatus(camp.id, s)} className="text-[10px] text-left hover:text-accent-orange text-text-muted font-bold py-1 uppercase">{s}</button>
+                      <div className="relative group/status" onClick={(e) => e.stopPropagation()}>
+                         <select 
+                           value={camp.status?.toUpperCase()} 
+                           onChange={(e) => updateStatus(camp.id, e.target.value)}
+                           className={`appearance-none text-center text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white cursor-pointer outline-none border border-transparent focus:border-border transition-all ${getStatusBg(camp.status)}`}
+                         >
+                            {['ACTIVE', 'RUNNING', 'PLANNING', 'COMPLETED', 'CANCELLED'].map(s => (
+                               <option key={s} value={s} className="bg-bg-surface text-text-primary uppercase font-bold text-[10px]">{s}</option>
                             ))}
-                         </div>
+                         </select>
                       </div>
                    </div>
                    <p className="text-[12px] font-medium text-text-muted">{camp.client?.name || 'No Client'}</p>

@@ -83,6 +83,36 @@ router.get('/', async (req: any, res) => {
       igst: expenseGstAgg._sum.igstAmount || 0,
     };
 
+    const outputDetails = await getPrisma().invoice.findMany({
+      where: { orgId },
+      select: {
+        id: true,
+        invoiceNumber: true,
+        taxableAmount: true,
+        cgstAmount: true,
+        sgstAmount: true,
+        igstAmount: true,
+        totalAmount: true,
+        client: {
+          select: { name: true }
+        }
+      }
+    });
+
+    const inputDetails = await getPrisma().expense.findMany({
+      where: { orgId, gstin: { not: null } },
+      select: {
+        id: true,
+        description: true,
+        category: true,
+        amount: true,
+        taxableAmount: true,
+        cgstAmount: true,
+        sgstAmount: true,
+        igstAmount: true
+      }
+    });
+
     // P&L logic...
     const hoardingRevenue = invoiceGstAgg._sum.taxableAmount || 0;
     
@@ -113,7 +143,9 @@ router.get('/', async (req: any, res) => {
           cgst: gstCollected.cgst - gstPaid.cgst,
           sgst: gstCollected.sgst - gstPaid.sgst,
           igst: gstCollected.igst - gstPaid.igst,
-        }
+        },
+        outputDetails,
+        inputDetails
       },
       plReport: {
         income: { hoarding: hoardingRevenue, total: hoardingRevenue },

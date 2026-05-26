@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
-import { ArrowLeft, Loader2, Download, Printer } from 'lucide-react';
+import { ArrowLeft, Loader2, Download, Printer, Pencil } from 'lucide-react';
 import FiscalInvoice from '../../components/invoices/FiscalInvoice';
 import api from '../../lib/axios';
 import toast from 'react-hot-toast';
@@ -36,56 +36,84 @@ const InvoiceDetails: React.FC = () => {
     return <div className="text-center py-20 text-text-muted">Invoice not found</div>;
   }
 
-  // Parse invoice details JSON from DB if stored as string, otherwise use directly
-  const invoiceData = typeof invoice.details === 'string' ? JSON.parse(invoice.details) : invoice.details;
-
-  // Fallback map to ensure FiscalInvoice receives the correct structure if details is null
-  const formattedInvoiceData = invoiceData || {
+  // Dynamically map all database fields returned from backend (including the relations, items, and company metadata)
+  const formattedInvoiceData = {
     invoiceNumber: invoice.invoiceNumber,
-    invoiceDate: new Date(invoice.invoiceDate).toLocaleDateString('en-IN'),
-    reverseCharge: 'No',
-    dateOfSupply: new Date(invoice.invoiceDate).toLocaleDateString('en-IN'),
-    placeOfSupply: 'Haryana (06)',
+    invoiceDate: new Date(invoice.invoiceDate).toISOString().split('T')[0],
+    reverseCharge: invoice.reverseCharge || 'N',
+    transportMode: invoice.transportMode || '',
+    vehicleNumber: invoice.vehicleNumber || '',
+    dateOfSupply: invoice.dateOfSupply ? new Date(invoice.dateOfSupply).toISOString().split('T')[0] : new Date(invoice.invoiceDate).toISOString().split('T')[0],
+    placeOfSupply: invoice.placeOfSupply || 'HARYANA (06)',
+    descriptionHeader: invoice.notes || 'Advertising Services',
+    gstConfig: invoice.igstAmount > 0 ? 'INTER' : (invoice.cgstAmount > 0 ? 'INTRA' : 'NONE'),
+    upiId: invoice.upiId || '7015177522@pnb',
+    showUpiQr: invoice.showUpiQr !== null ? invoice.showUpiQr : true,
+    showDigitalSignature: invoice.showDigitalSignature !== null ? invoice.showDigitalSignature : false,
+    signatureUrl: invoice.signatureUrl || '',
     seller: {
-      name: 'DRISHTI VISION',
-      address: 'Panipat, Haryana',
-      phone: '+91 9999999999',
-      email: 'contact@drishtivision.in',
-      gstin: '06AABCD1234E1Z5',
-      msmeRegNo: 'UDYAM-HR-14-0000000',
-      bank: {
-        name: 'HDFC Bank',
-        branch: 'Panipat Main',
-        accountNo: '50200000000000',
-        ifsc: 'HDFC0000000'
+      name: invoice.organization?.name || 'DRISHTI VISION SOLUTION',
+      address: invoice.organization?.address || '2/182, Arya Nagar, Sonepat, 131001, Haryana',
+      phone: invoice.organization?.phone ? [invoice.organization.phone] : ['7015177522', '8307096269'],
+      email: invoice.organization?.email || 'drishtivisionad@gmail.com',
+      gstin: invoice.organization?.gstin || '06AONPP6480J1ZB',
+      msmeRegNo: invoice.organization?.msmeRegNo || 'UDYAM-HR-18-0006940',
+      state: 'HARYANA',
+      stateCode: '06',
+      bank: invoice.bankDetails ? (typeof invoice.bankDetails === 'string' ? JSON.parse(invoice.bankDetails) : invoice.bankDetails) : {
+        name: 'Punjab National Bank',
+        branch: 'Mission Chowk Sonepat',
+        accountNo: '00561132000617',
+        ifsc: 'PUNB0005610'
       }
     },
     buyer: {
-      name: invoice.client?.name || 'Client',
-      address: 'Address',
-      gstin: '00AABCD1234E1Z5',
-      state: 'Haryana',
-      stateCode: '06'
+      name: invoice.client?.name || '-',
+      address: invoice.client?.address || '-',
+      gstin: invoice.client?.gstin || '-',
+      state: invoice.client?.state || '-',
+      stateCode: invoice.client?.pincode ? '06' : '06'
     },
-    items: [
+    items: invoice.invoiceItems && invoice.invoiceItems.length > 0 ? invoice.invoiceItems.map((item: any, idx: number) => ({
+      sNo: idx + 1,
+      description: item.description || '',
+      hsn: item.hsn || '',
+      qty: item.quantity || 1,
+      rate: item.rate || 0,
+      amount: item.amount || 0,
+      discount: item.discount || 0,
+      taxableValue: item.amount - (item.discount || 0),
+      cgstRate: item.cgstRate || 0,
+      sgstRate: item.sgstRate || 0,
+      igstRate: item.igstRate || 0,
+      cgstAmount: item.cgstAmount || 0,
+      sgstAmount: item.sgstAmount || 0,
+      igstAmount: item.igstAmount || 0,
+      total: item.total || 0
+    })) : [
       {
         sNo: 1,
-        description: 'Advertising Services',
-        hsn: '998361',
+        description: invoice.notes || 'Advertising Services',
+        hsn: '9983',
         qty: 1,
-        rate: invoice.totalAmount / 1.18, // Rough reverse calc
-        amount: invoice.totalAmount / 1.18,
+        rate: invoice.subtotal || invoice.totalAmount,
+        amount: invoice.subtotal || invoice.totalAmount,
         discount: 0,
-        taxableValue: invoice.totalAmount / 1.18,
+        taxableValue: invoice.subtotal || invoice.totalAmount,
+        cgstRate: invoice.cgstAmount > 0 ? 9 : 0,
+        sgstRate: invoice.sgstAmount > 0 ? 9 : 0,
+        igstRate: invoice.igstAmount > 0 ? 18 : 0,
+        cgstAmount: invoice.cgstAmount || 0,
+        sgstAmount: invoice.sgstAmount || 0,
+        igstAmount: invoice.igstAmount || 0,
         total: invoice.totalAmount
       }
     ],
-    subtotal: invoice.totalAmount / 1.18,
-    gstConfig: 'INTRA',
-    cgstTotal: (invoice.totalAmount / 1.18) * 0.09,
-    sgstTotal: (invoice.totalAmount / 1.18) * 0.09,
-    igstTotal: 0,
-    grandTotal: invoice.totalAmount,
+    subtotal: invoice.subtotal || 0,
+    cgstTotal: invoice.cgstAmount || 0,
+    sgstTotal: invoice.sgstAmount || 0,
+    igstTotal: invoice.igstAmount || 0,
+    grandTotal: invoice.totalAmount || 0
   };
 
   return (
@@ -103,6 +131,13 @@ const InvoiceDetails: React.FC = () => {
           </div>
         </div>
         <div className="flex gap-2">
+           <button 
+             onClick={() => navigate(`/invoices/edit/${id}`)}
+             className="bg-bg-surface-2 border border-border text-text-primary px-4 py-1.5 rounded-lg font-black text-[12px] uppercase tracking-widest hover:border-accent-orange transition-all flex items-center gap-2"
+           >
+             <Pencil size={16} />
+             Edit Invoice
+           </button>
            <PDFDownloadLink 
              document={<FiscalInvoice invoiceData={formattedInvoiceData} />} 
              fileName={`${invoice.invoiceNumber}.pdf`}

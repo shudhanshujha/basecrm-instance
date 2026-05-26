@@ -207,14 +207,15 @@ const Sites: React.FC = () => {
                   <td className="px-4 py-4 text-right">
                      <div className="flex items-center justify-end gap-2">
                         <div className="relative group/status inline-block text-left" onClick={(e) => e.stopPropagation()}>
-                           <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(site.status)}`}>
-                             {site.status}
-                           </span>
-                           <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-10 top-6 right-0 min-w-[100px]">
-                              {['Available', 'Occupied', 'Maintenance'].map(s => (
-                                 <button key={s} onClick={() => updateStatus(site.id, s)} className="text-[10px] text-left hover:text-accent-orange text-text-muted font-bold py-1 uppercase">{s}</button>
+                           <select 
+                             value={site.status?.toUpperCase()} 
+                             onChange={(e) => updateStatus(site.id, e.target.value)}
+                             className={`appearance-none text-center text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white cursor-pointer outline-none border border-transparent focus:border-border transition-all ${getStatusBg(site.status)}`}
+                           >
+                              {['AVAILABLE', 'OCCUPIED', 'MAINTENANCE'].map(s => (
+                                 <option key={s} value={s} className="bg-bg-surface text-text-primary uppercase font-bold text-[10px]">{s}</option>
                               ))}
-                           </div>
+                           </select>
                         </div>
                         <button 
                           onClick={(e) => handleDelete(e, site.id, site.siteName)}
@@ -241,10 +242,16 @@ const Sites: React.FC = () => {
                <div className="flex items-center gap-1.5 text-[10px] text-text-muted mt-1 uppercase font-bold tracking-widest">
                   <MapPin size={10} /> {site.city}, {site.state}
                </div>
-               <div className="mt-2">
-                  <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full text-white ${getStatusBg(site.status)}`}>
-                    {site.status}
-                  </span>
+               <div className="mt-2" onClick={(e) => e.stopPropagation()}>
+                  <select 
+                    value={site.status?.toUpperCase()} 
+                    onChange={(e) => updateStatus(site.id, e.target.value)}
+                    className={`appearance-none text-center text-[8px] font-black uppercase px-2 py-0.5 rounded-full text-white cursor-pointer outline-none border border-transparent focus:border-border transition-all ${getStatusBg(site.status)}`}
+                  >
+                     {['AVAILABLE', 'OCCUPIED', 'MAINTENANCE'].map(s => (
+                        <option key={s} value={s} className="bg-bg-surface text-text-primary uppercase font-bold text-[10px]">{s}</option>
+                     ))}
+                  </select>
                </div>
                <div className="flex justify-between items-center mt-4 pt-4 border-t border-border">
                   <div className="text-[13px] font-black text-accent-blue">₹{site.monthlyRate?.toLocaleString()}</div>

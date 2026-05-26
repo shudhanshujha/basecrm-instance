@@ -9,7 +9,7 @@
   "scripts": {
     "prisma:generate": "prisma generate",
     "build": "prisma generate && cd client && npm install && npm run build",
-    "vercel-build": "prisma generate && cd client && npm install && npm run build",
+    "vercel-build": "prisma generate && cd client && npm run build",
     "server": "tsx watch backend/server.ts",
     "lint": "eslint"
   },

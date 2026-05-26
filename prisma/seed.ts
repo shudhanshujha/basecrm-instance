@@ -1,9 +1,12 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 async function seed() {
   console.log('Seeding database...');
+  
+  const hashedPassword = await bcrypt.hash('password123', 10);
   
   // 1. Create Organization
   const org = await prisma.organization.create({
@@ -17,7 +20,7 @@ async function seed() {
   await prisma.profile.create({
     data: {
       email: 'admin@test.com',
-      password: 'password123',
+      password: hashedPassword,
       fullName: 'Admin User',
       role: 'admin',
       orgId: org.id
@@ -35,11 +38,42 @@ async function seed() {
   });
 
   // 4. Create Site
-  await prisma.site.create({
+  const site = await prisma.site.create({
     data: {
       siteName: 'Main Office',
       orgId: org.id,
-      monthlyRate: 5000
+      monthlyRate: 50000
+    }
+  });
+
+  // 5. Create Campaign
+  const campaign = await prisma.campaign.create({
+    data: {
+      campaignName: 'Summer Launch',
+      clientId: client.id,
+      orgId: org.id,
+      startDate: new Date(),
+      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      status: 'ACTIVE'
+    }
+  });
+
+  // 6. Create Invoice
+  await prisma.invoice.create({
+    data: {
+      invoiceNumber: 'INV-2026-001',
+      clientId: client.id,
+      campaignId: campaign.id,
+      orgId: org.id,
+      invoiceDate: new Date(),
+      dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+      subtotal: 50000,
+      taxableAmount: 50000,
+      cgstAmount: 4500,
+      sgstAmount: 4500,
+      igstAmount: 0,
+      totalAmount: 59000,
+      status: 'PENDING'
     }
   });
 

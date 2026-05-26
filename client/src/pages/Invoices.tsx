@@ -138,18 +138,19 @@ const Invoices: React.FC = () => {
                         <div className="text-[12px] font-bold text-text-primary">{inv.client?.name || 'N/A'}</div>
                         <div className="text-[10px] text-text-muted mt-0.5 font-medium uppercase tracking-widest">{inv.campaign?.campaignName || 'General Billing'}</div>
                      </td>
-                     <td className="px-6 py-4 text-center">
-                        <div className="relative group/status inline-block text-left" onClick={(e) => e.stopPropagation()}>
-                           <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(inv.status)}`}>
-                             {inv.status}
-                           </span>
-                           <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-10 top-6 left-1/2 -translate-x-1/2 min-w-[100px]">
-                              {['Draft', 'Pending', 'Paid', 'Overdue', 'Cancelled'].map(s => (
-                                 <button key={s} onClick={() => updateStatus(inv.id, s)} className="text-[10px] text-left hover:text-accent-orange text-text-muted font-bold py-1 uppercase">{s}</button>
-                              ))}
-                           </div>
-                        </div>
-                     </td>
+                      <td className="px-6 py-4 text-center">
+                         <div className="inline-block" onClick={(e) => e.stopPropagation()}>
+                            <select 
+                              value={inv.status?.toUpperCase()} 
+                              onChange={(e) => updateStatus(inv.id, e.target.value)}
+                              className={`appearance-none text-center text-[9px] font-black uppercase px-3 py-1 rounded-full text-white cursor-pointer outline-none border border-transparent focus:border-border transition-all ${getStatusBg(inv.status)}`}
+                            >
+                               {['DRAFT', 'PENDING', 'PAID', 'OVERDUE', 'CANCELLED'].map(s => (
+                                  <option key={s} value={s} className="bg-bg-surface text-text-primary uppercase font-bold text-[10px]">{s}</option>
+                               ))}
+                            </select>
+                         </div>
+                      </td>
                      <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-4">
                            <div className="text-[14px] font-black text-text-primary">₹{(inv.totalAmount || 0).toLocaleString()}</div>

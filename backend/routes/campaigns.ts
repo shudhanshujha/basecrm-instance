@@ -63,8 +63,8 @@ router.post('/', async (req: any, res) => {
         orgId,
         campaignName: name,
         clientId: client,
-        startDate: startDate ? new Date(startDate) : null,
-        endDate: endDate ? new Date(endDate) : null,
+        startDate: startDate ? new Date(startDate) : new Date(),
+        endDate: endDate ? new Date(endDate) : new Date(),
         totalBudget: parseFloat(budget) || 0,
         status: 'PLANNING',
         campaignSites: {

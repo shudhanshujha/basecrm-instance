@@ -80,6 +80,10 @@ const styles = StyleSheet.create({
 
   // 3. INVOICE METADATA GRID
   metaGrid: {
+    flexDirection: 'column',
+    borderBottom: '1pt solid ' + COLORS.border,
+  },
+  metaInnerRow: {
     flexDirection: 'row',
     borderBottom: '1pt solid ' + COLORS.border,
   },
@@ -113,14 +117,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 15,
     alignItems: 'center',
-    borderBottom: '1pt solid ' + COLORS.border,
   },
   msmeLabel: {
-    width: 140, // Bug 3: Full width spec
     paddingHorizontal: 4,
     fontWeight: 'bold',
     borderRight: '1pt solid ' + COLORS.border,
     fontSize: 8,
+    width: 150,
   },
 
   // 4. PARTY SECTION
@@ -198,7 +201,7 @@ const styles = StyleSheet.create({
 
   // SPECIFIC COLUMN WIDTHS
   col1: { width: '4%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
-  col2: { width: '19%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center', textAlign: 'left', paddingLeft: 3 },
+  col2: { width: '25%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center', textAlign: 'left', paddingLeft: 3 },
   col3: { width: '7%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
   col4: { width: '5%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
   col5: { width: '6%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
@@ -206,8 +209,8 @@ const styles = StyleSheet.create({
   col7: { width: '7%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
   col8: { width: '8%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' },
   colGstGrp: { width: '12%', borderRight: '1pt solid ' + COLORS.border, height: '100%' }, 
-  colGstRate: { width: '41.6%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' }, 
-  colGstAmt: { width: '58.4%', height: '100%', justifyContent: 'center' }, 
+  colGstRate: { width: '50%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center' }, 
+  colGstAmt: { width: '50%', height: '100%', justifyContent: 'center' }, 
   col11: { width: '7%', height: '100%', justifyContent: 'center', fontWeight: 'bold' },
 
   // 7. TOTALS SUMMARY
@@ -393,7 +396,7 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
           {/* SECTION 2: METADATA GRID */}
           <View style={styles.invoiceTitleBar}><Text>Invoice</Text></View>
           <View style={styles.metaGrid}>
-            <View style={{ flexDirection: 'row', borderBottom: '1pt solid ' + COLORS.border }}>
+            <View style={styles.metaInnerRow}>
               <View style={[styles.metaCol, { borderRight: '1pt solid ' + COLORS.border }]}>
                 <View style={styles.metaItem}><Text style={styles.metaLabel}>Invoice No:</Text><Text style={styles.metaValue}>{invoiceData.invoiceNumber}</Text></View>
                 <View style={styles.metaItem}><Text style={styles.metaLabel}>Invoice Date:</Text><Text style={styles.metaValue}>{invoiceData.invoiceDate}</Text></View>
@@ -475,8 +478,12 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
 
             {/* Total Row */}
             <View style={styles.tableTotalRow}>
-              <Text style={{ width: '30%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center', textAlign: 'center' }}>Total</Text>
-              <Text style={styles.col3}></Text><Text style={styles.col4}>{invoiceData.items.reduce((acc: any, c: any) => acc + (parseFloat(c.qty) || 0), 0)}</Text><Text style={styles.col5}></Text><Text style={styles.col6}></Text><Text style={styles.col7}>{invoiceData.items.reduce((acc: any, c: any) => acc + (parseFloat(c.discount) || 0), 0)}</Text><Text style={styles.col8}>{invoiceData.subtotal.toFixed(2)}</Text>
+              <Text style={{ width: '36%', borderRight: '1pt solid ' + COLORS.border, height: '100%', justifyContent: 'center', textAlign: 'center' }}>Total</Text>
+              <Text style={styles.col4}>{invoiceData.items.reduce((acc: any, c: any) => acc + (parseFloat(c.qty) || 0), 0)}</Text>
+              <Text style={styles.col5}></Text>
+              <Text style={styles.col6}></Text>
+              <Text style={styles.col7}>{invoiceData.items.reduce((acc: any, c: any) => acc + (parseFloat(c.discount) || 0), 0)}</Text>
+              <Text style={styles.col8}>{invoiceData.subtotal.toFixed(2)}</Text>
               {isIntraState && <><View style={styles.colGstGrp}></View><View style={styles.colGstGrp}></View></>}
               {isInterState && <View style={[styles.colGstGrp, {width: '24%'}]}></View>}
               <Text style={[styles.col11, { textAlign: 'right' }]}>{Math.round(invoiceData.grandTotal)}</Text>
