@@ -113,14 +113,14 @@ const Invoices: React.FC = () => {
         </div>
       </div>
 
-      <div className="card p-0 overflow-hidden border-border/50 shadow-xl">
+      <div className="card p-0 border-border/50 shadow-xl">
          <table className="w-full text-left border-collapse">
             <thead>
                <tr className="bg-bg-surface-2 border-b border-border text-[10px] text-text-muted uppercase font-black tracking-widest">
-                  <th className="px-6 py-4">Invoice Details</th>
+                  <th className="px-6 py-4 rounded-tl-xl">Invoice Details</th>
                   <th className="px-6 py-4">Campaign Partner</th>
                   <th className="px-6 py-4 text-center">Status</th>
-                  <th className="px-6 py-4 text-right">Total Amount</th>
+                  <th className="px-6 py-4 text-right rounded-tr-xl">Total Amount</th>
                </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -139,16 +139,15 @@ const Invoices: React.FC = () => {
                         <div className="text-[10px] text-text-muted mt-0.5 font-medium uppercase tracking-widest">{inv.campaign?.campaignName || 'General Billing'}</div>
                      </td>
                       <td className="px-6 py-4 text-center">
-                         <div className="inline-block" onClick={(e) => e.stopPropagation()}>
-                            <select 
-                              value={inv.status?.toUpperCase()} 
-                              onChange={(e) => updateStatus(inv.id, e.target.value)}
-                              className={`appearance-none text-center text-[9px] font-black uppercase px-2.5 !h-[18px] min-h-[18px] leading-[18px] !py-0 rounded-full text-white cursor-pointer outline-none border border-transparent focus:border-border transition-all ${getStatusBg(inv.status)}`}
-                            >
+                         <div className="relative group/status inline-block" onClick={(e) => e.stopPropagation()}>
+                            <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(inv.status)}`}>
+                              {inv.status}
+                            </span>
+                            <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-[100] top-full left-1/2 -translate-x-1/2 mt-1 min-w-[120px]">
                                {['DRAFT', 'PENDING', 'PAID', 'OVERDUE', 'CANCELLED'].map(s => (
-                                  <option key={s} value={s} className="bg-bg-surface text-text-primary uppercase font-bold text-[10px]">{s}</option>
+                                  <button key={s} onClick={() => updateStatus(inv.id, s)} className="text-[10px] text-left hover:text-accent-orange text-text-primary font-bold py-1.5 uppercase transition-colors">{s}</button>
                                ))}
-                            </select>
+                            </div>
                          </div>
                       </td>
                      <td className="px-6 py-4 text-right">

@@ -172,15 +172,15 @@ const Sites: React.FC = () => {
       </div>
 
       {view === 'table' ? (
-        <div className="card p-0 overflow-hidden border-border/50 shadow-xl">
+        <div className="card p-0 border-border/50 shadow-xl">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-bg-surface-2 border-b border-border text-[10px] font-black text-text-muted uppercase tracking-widest">
-                <th className="px-4 py-3">Site Identification</th>
+                <th className="px-4 py-3 rounded-tl-xl">Site Identification</th>
                 <th className="px-4 py-3">Facing / Orientation</th>
                 <th className="px-4 py-3 text-center">Procurement</th>
                 <th className="px-4 py-3">Specifications</th>
-                <th className="px-4 py-3 text-right">Activity Status</th>
+                <th className="px-4 py-3 text-right rounded-tr-xl">Activity Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -207,15 +207,14 @@ const Sites: React.FC = () => {
                   <td className="px-4 py-4 text-right">
                      <div className="flex items-center justify-end gap-2">
                         <div className="relative group/status inline-block text-left" onClick={(e) => e.stopPropagation()}>
-                           <select 
-                             value={site.status?.toUpperCase()} 
-                             onChange={(e) => updateStatus(site.id, e.target.value)}
-                             className={`appearance-none text-center text-[9px] font-black uppercase px-2.5 !h-[18px] min-h-[18px] leading-[18px] !py-0 rounded-full text-white cursor-pointer outline-none border border-transparent focus:border-border transition-all ${getStatusBg(site.status)}`}
-                           >
+                           <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(site.status)}`}>
+                             {site.status}
+                           </span>
+                           <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-[100] top-full right-0 mt-1 min-w-[120px]">
                               {['AVAILABLE', 'OCCUPIED', 'MAINTENANCE'].map(s => (
-                                 <option key={s} value={s} className="bg-bg-surface text-text-primary uppercase font-bold text-[10px]">{s}</option>
+                                 <button key={s} onClick={() => updateStatus(site.id, s)} className="text-[10px] text-left hover:text-accent-orange text-text-primary font-bold py-1.5 uppercase transition-colors">{s}</button>
                               ))}
-                           </select>
+                           </div>
                         </div>
                         <button 
                           onClick={(e) => handleDelete(e, site.id, site.siteName)}
@@ -242,16 +241,15 @@ const Sites: React.FC = () => {
                <div className="flex items-center gap-1.5 text-[10px] text-text-muted mt-1 uppercase font-bold tracking-widest">
                   <MapPin size={10} /> {site.city}, {site.state}
                </div>
-               <div className="mt-2" onClick={(e) => e.stopPropagation()}>
-                  <select 
-                    value={site.status?.toUpperCase()} 
-                    onChange={(e) => updateStatus(site.id, e.target.value)}
-                    className={`appearance-none text-center text-[8px] font-black uppercase px-2 !h-[14px] min-h-[14px] leading-[14px] !py-0 rounded-full text-white cursor-pointer outline-none border border-transparent focus:border-border transition-all ${getStatusBg(site.status)}`}
-                  >
+               <div className="mt-2 relative group/status inline-block" onClick={(e) => e.stopPropagation()}>
+                  <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(site.status)}`}>
+                    {site.status}
+                  </span>
+                  <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-[100] top-full left-0 mt-1 min-w-[120px]">
                      {['AVAILABLE', 'OCCUPIED', 'MAINTENANCE'].map(s => (
-                        <option key={s} value={s} className="bg-bg-surface text-text-primary uppercase font-bold text-[10px]">{s}</option>
+                        <button key={s} onClick={() => updateStatus(site.id, s)} className="text-[10px] text-left hover:text-accent-orange text-text-primary font-bold py-1.5 uppercase transition-colors">{s}</button>
                      ))}
-                  </select>
+                  </div>
                </div>
                <div className="flex justify-between items-center mt-4 pt-4 border-t border-border">
                   <div className="text-[13px] font-black text-accent-blue">₹{site.monthlyRate?.toLocaleString()}</div>
