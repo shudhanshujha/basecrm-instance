@@ -105,7 +105,45 @@ router.delete('/:id', async (req, res) => {
     const existing = await getPrisma().client.findFirst({ where: { id, orgId } });
     if (!existing) return res.status(404).json({ error: 'Client not found' });
 
-    await getPrisma().client.delete({ where: { id } });
+    // Cascade delete all dependent records in a transaction
+    await getPrisma().$transaction(async (tx) => {
+      // Delete client files
+      await tx.file.deleteMany({ where: { clientId: id } });
+
+      // Delete payments linked to this client
+      await tx.payment.deleteMany({ where: { clientId: id } });
+
+      // Delete quotations
+      await tx.quotation.deleteMany({ where: { clientId: id } });
+
+      // Get all campaigns for this client
+      const campaigns = await tx.campaign.findMany({ where: { clientId: id }, select: { id: true } });
+      for (const campaign of campaigns) {
+        // Delete files linked to campaign sites
+        const campaignSites = await tx.campaignSite.findMany({ where: { campaignId: campaign.id }, select: { id: true } });
+        for (const cs of campaignSites) {
+          await tx.file.deleteMany({ where: { campaignSiteId: cs.id } });
+        }
+        await tx.campaignSite.deleteMany({ where: { campaignId: campaign.id } });
+        await tx.file.deleteMany({ where: { campaignId: campaign.id } });
+      }
+
+      // Get all invoices for this client and delete their items and payments
+      const invoices = await tx.invoice.findMany({ where: { clientId: id }, select: { id: true } });
+      for (const invoice of invoices) {
+        await tx.payment.deleteMany({ where: { invoiceId: invoice.id } });
+        await tx.invoiceItem.deleteMany({ where: { invoiceId: invoice.id } });
+        await tx.file.deleteMany({ where: { invoiceId: invoice.id } });
+      }
+      await tx.invoice.deleteMany({ where: { clientId: id } });
+
+      // Delete campaigns
+      await tx.campaign.deleteMany({ where: { clientId: id } });
+
+      // Finally delete the client
+      await tx.client.delete({ where: { id } });
+    });
+
     res.status(204).send();
   } catch (error) {
     console.error(`[API ERROR] Failed to delete client ${req.params.id}:`, error);

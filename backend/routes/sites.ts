@@ -100,10 +100,26 @@ router.delete('/:id', async (req, res) => {
     const existing = await getPrisma().site.findFirst({ where: { id, orgId } });
     if (!existing) return res.status(404).json({ error: 'Site not found' });
 
-    await getPrisma().site.delete({ where: { id } });
+    // Cascade delete all dependent records in a transaction
+    await getPrisma().$transaction(async (tx) => {
+      // Delete files linked to this site
+      await tx.file.deleteMany({ where: { siteId: id } });
+      // Nullify siteId on invoice items (don't delete the invoice item itself)
+      await tx.invoiceItem.updateMany({ where: { siteId: id }, data: { siteId: null } });
+      // Delete campaign site links (and their files first)
+      const campaignSites = await tx.campaignSite.findMany({ where: { siteId: id }, select: { id: true } });
+      for (const cs of campaignSites) {
+        await tx.file.deleteMany({ where: { campaignSiteId: cs.id } });
+      }
+      await tx.campaignSite.deleteMany({ where: { siteId: id } });
+      // Finally delete the site
+      await tx.site.delete({ where: { id } });
+    });
+
     res.status(204).send();
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete site' });
+    console.error(`[API ERROR] Failed to delete site ${req.params.id}:`, error);
+    res.status(500).json({ error: 'Failed to delete site. It may have active dependencies.' });
   }
 });
 

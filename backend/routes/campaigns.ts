@@ -118,10 +118,33 @@ router.delete('/:id', async (req: any, res) => {
     const existing = await getPrisma().campaign.findFirst({ where: { id, orgId } });
     if (!existing) return res.status(404).json({ error: 'Campaign not found' });
 
-    await getPrisma().campaignSite.deleteMany({ where: { campaignId: id, orgId } });
-    await getPrisma().campaign.delete({ where: { id } });
+    await getPrisma().$transaction(async (tx) => {
+      // Delete campaign files
+      await tx.file.deleteMany({ where: { campaignId: id } });
+
+      // Delete campaign site files and campaign sites
+      const campaignSites = await tx.campaignSite.findMany({ where: { campaignId: id }, select: { id: true } });
+      for (const cs of campaignSites) {
+        await tx.file.deleteMany({ where: { campaignSiteId: cs.id } });
+      }
+      await tx.campaignSite.deleteMany({ where: { campaignId: id } });
+
+      // Delete invoices linked to this campaign (with their items and payments)
+      const invoices = await tx.invoice.findMany({ where: { campaignId: id }, select: { id: true } });
+      for (const invoice of invoices) {
+        await tx.payment.deleteMany({ where: { invoiceId: invoice.id } });
+        await tx.invoiceItem.deleteMany({ where: { invoiceId: invoice.id } });
+        await tx.file.deleteMany({ where: { invoiceId: invoice.id } });
+      }
+      await tx.invoice.deleteMany({ where: { campaignId: id } });
+
+      // Delete the campaign
+      await tx.campaign.delete({ where: { id } });
+    });
+
     res.status(204).send();
   } catch (error) {
+    console.error(`[API ERROR] Failed to delete campaign ${req.params.id}:`, error);
     res.status(500).json({ error: 'Failed to delete campaign' });
   }
 });

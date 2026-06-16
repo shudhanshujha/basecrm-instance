@@ -103,9 +103,18 @@ router.delete('/:id', async (req: any, res) => {
     const orgId = await getOrgId(req);
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
 
-    await getPrisma().expense.delete({ where: { id, orgId } });
+    const existing = await getPrisma().expense.findFirst({ where: { id, orgId } });
+    if (!existing) return res.status(404).json({ error: 'Expense not found' });
+
+    await getPrisma().$transaction(async (tx) => {
+      // Delete expense files first
+      await tx.file.deleteMany({ where: { expenseId: id } });
+      await tx.expense.delete({ where: { id } });
+    });
+
     res.status(204).send();
   } catch (error) {
+    console.error(`[API ERROR] Failed to delete expense ${req.params.id}:`, error);
     res.status(500).json({ error: 'Failed to delete expense' });
   }
 });

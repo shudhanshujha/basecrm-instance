@@ -111,9 +111,21 @@ router.delete('/:id', async (req: any, res) => {
     const orgId = await getOrgId(req);
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
 
-    await getPrisma().vendor.delete({ where: { id, orgId } });
+    const existing = await getPrisma().vendor.findFirst({ where: { id, orgId } });
+    if (!existing) return res.status(404).json({ error: 'Vendor not found' });
+
+    await getPrisma().$transaction(async (tx) => {
+      // Delete vendor payments first
+      await tx.vendorPayment.deleteMany({ where: { vendorId: id } });
+      // Unlink sites from this vendor (don't delete the sites themselves)
+      await tx.site.updateMany({ where: { vendorId: id }, data: { vendorId: null } });
+      // Delete the vendor
+      await tx.vendor.delete({ where: { id } });
+    });
+
     res.status(204).send();
   } catch (error) {
+    console.error(`[API ERROR] Failed to delete vendor ${req.params.id}:`, error);
     res.status(500).json({ error: 'Failed to delete vendor' });
   }
 });

@@ -223,9 +223,21 @@ router.delete('/:id', async (req: any, res) => {
     const orgId = await getOrgId(req);
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
 
-    await getPrisma().invoice.delete({ where: { id, orgId } });
+    const existing = await getPrisma().invoice.findFirst({ where: { id, orgId } });
+    if (!existing) return res.status(404).json({ error: 'Invoice not found' });
+
+    await getPrisma().$transaction(async (tx) => {
+      // Delete all dependent records first
+      await tx.file.deleteMany({ where: { invoiceId: id } });
+      await tx.payment.deleteMany({ where: { invoiceId: id } });
+      await tx.invoiceItem.deleteMany({ where: { invoiceId: id } });
+      // Finally delete the invoice
+      await tx.invoice.delete({ where: { id } });
+    });
+
     res.status(204).send();
   } catch (error) {
+    console.error(`[API ERROR] Failed to delete invoice ${req.params.id}:`, error);
     res.status(500).json({ error: 'Failed to delete invoice' });
   }
 });
