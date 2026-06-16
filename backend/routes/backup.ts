@@ -1,15 +1,16 @@
 import { Router } from 'express';
 import { getPrisma } from '../prismaClient.js';
+import { authMiddleware } from '../middleware/auth.js';
 
 const router = Router();
 
-router.get('/export', async (req, res) => {
+router.get('/export', authMiddleware, async (req: any, res) => {
   try {
-    const [clients, sites, vendors, campaigns, invoices, payments, vendorPayments, expenses] = await Promise.all([
+    const [clients, assets, vendors, deals, invoices, payments, vendorPayments, expenses] = await Promise.all([
       getPrisma().client.findMany(),
-      getPrisma().site.findMany(),
+      getPrisma().asset.findMany(),
       getPrisma().vendor.findMany(),
-      getPrisma().campaign.findMany(),
+      getPrisma().deal.findMany(),
       getPrisma().invoice.findMany(),
       getPrisma().payment.findMany(),
       getPrisma().vendorPayment.findMany(),
@@ -17,13 +18,13 @@ router.get('/export', async (req, res) => {
     ]);
 
     const backupData = {
-      version: '1.0',
+      version: '2.0.0',
       timestamp: new Date().toISOString(),
       data: {
         clients,
-        sites,
+        assets,
         vendors,
-        campaigns,
+        deals,
         invoices,
         payments,
         vendorPayments,
@@ -34,7 +35,7 @@ router.get('/export', async (req, res) => {
     res.json(backupData);
   } catch (error) {
     console.error('Backup failed:', error);
-    res.status(500).json({ error: 'System backup failed' });
+    res.status(500).json({ error: 'Failed to generate backup' });
   }
 });
 

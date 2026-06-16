@@ -46,7 +46,7 @@ const GSTBalance: React.FC = () => {
           <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">Fiscal Compliance · Input Tax Credit Ledger</p>
         </div>
         <div className="flex gap-2">
-          <ExportButton data={[...outputDetails, ...inputDetails]} filename={`drishtivision_gst_ledger_all_time`} />
+          <ExportButton data={[...outputDetails, ...inputDetails]} filename={`basecrm_gst_ledger_all_time`} />
         </div>
       </div>
 

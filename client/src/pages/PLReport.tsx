@@ -9,7 +9,6 @@ import api from '../lib/axios';
 import toast from 'react-hot-toast';
 
 const PLReport: React.FC = () => {
-  const [period, setPeriod] = useState<'Monthly' | 'Quarterly' | 'Yearly'>('Monthly');
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
 
@@ -42,19 +41,19 @@ const PLReport: React.FC = () => {
     <div className="space-y-6 print:p-0 print:space-y-4">
       <div className="flex justify-between items-end print:hidden">
         <div>
-          <h1 className="text-xl font-bold text-text-primary">Financial P&L Intelligence</h1>
-          <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">Fiscal Tracking · Consolidated OOH</p>
+          <h1 className="text-xl font-bold text-text-primary uppercase tracking-tight">Financial P&L Report</h1>
+          <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">Fiscal Performance Tracking · Generic Business View</p>
         </div>
         <div className="flex gap-2">
           <ExportButton 
             data={[
-              { Category: 'Hoarding / Billboard Revenue', Type: 'Income', Amount: pl.income.hoarding || 0 },
-              { Category: 'Site Lease Costs (Vendors)', Type: 'Expense', Amount: pl.expenses.lease || 0 },
-              { Category: 'Mounting & Labour Costs', Type: 'Expense', Amount: pl.expenses.mounting || 0 },
-              { Category: 'Operating Expenses', Type: 'Expense', Amount: pl.expenses.operating || 0 },
+              { Category: 'Sales & Service Revenue', Type: 'Income', Amount: pl.income.gross || 0 },
+              { Category: 'Vendor Payouts', Type: 'Expense', Amount: pl.expenses.vendorPayouts || 0 },
+              { Category: 'Direct Operating Costs', Type: 'Expense', Amount: pl.expenses.directCosts || 0 },
+              { Category: 'Indirect Expenses', Type: 'Expense', Amount: pl.expenses.indirectCosts || 0 },
               { Category: 'Net Profit', Type: 'Final', Amount: (pl.income.total - pl.expenses.total) || 0 }
             ]} 
-            filename={`drishtivision_pl_detailed`} 
+            filename={`business_pl_detailed`} 
           />
         </div>
       </div>
@@ -69,7 +68,7 @@ const PLReport: React.FC = () => {
            <div className="text-xl font-black text-white mt-2">₹{pl.expenses.total?.toLocaleString() || 0}</div>
         </div>
         <div className="card flex flex-col justify-center border-border/40 min-h-[100px]">
-           <div className="text-[10px] text-text-muted uppercase tracking-widest font-black">GST Output Liability</div>
+           <div className="text-[10px] text-text-muted uppercase tracking-widest font-black">Tax Liability (GST/VAT)</div>
            <div className="text-xl font-black text-warning mt-2">₹{(gst.collected.cgst + gst.collected.sgst + gst.collected.igst)?.toLocaleString() || 0}</div>
         </div>
         <div className="card bg-success border-success shadow-lg shadow-success/10 flex flex-col justify-center min-h-[100px]">
@@ -89,8 +88,8 @@ const PLReport: React.FC = () => {
             
             <div className="space-y-1">
               <div className="flex justify-between items-center py-2.5 border-b border-border text-[12px]">
-                <span className="text-text-muted font-bold">Hoarding / Billboard Revenue</span>
-                <span className="font-black text-success">₹{pl.income.hoarding?.toLocaleString() || 0}</span>
+                <span className="text-text-muted font-bold">Sales & Service Revenue</span>
+                <span className="font-black text-success">₹{pl.income.gross?.toLocaleString() || 0}</span>
               </div>
               <div className="flex justify-between items-center py-3 text-[11px] font-black uppercase tracking-widest text-text-primary bg-bg-surface-2 px-3 rounded-lg mt-2">
                 <span>Gross Revenue</span>
@@ -100,16 +99,16 @@ const PLReport: React.FC = () => {
               <div className="h-6"></div>
 
               <div className="flex justify-between items-center py-2 border-b border-border text-[12px]">
-                <span className="text-text-muted font-bold">Site Lease Costs (Vendors)</span>
-                <span className="font-bold text-danger">- ₹{pl.expenses.lease?.toLocaleString() || 0}</span>
+                <span className="text-text-muted font-bold">Vendor & Contract Costs</span>
+                <span className="font-bold text-danger">- ₹{pl.expenses.vendorPayouts?.toLocaleString() || 0}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-border text-[12px]">
-                <span className="text-text-muted font-bold">Mounting & Labour Costs</span>
-                <span className="font-bold text-danger">- ₹{pl.expenses.mounting?.toLocaleString() || 0}</span>
+                <span className="text-text-muted font-bold">Direct Operating Costs</span>
+                <span className="font-bold text-danger">- ₹{pl.expenses.directCosts?.toLocaleString() || 0}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-border text-[12px]">
-                <span className="text-text-muted font-bold">Operating Expenses (Admin/Salaries)</span>
-                <span className="font-bold text-danger">- ₹{pl.expenses.operating?.toLocaleString() || 0}</span>
+                <span className="text-text-muted font-bold">Indirect Expenses (Admin/Misc)</span>
+                <span className="font-bold text-danger">- ₹{pl.expenses.indirectCosts?.toLocaleString() || 0}</span>
               </div>
 
               <div className="h-6"></div>
@@ -117,7 +116,7 @@ const PLReport: React.FC = () => {
               <div className="flex justify-between items-center p-4 bg-bg-surface-2 rounded-xl border border-border">
                 <div className="flex flex-col">
                   <span className="text-[10px] text-text-primary uppercase font-black tracking-widest">Net Operating Profit</span>
-                  <span className="text-xs text-white mt-1 italic opacity-70">Before GST provisions</span>
+                  <span className="text-xs text-white mt-1 italic opacity-70">Before Tax Provisions</span>
                 </div>
                 <span className="text-2xl font-black text-white tracking-tighter">₹{(pl.income.total - pl.expenses.total)?.toLocaleString() || 0}</span>
               </div>
@@ -128,35 +127,35 @@ const PLReport: React.FC = () => {
             <div className="card border-border/40">
                <div className="flex items-center gap-2 mb-6">
                   <ShieldCheck className="text-accent-blue" size={18} />
-                  <h3 className="text-[13px] font-bold text-text-primary uppercase">GST Net Blanket</h3>
+                  <h3 className="text-[13px] font-bold text-text-primary uppercase">Tax Summary</h3>
                </div>
                
                <div className="space-y-4">
                   <div className="flex justify-between items-end border-b border-border pb-3">
                      <div className="flex flex-col">
-                        <span className="text-[10px] text-text-muted font-bold uppercase">CGST (9%)</span>
+                        <span className="text-[10px] text-text-muted font-bold uppercase">CGST / Primary Tax</span>
                         <span className="text-[12px] font-medium text-text-primary mt-1">Output Collected</span>
                      </div>
                      <span className="text-[13px] font-black text-warning">₹{gst.collected.cgst?.toLocaleString() || 0}</span>
                   </div>
                   <div className="flex justify-between items-end border-b border-border pb-3">
                      <div className="flex flex-col">
-                        <span className="text-[10px] text-text-muted font-bold uppercase">SGST (9%)</span>
+                        <span className="text-[10px] text-text-muted font-bold uppercase">SGST / Secondary Tax</span>
                         <span className="text-[12px] font-medium text-text-primary mt-1">Output Collected</span>
                      </div>
                      <span className="text-[13px] font-black text-warning">₹{gst.collected.sgst?.toLocaleString() || 0}</span>
                   </div>
                   <div className="flex justify-between items-end border-b border-border pb-3">
                      <div className="flex flex-col">
-                        <span className="text-[10px] text-text-muted font-bold uppercase">IGST (18%)</span>
-                        <span className="text-[12px] font-medium text-text-primary mt-1">Inter-state Sales</span>
+                        <span className="text-[10px] text-text-muted font-bold uppercase">IGST / Custom Tax</span>
+                        <span className="text-[12px] font-medium text-text-primary mt-1">International/Inter-state</span>
                      </div>
                      <span className="text-[13px] font-black text-warning">₹{gst.collected.igst?.toLocaleString() || 0}</span>
                   </div>
                   
                   <div className="p-3 bg-bg-surface-2 rounded-lg mt-4">
                      <div className="flex justify-between text-[11px] font-black text-text-primary uppercase tracking-tighter">
-                        <span>Total Net Liability</span>
+                        <span>Total Liability</span>
                         <span>₹{(gst.collected.cgst + gst.collected.sgst + gst.collected.igst)?.toLocaleString() || 0}</span>
                      </div>
                   </div>
@@ -168,7 +167,7 @@ const PLReport: React.FC = () => {
                  <TrendingUp size={14} /> Final Bottom Line
                </div>
                <div className="text-3xl font-black text-white tracking-tighter">₹{(pl.income.total - pl.expenses.total)?.toLocaleString() || 0}</div>
-               <p className="text-[10px] text-white/70 mt-3 italic font-medium leading-tight">Consolidated Fiscal Performance</p>
+               <p className="text-[10px] text-white/70 mt-3 italic font-medium leading-tight">Consolidated Financial Performance</p>
             </div>
          </div>
       </div>

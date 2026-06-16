@@ -60,61 +60,81 @@ router.get('/', async (req: any, res) => {
       getFinancials(12)
     ]);
 
-    // GST Balance Sheet
-    const invoiceGstAgg = await getPrisma().invoice.aggregate({
-      where: { orgId },
-      _sum: { cgstAmount: true, sgstAmount: true, igstAmount: true, taxableAmount: true }
-    });
+    const org = await getPrisma().organization.findUnique({ where: { id: orgId } });
+    const taxMode = org?.taxMode || 'NONE';
 
-    const expenseGstAgg = await getPrisma().expense.aggregate({
-      where: { orgId, gstin: { not: null } },
-      _sum: { cgstAmount: true, sgstAmount: true, igstAmount: true }
-    });
+    // GST Balance Sheet (Only relevant for GST_INDIA)
+    let gstReport: any = null;
+    if (taxMode === 'GST_INDIA') {
+      const invoiceGstAgg = await getPrisma().invoice.aggregate({
+        where: { orgId },
+        _sum: { cgstAmount: true, sgstAmount: true, igstAmount: true, taxableAmount: true }
+      });
 
-    const gstCollected = {
-      cgst: invoiceGstAgg._sum.cgstAmount || 0,
-      sgst: invoiceGstAgg._sum.sgstAmount || 0,
-      igst: invoiceGstAgg._sum.igstAmount || 0,
-    };
+      const expenseGstAgg = await getPrisma().expense.aggregate({
+        where: { orgId, gstin: { not: null } },
+        _sum: { cgstAmount: true, sgstAmount: true, igstAmount: true }
+      });
 
-    const gstPaid = {
-      cgst: expenseGstAgg._sum.cgstAmount || 0,
-      sgst: expenseGstAgg._sum.sgstAmount || 0,
-      igst: expenseGstAgg._sum.igstAmount || 0,
-    };
+      const gstCollected = {
+        cgst: invoiceGstAgg._sum.cgstAmount || 0,
+        sgst: invoiceGstAgg._sum.sgstAmount || 0,
+        igst: invoiceGstAgg._sum.igstAmount || 0,
+      };
 
-    const outputDetails = await getPrisma().invoice.findMany({
-      where: { orgId },
-      select: {
-        id: true,
-        invoiceNumber: true,
-        taxableAmount: true,
-        cgstAmount: true,
-        sgstAmount: true,
-        igstAmount: true,
-        totalAmount: true,
-        client: {
-          select: { name: true }
+      const gstPaid = {
+        cgst: expenseGstAgg._sum.cgstAmount || 0,
+        sgst: expenseGstAgg._sum.sgstAmount || 0,
+        igst: expenseGstAgg._sum.igstAmount || 0,
+      };
+
+      const outputDetails = await getPrisma().invoice.findMany({
+        where: { orgId },
+        select: {
+          id: true,
+          invoiceNumber: true,
+          taxableAmount: true,
+          cgstAmount: true,
+          sgstAmount: true,
+          igstAmount: true,
+          totalAmount: true,
+          client: { select: { name: true } }
         }
-      }
-    });
+      });
 
-    const inputDetails = await getPrisma().expense.findMany({
-      where: { orgId, gstin: { not: null } },
-      select: {
-        id: true,
-        description: true,
-        category: true,
-        amount: true,
-        taxableAmount: true,
-        cgstAmount: true,
-        sgstAmount: true,
-        igstAmount: true
-      }
-    });
+      const inputDetails = await getPrisma().expense.findMany({
+        where: { orgId, gstin: { not: null } },
+        select: {
+          id: true,
+          description: true,
+          category: true,
+          amount: true,
+          taxableAmount: true,
+          cgstAmount: true,
+          sgstAmount: true,
+          igstAmount: true
+        }
+      });
+
+      gstReport = {
+        collected: gstCollected,
+        paid: gstPaid,
+        balance: {
+          cgst: gstCollected.cgst - gstPaid.cgst,
+          sgst: gstCollected.sgst - gstPaid.sgst,
+          igst: gstCollected.igst - gstPaid.igst,
+        },
+        outputDetails,
+        inputDetails
+      };
+    }
 
     // P&L logic...
-    const hoardingRevenue = invoiceGstAgg._sum.taxableAmount || 0;
+    const invoiceAggTotal = await getPrisma().invoice.aggregate({
+      where: { orgId },
+      _sum: { taxableAmount: true, totalAmount: true }
+    });
+    const grossRevenue = taxMode === 'NONE' ? (invoiceAggTotal._sum.totalAmount || 0) : (invoiceAggTotal._sum.taxableAmount || 0);
     
     const allExpenses = await getPrisma().expense.findMany({
       where: { orgId },
@@ -122,10 +142,12 @@ router.get('/', async (req: any, res) => {
     });
     
     let indirectExpenses = 0;
-    let mountingCosts = 0;
+    let directExecutionCosts = 0;
     allExpenses.forEach(exp => {
       const val = exp.taxableAmount || exp.amount || 0;
-      if ((exp.category || '').toLowerCase().includes('mount')) mountingCosts += val;
+      // Heuristic: categories like 'execution', 'direct', 'operating' go to direct costs
+      const cat = (exp.category || '').toLowerCase();
+      if (cat.includes('execution') || cat.includes('direct') || cat.includes('operating')) directExecutionCosts += val;
       else indirectExpenses += val;
     });
 
@@ -136,24 +158,20 @@ router.get('/', async (req: any, res) => {
 
     res.json({
       financials: { last3Months: analytics3m, last6Months: analytics6m, lastYear: analytics1y },
-      gstReport: {
-        collected: gstCollected,
-        paid: gstPaid,
-        balance: {
-          cgst: gstCollected.cgst - gstPaid.cgst,
-          sgst: gstCollected.sgst - gstPaid.sgst,
-          igst: gstCollected.igst - gstPaid.igst,
-        },
-        outputDetails,
-        inputDetails
+      gstReport: gstReport || {
+        collected: { cgst: 0, sgst: 0, igst: 0 },
+        paid: { cgst: 0, sgst: 0, igst: 0 },
+        balance: { cgst: 0, sgst: 0, igst: 0 },
+        outputDetails: [],
+        inputDetails: []
       },
       plReport: {
-        income: { hoarding: hoardingRevenue, total: hoardingRevenue },
+        income: { gross: grossRevenue, total: grossRevenue },
         expenses: {
-          lease: vendorPayoutsAgg._sum.amount || 0,
-          mounting: mountingCosts,
-          operating: indirectExpenses,
-          total: (vendorPayoutsAgg._sum.amount || 0) + mountingCosts + indirectExpenses
+          vendorPayouts: vendorPayoutsAgg._sum.amount || 0,
+          directCosts: directExecutionCosts,
+          indirectCosts: indirectExpenses,
+          total: (vendorPayoutsAgg._sum.amount || 0) + directExecutionCosts + indirectExpenses
         }
       }
     });
@@ -191,11 +209,11 @@ router.get('/dashboard', async (req: any, res) => {
       ? ((revenueVal - prevRevenueVal) / prevRevenueVal) * 100
       : 0;
 
-    // 2. Campaigns
-    const activeCount = await getPrisma().campaign.count({
+    // 2. Deals
+    const activeCount = await getPrisma().deal.count({
       where: { orgId, status: 'ACTIVE' }
     });
-    const newCampaignsThisMonth = await getPrisma().campaign.count({
+    const newDealsThisMonth = await getPrisma().deal.count({
       where: { orgId, createdAt: { gte: currMonthStart } }
     });
 
@@ -245,14 +263,54 @@ router.get('/dashboard', async (req: any, res) => {
       if (monthMap[key]) monthMap[key].revenue += (inv.totalAmount || 0) / 100000;
     });
 
+    // Performance Mix (Pie Chart Data)
+    let performanceMix: any[] = [];
+    if (breakdown === 'asset') {
+      const assets = await getPrisma().asset.findMany({ where: { orgId } });
+      const items = await getPrisma().invoice.findMany({ where: { orgId }, select: { lineItems: true } });
+      const assetMap: any = {};
+      assets.forEach(a => assetMap[a.name] = 0);
+      
+      items.forEach(inv => {
+        try {
+          const lines = JSON.parse(inv.lineItems as string);
+          lines.forEach((l: any) => {
+            if (assetMap[l.description] !== undefined) assetMap[l.description] += (l.total || 0);
+          });
+        } catch(e) {}
+      });
+      performanceMix = Object.entries(assetMap)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a: any, b: any) => b.value - a.value)
+        .slice(0, 5);
+    } else if (breakdown === 'deal') {
+      const deals = await getPrisma().deal.findMany({
+        where: { orgId },
+        select: { title: true, value: true }
+      });
+      performanceMix = deals.map(d => ({ name: d.title, value: d.value || 0 }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 5);
+    } else {
+      // Default: Client Breakdown
+      const clients = await getPrisma().client.findMany({
+        where: { orgId },
+        include: { invoices: { select: { totalAmount: true } } }
+      });
+      performanceMix = clients.map(c => ({
+        name: c.name,
+        value: c.invoices.reduce((sum, inv) => sum + (inv.totalAmount || 0), 0)
+      })).sort((a, b) => b.value - a.value).slice(0, 5);
+    }
+
     res.json({
       kpis: {
         revenue: `₹${(revenueVal / 100000).toFixed(1)}L`,
         revenueTrend: `${revGrowth >= 0 ? '↑' : '↓'} ${Math.abs(revGrowth).toFixed(1)}% vs prev month`,
         revenueTrendType: revGrowth >= 0 ? 'up' : 'down',
-        campaigns: activeCount.toString(),
-        campaignsTrend: `↑ ${newCampaignsThisMonth} new this month`,
-        campaignsTrendType: 'up',
+        deals: activeCount.toString(),
+        dealsTrend: `↑ ${newDealsThisMonth} new this month`,
+        dealsTrendType: 'up',
         outstanding: `₹${((outstandingAgg._sum.totalAmount || 0) / 100000).toFixed(1)}L`,
         outstandingTrend: `! ${overdueCount} overdue items`,
         outstandingTrendType: overdueCount > 0 ? 'down' : 'up',
@@ -261,6 +319,7 @@ router.get('/dashboard', async (req: any, res) => {
         profitTrendType: margin > 40 ? 'up' : 'down'
       },
       revenue: Object.values(monthMap).map((m: any) => ({ ...m, revenue: parseFloat(m.revenue.toFixed(2)) })),
+      performanceMix: performanceMix.length > 0 ? performanceMix : [{ name: 'No Data', value: 1 }],
       invoices: await getPrisma().invoice.findMany({
         where: { orgId },
         take: 5,
@@ -278,15 +337,15 @@ router.get('/dashboard', async (req: any, res) => {
 router.get('/payments-summary', async (req, res) => {
   try {
     const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfMonthStart = startOfMonth(now);
 
     const clientPaymentsAgg = await getPrisma().payment.aggregate({
-      where: { paymentDate: { gte: startOfMonth } },
+      where: { paymentDate: { gte: startOfMonthStart } },
       _sum: { amount: true }
     });
 
     const vendorPaymentsAgg = await getPrisma().vendorPayment.aggregate({
-      where: { paymentDate: { gte: startOfMonth } },
+      where: { paymentDate: { gte: startOfMonthStart } },
       _sum: { amount: true }
     });
 

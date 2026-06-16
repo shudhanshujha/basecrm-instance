@@ -23,22 +23,22 @@ router.get('/', async (req, res) => {
       });
     });
 
-    // 2. Campaigns ending soon
+    // 2. Deals ending soon
     const nextWeek = new Date();
     nextWeek.setDate(now.getDate() + 7);
-    const endingCampaigns = await getPrisma().campaign.findMany({
+    const endingDeals = await getPrisma().deal.findMany({
       where: { 
         status: 'ACTIVE',
         endDate: { gte: now, lte: nextWeek }
       }
     });
-    endingCampaigns.forEach(camp => {
-      const daysLeft = Math.ceil((camp.endDate.getTime() - now.getTime()) / (1000 * 3600 * 24));
+    endingDeals.forEach(deal => {
+      const daysLeft = Math.ceil((deal.endDate.getTime() - now.getTime()) / (1000 * 3600 * 24));
       notifications.push({
-        id: `camp-${camp.id}`,
-        type: 'CAMPAIGN_END',
-        message: `Campaign "${camp.campaignName}" is ending in ${daysLeft} days`,
-        date: camp.endDate.toISOString(),
+        id: `deal-${deal.id}`,
+        type: 'DEAL_END',
+        message: `Deal "${deal.title}" is ending in ${daysLeft} days`,
+        date: deal.endDate.toISOString(),
         isRead: false
       });
     });

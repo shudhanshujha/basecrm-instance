@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'super-secret-key';
-const API_URL = 'https://drishtivision-crm.vercel.app/api';
+const API_URL = 'http://localhost:5000/api';
 
 async function test() {
   const profileId = 'ad480500-038d-4877-ab9e-026412ce33d3'; 

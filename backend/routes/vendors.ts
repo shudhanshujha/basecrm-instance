@@ -24,7 +24,7 @@ router.get('/', async (req: any, res) => {
 
     const vendors = await getPrisma().vendor.findMany({
       where: { orgId },
-      include: { sites: true, payments: true }
+      include: { vendorContracts: true, vendorPayments: true }
     });
     res.json(vendors);
   } catch (error) {
@@ -41,7 +41,7 @@ router.get('/:id', async (req: any, res) => {
 
     const vendor = await getPrisma().vendor.findFirst({
       where: { id, orgId },
-      include: { sites: true, payments: true }
+      include: { vendorContracts: true, vendorPayments: true }
     });
     if (!vendor) return res.status(404).json({ error: 'Vendor not found' });
     res.json(vendor);
@@ -117,8 +117,8 @@ router.delete('/:id', async (req: any, res) => {
     await getPrisma().$transaction(async (tx) => {
       // Delete vendor payments first
       await tx.vendorPayment.deleteMany({ where: { vendorId: id } });
-      // Unlink sites from this vendor (don't delete the sites themselves)
-      await tx.site.updateMany({ where: { vendorId: id }, data: { vendorId: null } });
+      // Delete vendor contracts
+      await tx.vendorContract.deleteMany({ where: { vendorId: id } });
       // Delete the vendor
       await tx.vendor.delete({ where: { id } });
     });
@@ -135,11 +135,12 @@ router.post('/:id/payments', async (req, res) => {
   try {
     const { id } = req.params;
     const { amount, paymentDate, month, year, paymentMode, referenceNumber, purpose, notes } = req.body;
+    const orgId = await getOrgId(req);
     
     // Create VendorPayment
     const payment = await getPrisma().vendorPayment.create({
       data: {
-        orgId: (req as any).user.orgId,
+        orgId: orgId!,
         vendorId: id,
         amount: parseFloat(amount),
         paymentDate: new Date(paymentDate),
@@ -155,7 +156,7 @@ router.post('/:id/payments', async (req, res) => {
     // Automatically log it in general Expenses as well for the P&L
     await getPrisma().expense.create({
       data: {
-        orgId: (req as any).user.orgId,
+        orgId: orgId!,
         date: new Date(paymentDate),
         category: 'VENDOR_PAYOUT',
         amount: parseFloat(amount),

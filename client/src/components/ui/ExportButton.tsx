@@ -43,60 +43,33 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
     return rawData.map(item => {
       const flattened: Record<string, any> = {};
       
-      // ENTITY-SPECIFIC MAPPING (Professional Auditor Grade)
-      if (filename.includes('inventory')) {
-        flattened['SITE NAME'] = item.siteName || 'N/A';
-        flattened['LOCATION'] = item.city || 'N/A';
-        flattened['STATE'] = item.state || 'N/A';
-        flattened['FACING'] = item.facingSide || 'N/A';
-        flattened['TYPE'] = item.siteType || 'N/A';
-        flattened['WIDTH (FT)'] = item.widthFt || 0;
-        flattened['HEIGHT (FT)'] = item.heightFt || 0;
-        flattened['AREA (SQFT)'] = (item.widthFt || 0) * (item.heightFt || 0);
-        flattened['RATE (MONTHLY)'] = item.monthlyRate || 0;
-        flattened['OWNERSHIP'] = item.ownershipType || 'N/A';
-        flattened['VENDOR'] = item.vendor?.vendorName || 'DIRECT';
+      // ENTITY-SPECIFIC MAPPING
+      if (filename.includes('asset')) {
+        flattened['ASSET NAME'] = item.name || 'N/A';
+        flattened['CATEGORY'] = item.category || 'N/A';
+        flattened['DESCRIPTION'] = item.description || 'N/A';
         flattened['STATUS'] = item.status || 'N/A';
-        flattened['LEASE START'] = item.leaseStartDate ? format(new Date(item.leaseStartDate), 'dd MMM yyyy') : 'N/A';
-        flattened['LEASE END'] = item.leaseEndDate ? format(new Date(item.leaseEndDate), 'dd MMM yyyy') : 'N/A';
+        flattened['CREATED AT'] = item.createdAt ? format(new Date(item.createdAt), 'dd MMM yyyy') : 'N/A';
         return flattened;
       }
 
       if (filename.includes('invoice')) {
         flattened['INVOICE NO'] = item.invoiceNumber || 'N/A';
         flattened['CLIENT'] = item.client?.name || 'N/A';
-        flattened['GSTIN'] = item.client?.gstin || 'N/A';
         flattened['DATE'] = item.invoiceDate ? format(new Date(item.invoiceDate), 'dd MMM yyyy') : 'N/A';
         flattened['DUE DATE'] = item.dueDate ? format(new Date(item.dueDate), 'dd MMM yyyy') : 'N/A';
         flattened['TAXABLE AMOUNT'] = item.taxableAmount || 0;
-        flattened['CGST'] = item.cgstAmount || 0;
-        flattened['SGST'] = item.sgstAmount || 0;
-        flattened['IGST'] = item.igstAmount || 0;
         flattened['TOTAL'] = item.totalAmount || 0;
         flattened['STATUS'] = item.status || 'N/A';
-        flattened['PAYMENT REF'] = item.referenceNumber || 'N/A';
         return flattened;
       }
 
-      if (filename.includes('ledger')) {
-        flattened['DATE'] = (item.paymentDate || item.date) ? format(new Date(item.paymentDate || item.date), 'dd MMM yyyy') : 'N/A';
-        flattened['ENTITY'] = item.client?.name || item.vendor?.vendorName || item.client || item.vendor || 'N/A';
-        flattened['REFERENCE'] = item.invoice?.invoiceNumber || item.referenceNumber || item.inv || 'N/A';
-        flattened['MODE'] = item.paymentMode || item.method || 'N/A';
-        flattened['BANK/CHEQUE DETAILS'] = `${item.bankName || ''} ${item.chequeNumber || ''}`.trim() || 'N/A';
-        flattened['AMOUNT'] = item.amount || 0;
-        flattened['STATUS'] = item.status || 'SETTLED';
-        flattened['NOTES'] = item.notes || item.purpose || '';
-        return flattened;
-      }
-
-      if (filename.includes('campaign')) {
-        flattened['CAMPAIGN NAME'] = item.campaignName || 'N/A';
+      if (filename.includes('deal')) {
+        flattened['DEAL TITLE'] = item.title || 'N/A';
         flattened['CLIENT'] = item.client?.name || 'N/A';
         flattened['START DATE'] = item.startDate ? format(new Date(item.startDate), 'dd MMM yyyy') : 'N/A';
         flattened['END DATE'] = item.endDate ? format(new Date(item.endDate), 'dd MMM yyyy') : 'N/A';
-        flattened['TOTAL BUDGET'] = item.totalBudget || 0;
-        flattened['SITES COUNT'] = item.campaignSites?.length || 0;
+        flattened['VALUE'] = item.value || 0;
         flattened['STATUS'] = item.status || 'N/A';
         return flattened;
       }
@@ -129,9 +102,8 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
       'Total Records': mappedData.length,
     };
 
-    // Calculate totals for currency fields
     const amountKeys = Object.keys(mappedData[0] || {}).filter(k => 
-      k.toLowerCase().includes('amount') || k.toLowerCase().includes('total') || k.toLowerCase().includes('rate')
+      k.toLowerCase().includes('amount') || k.toLowerCase().includes('total') || k.toLowerCase().includes('value') || k.toLowerCase().includes('rate')
     );
 
     amountKeys.forEach(key => {
@@ -140,7 +112,7 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
         return sum + (typeof val === 'number' && !isNaN(val) ? val : 0);
       }, 0);
       if (total > 0) {
-        summary[`Sum of ${key}`] = `INR ${total.toLocaleString()}`;
+        summary[`Sum of ${key}`] = `₹ ${total.toLocaleString()}`;
       }
     });
 

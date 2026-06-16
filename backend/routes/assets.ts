@@ -16,59 +16,58 @@ const getOrgId = async (req: any) => {
   return profile?.orgId;
 };
 
-// Get all sites
+// Get all assets
 router.get('/', async (req, res) => {
   try {
     const orgId = await getOrgId(req);
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
 
-    const sites = await getPrisma().site.findMany({
-      where: { orgId },
-      include: { vendor: true }
+    const assets = await getPrisma().asset.findMany({
+      where: { orgId }
     });
-    res.json(sites);
+    res.json(assets);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch sites' });
+    res.status(500).json({ error: 'Failed to fetch assets' });
   }
 });
 
-// Get single site
+// Get single asset
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const orgId = await getOrgId(req);
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
 
-    const site = await getPrisma().site.findFirst({
+    const asset = await getPrisma().asset.findFirst({
       where: { id, orgId },
-      include: { vendor: true, campaignSites: true }
+      include: { activityLogs: true }
     });
-    if (!site) return res.status(404).json({ error: 'Site not found' });
-    res.json(site);
+    if (!asset) return res.status(404).json({ error: 'Asset not found' });
+    res.json(asset);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch site' });
+    res.status(500).json({ error: 'Failed to fetch asset' });
   }
 });
 
-// Create site
+// Create asset
 router.post('/', async (req, res) => {
   try {
     const orgId = await getOrgId(req);
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
 
-    const site = await getPrisma().site.create({
+    const asset = await getPrisma().asset.create({
       data: {
         ...req.body,
         orgId
       }
     });
-    res.status(201).json(site);
+    res.status(201).json(asset);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create site' });
+    res.status(500).json({ error: 'Failed to create asset' });
   }
 });
 
-// Update site
+// Update asset
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -76,20 +75,20 @@ router.put('/:id', async (req, res) => {
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
 
     // Verify ownership
-    const existing = await getPrisma().site.findFirst({ where: { id, orgId } });
-    if (!existing) return res.status(404).json({ error: 'Site not found' });
+    const existing = await getPrisma().asset.findFirst({ where: { id, orgId } });
+    if (!existing) return res.status(404).json({ error: 'Asset not found' });
 
-    const site = await getPrisma().site.update({
+    const asset = await getPrisma().asset.update({
       where: { id },
       data: req.body
     });
-    res.json(site);
+    res.json(asset);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update site' });
+    res.status(500).json({ error: 'Failed to update asset' });
   }
 });
 
-// Delete site
+// Delete asset
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -97,33 +96,33 @@ router.delete('/:id', async (req, res) => {
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
 
     // Verify ownership
-    const existing = await getPrisma().site.findFirst({ where: { id, orgId } });
-    if (!existing) return res.status(404).json({ error: 'Site not found' });
+    const existing = await getPrisma().asset.findFirst({ where: { id, orgId } });
+    if (!existing) return res.status(404).json({ error: 'Asset not found' });
 
     // Cascade delete all dependent records in a transaction
     await getPrisma().$transaction(async (tx) => {
-      // Delete files linked to this site
-      await tx.file.deleteMany({ where: { siteId: id } });
-      // Nullify siteId on invoice items (don't delete the invoice item itself)
-      await tx.invoiceItem.updateMany({ where: { siteId: id }, data: { siteId: null } });
-      // Delete campaign site links (and their files first)
-      const campaignSites = await tx.campaignSite.findMany({ where: { siteId: id }, select: { id: true } });
-      for (const cs of campaignSites) {
-        await tx.file.deleteMany({ where: { campaignSiteId: cs.id } });
+      // Delete files linked to this asset
+      await tx.file.deleteMany({ where: { assetId: id } });
+      // Nullify assetId on invoice items
+      await tx.invoiceItem.updateMany({ where: { assetId: id }, data: { assetId: null } });
+      // Delete activity logs linked to this asset (and their files first)
+      const logs = await tx.activityLog.findMany({ where: { assetId: id }, select: { id: true } });
+      for (const log of logs) {
+        await tx.file.deleteMany({ where: { activityLogId: log.id } });
       }
-      await tx.campaignSite.deleteMany({ where: { siteId: id } });
-      // Finally delete the site
-      await tx.site.delete({ where: { id } });
+      await tx.activityLog.deleteMany({ where: { assetId: id } });
+      // Finally delete the asset
+      await tx.asset.delete({ where: { id } });
     });
 
     res.status(204).send();
   } catch (error) {
-    console.error(`[API ERROR] Failed to delete site ${req.params.id}:`, error);
-    res.status(500).json({ error: 'Failed to delete site. It may have active dependencies.' });
+    console.error(`[API ERROR] Failed to delete asset ${req.params.id}:`, error);
+    res.status(500).json({ error: 'Failed to delete asset. It may have active dependencies.' });
   }
 });
 
-// Update site status
+// Update asset status
 router.patch('/:id/status', async (req: any, res) => {
   try {
     const { id } = req.params;
@@ -131,13 +130,13 @@ router.patch('/:id/status', async (req: any, res) => {
     const orgId = await getOrgId(req);
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
 
-    const site = await getPrisma().site.update({
+    const asset = await getPrisma().asset.update({
       where: { id, orgId },
       data: { status: status.toUpperCase() }
     });
-    res.json(site);
+    res.json(asset);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update site status' });
+    res.status(500).json({ error: 'Failed to update asset status' });
   }
 });
 

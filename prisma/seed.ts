@@ -4,24 +4,25 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function seed() {
-  console.log('Seeding database...');
+  console.log('Seeding unique generic CRM database...');
   
   const hashedPassword = await bcrypt.hash('password123', 10);
   
   // 1. Create Organization
   const org = await prisma.organization.create({
     data: {
-      name: 'Test Agency',
-      slug: 'test-agency',
+      name: 'Apex Dynamics Group',
+      slug: 'apex-dynamics',
+      taxMode: 'NONE'
     }
   });
 
   // 2. Create Profile
   await prisma.profile.create({
     data: {
-      email: 'admin@test.com',
+      email: 'admin@apexdynamics.io',
       password: hashedPassword,
-      fullName: 'Admin User',
+      fullName: 'Chief Operations Officer',
       role: 'admin',
       orgId: org.id
     }
@@ -30,54 +31,67 @@ async function seed() {
   // 3. Create Client
   const client = await prisma.client.create({
     data: {
-      name: 'Acme Corp',
-      email: 'contact@acme.com',
-      phone: '1234567890',
+      name: 'Nova Solutions Ltd',
+      email: 'operations@novasolutions.io',
+      phone: '+1 888-555-0123',
+      city: 'San Francisco',
       orgId: org.id
     }
   });
 
-  // 4. Create Site
-  const site = await prisma.site.create({
+  // 4. Create Asset
+  const asset = await prisma.asset.create({
     data: {
-      siteName: 'Main Office',
+      name: 'High-Performance Computing Node X1',
+      category: 'Infrastructure',
+      description: 'Dedicated virtualized resource for enterprise processing.',
       orgId: org.id,
-      monthlyRate: 50000
+      status: 'ACTIVE'
     }
   });
 
-  // 5. Create Campaign
-  const campaign = await prisma.campaign.create({
+  // 5. Create Deal
+  const deal = await prisma.deal.create({
     data: {
-      campaignName: 'Summer Launch',
+      title: 'Digital Transformation Phase II',
       clientId: client.id,
       orgId: org.id,
       startDate: new Date(),
-      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      status: 'ACTIVE'
+      endDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000),
+      value: 1250000,
+      status: 'ACTIVE',
+      activityLogs: {
+        create: {
+          assetId: asset.id,
+          activityType: 'PROVISIONING',
+          description: 'Primary compute asset allocated to transformation pipeline.',
+          orgId: org.id
+        }
+      }
     }
   });
 
   // 6. Create Invoice
   await prisma.invoice.create({
     data: {
-      invoiceNumber: 'INV-2026-001',
+      invoiceNumber: 'TXN-778-2026-991',
       clientId: client.id,
-      campaignId: campaign.id,
+      dealId: deal.id,
       orgId: org.id,
       invoiceDate: new Date(),
-      dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
-      subtotal: 50000,
-      taxableAmount: 50000,
-      cgstAmount: 4500,
-      sgstAmount: 4500,
+      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      subtotal: 450000,
+      taxableAmount: 450000,
+      cgstAmount: 0,
+      sgstAmount: 0,
       igstAmount: 0,
-      totalAmount: 59000,
-      status: 'PENDING'
+      totalAmount: 450000,
+      status: 'PENDING',
+      notes: 'Initial Milestone: Infrastructure Provisioning'
     }
   });
 
-  console.log('Seed completed successfully!');
+  console.log('Unique data seed completed successfully!');
 }
 
 seed()

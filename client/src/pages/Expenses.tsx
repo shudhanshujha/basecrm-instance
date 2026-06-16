@@ -77,7 +77,7 @@ const Expenses = () => {
           <p className="text-[11px] text-text-muted mt-1 uppercase font-black tracking-widest">Operational Outflow · Cash Management</p>
         </div>
         <div className="flex gap-2">
-          <ExportButton data={expenses} filename="drishtivision_expenses" />
+          <ExportButton data={expenses} filename="business_expenses" />
           <button onClick={() => setShowModal(true)} className="btn-primary text-[12px] py-1.5 flex items-center gap-2 shadow-lg shadow-accent-orange/30">
             <Plus size={16} /> Record Expense
           </button>
@@ -183,7 +183,7 @@ const Expenses = () => {
                     >
                       <option value="OFFICE">Office Supplies & Rent</option>
                       <option value="TRAVEL">Fuel & Travel</option>
-                      <option value="MAINTENANCE">Site Maintenance</option>
+                      <option value="MAINTENANCE">Asset Maintenance</option>
                       <option value="SALARY">Staff Salaries</option>
                       <option value="OTHER">Other Expenses</option>
                     </select>

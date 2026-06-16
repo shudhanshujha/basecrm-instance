@@ -28,8 +28,9 @@ router.post('/upload', async (req: any, res) => {
       fileName, 
       mimeType, 
       size, 
-      siteId, 
-      campaignId, 
+      assetId, 
+      dealId, 
+      activityLogId,
       invoiceId, 
       expenseId, 
       clientId 
@@ -45,7 +46,7 @@ router.post('/upload', async (req: any, res) => {
     }
 
     const fileId = uuidv4();
-    const entityId = siteId || campaignId || invoiceId || expenseId || clientId || 'general';
+    const entityId = assetId || dealId || activityLogId || invoiceId || expenseId || clientId || 'general';
     const safeFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
     const fileKey = `${orgId}/${entityId}/${fileId}-${safeFileName}`;
 
@@ -57,8 +58,9 @@ router.post('/upload', async (req: any, res) => {
       data: {
         id: fileId,
         orgId: orgId,
-        siteId: siteId || null,
-        campaignId: campaignId || null,
+        assetId: assetId || null,
+        dealId: dealId || null,
+        activityLogId: activityLogId || null,
         invoiceId: invoiceId || null,
         expenseId: expenseId || null,
         clientId: clientId || null,

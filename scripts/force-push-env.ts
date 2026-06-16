@@ -7,7 +7,7 @@ const env = {
   "R2_ACCESS_KEY_ID": "0051d5efe7a49340000000001",
   "R2_SECRET_ACCESS_KEY": "K005WOYRFHRXthfXrz+uVeFBG7gh5io",
   "R2_ENDPOINT": "https://s3.us-east-005.backblazeb2.com",
-  "R2_BUCKET_NAME": "drishtivision-crm-files",
+  "R2_BUCKET_NAME": "basecrm-files",
   "DATABASE_URL": "postgresql://postgres.szqottgjdluhenzkqspi:Aditya%40Aditya123@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres",
   "NEXTAUTH_SECRET": "7a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d"
 };

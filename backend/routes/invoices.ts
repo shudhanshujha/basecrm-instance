@@ -24,7 +24,7 @@ router.get('/', async (req: any, res) => {
 
     const invoices = await getPrisma().invoice.findMany({
       where: { orgId },
-      include: { client: true, campaign: true, payments: true },
+      include: { client: true, deal: true, payments: true },
       orderBy: { createdAt: 'desc' }
     });
     res.json(invoices);
@@ -42,7 +42,7 @@ router.get('/:id', async (req: any, res) => {
 
     const invoice = await getPrisma().invoice.findFirst({
       where: { id, orgId },
-      include: { client: true, campaign: true, payments: true, invoiceItems: true, organization: true }
+      include: { client: true, deal: true, payments: true, invoiceItems: true, organization: true }
     });
     if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
     res.json(invoice);
@@ -59,11 +59,10 @@ router.post('/', async (req: any, res) => {
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
 
     const { 
-      invoiceNumber, clientId, campaignId, invoiceDate, dueDate, 
+      invoiceNumber, clientId, dealId, invoiceDate, dueDate, 
       subtotal, taxableAmount, cgstAmount, sgstAmount, igstAmount, 
       totalAmount, lineItems, notes, bankDetails,
-      reverseCharge, upiId, showUpiQr, showDigitalSignature, signatureUrl,
-      transportMode, vehicleNumber, dateOfSupply, placeOfSupply
+      reverseCharge, upiId, showUpiQr, showDigitalSignature, signatureUrl
     } = req.body;
 
     // Parse items
@@ -75,7 +74,7 @@ router.post('/', async (req: any, res) => {
           orgId,
           invoiceNumber,
           clientId,
-          campaignId: campaignId || null,
+          dealId: dealId || null,
           invoiceDate: invoiceDate ? new Date(invoiceDate) : new Date(),
           dueDate: dueDate ? new Date(dueDate) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
           subtotal: parseFloat(subtotal) || 0,
@@ -91,11 +90,7 @@ router.post('/', async (req: any, res) => {
           upiId: upiId || '',
           showUpiQr: showUpiQr !== undefined ? showUpiQr : true,
           showDigitalSignature: showDigitalSignature !== undefined ? showDigitalSignature : false,
-          signatureUrl: signatureUrl || '',
-          transportMode: transportMode || '',
-          vehicleNumber: vehicleNumber || '',
-          dateOfSupply: dateOfSupply ? new Date(dateOfSupply) : null,
-          placeOfSupply: placeOfSupply || ''
+          signatureUrl: signatureUrl || ''
         }
       });
 
@@ -140,11 +135,10 @@ router.put('/:id', async (req: any, res) => {
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
 
     const { 
-      invoiceNumber, clientId, campaignId, invoiceDate, dueDate, 
+      invoiceNumber, clientId, dealId, invoiceDate, dueDate, 
       subtotal, taxableAmount, cgstAmount, sgstAmount, igstAmount, 
       totalAmount, lineItems, notes, bankDetails,
-      reverseCharge, upiId, showUpiQr, showDigitalSignature, signatureUrl,
-      transportMode, vehicleNumber, dateOfSupply, placeOfSupply
+      reverseCharge, upiId, showUpiQr, showDigitalSignature, signatureUrl
     } = req.body;
 
     const items = lineItems ? (typeof lineItems === 'string' ? JSON.parse(lineItems) : lineItems) : null;
@@ -156,7 +150,7 @@ router.put('/:id', async (req: any, res) => {
         data: {
           invoiceNumber,
           clientId,
-          campaignId: campaignId || null,
+          dealId: dealId || null,
           invoiceDate: invoiceDate ? new Date(invoiceDate) : undefined,
           dueDate: dueDate ? new Date(dueDate) : undefined,
           subtotal: subtotal !== undefined ? parseFloat(subtotal) : undefined,
@@ -171,11 +165,7 @@ router.put('/:id', async (req: any, res) => {
           upiId,
           showUpiQr: showUpiQr !== undefined ? showUpiQr : undefined,
           showDigitalSignature: showDigitalSignature !== undefined ? showDigitalSignature : undefined,
-          signatureUrl,
-          transportMode,
-          vehicleNumber,
-          dateOfSupply: dateOfSupply ? new Date(dateOfSupply) : null,
-          placeOfSupply
+          signatureUrl
         }
       });
 

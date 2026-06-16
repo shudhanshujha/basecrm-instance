@@ -1,88 +1,150 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg-primary: #0f1117;
-  --color-bg-surface: #181c27;
-  --color-bg-surface-2: #1e2335;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-accent-orange: #f97316;
-  --color-accent-blue: #3b82f6;
-  --color-text-primary: #e8eaf0;
-  --color-text-muted: #6b7280;
-  --color-success: #22c55e;
-  --color-danger: #ef4444;
-  --color-warning: #eab308;
-  --color-purple: #a78bfa;
+  --color-bg-primary: #06070d;
+  --color-bg-surface: rgba(18, 20, 30, 0.7);
+  --color-bg-surface-2: rgba(30, 35, 53, 0.5);
+  --color-border: rgba(0, 242, 255, 0.15);
+  --color-accent-orange: #ff6b00;
+  --color-accent-blue: #00f2ff;
+  --color-accent-purple: #7000ff;
+  --color-text-primary: #f8fafc;
+  --color-text-muted: #8b9bb4;
+  --color-success: #00ff88;
+  --color-danger: #ff0055;
+  --color-warning: #ffcc00;
 
-  /* Light Mode Overrides */
-  --color-bg-primary-light: #f3f4f8;
-  --color-bg-surface-light: #ffffff;
-  --color-bg-surface-2-light: #f8f9fc;
-  --color-border-light: rgba(0, 0, 0, 0.1);
-  --color-text-primary-light: #1a1d27;
-  --color-text-muted-light: #64748b;
+  /* Creative Additions */
+  --color-neon-glow: rgba(0, 242, 255, 0.4);
+  
+  /* Light Mode (Kept for compatibility, but styled for "Cyber Lite") */
+  --color-bg-primary-light: #f0f2f5;
+  --color-bg-surface-light: rgba(255, 255, 255, 0.9);
+  --color-bg-surface-2-light: #eef2f6;
+  --color-border-light: rgba(112, 0, 255, 0.1);
 }
 
 @layer base {
   body {
     @apply bg-bg-primary text-text-primary font-sans;
-    /* INCREASED GLOBAL FONT SIZE */
-    font-size: 17px; 
-    transition: background-color 0.2s ease, color 0.2s ease;
+    font-size: 16px;
+    background-image: 
+      radial-gradient(circle at 0% 0%, rgba(112, 0, 255, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 100% 100%, rgba(0, 242, 255, 0.08) 0%, transparent 40%);
+    background-attachment: fixed;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .light body {
-    @apply bg-bg-primary-light text-text-primary-light;
-    /* INCREASED GLOBAL FONT SIZE */
-    font-size: 17px; 
-    transition: background-color 0.2s ease, color 0.2s ease;
+    @apply bg-bg-primary-light text-slate-900;
+    background-image: none;
   }
   
-  /* Incremental increase for common elements */
-  h1 { font-size: 1.8rem !important; }
-  h2 { font-size: 1.5rem !important; }
-  h3 { font-size: 1.3rem !important; }
-  input, select, textarea { font-size: 16px !important; }
+  h1, h2, h3, h4 {
+    @apply tracking-tight font-black uppercase;
+    background: linear-gradient(135deg, #fff 0%, #8b9bb4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .light h1, .light h2, .light h3, .light h4 {
+    background: none;
+    -webkit-text-fill-color: initial;
+    @apply text-slate-900;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-bg-primary;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, var(--color-accent-purple), var(--color-accent-blue));
+    border-radius: 10px;
+  }
 }
 
 @layer components {
   .card {
-    @apply bg-bg-surface border border-border rounded-xl p-5 shadow-sm transition-all;
+    @apply bg-bg-surface border border-border rounded-2xl p-6 transition-all duration-300;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  .card:hover {
+    @apply border-accent-blue/40;
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.05);
+    transform: translateY(-2px);
   }
 
   .light .card {
-    @apply bg-bg-surface-light border-border-light text-text-primary-light shadow-md;
+    @apply bg-white/90 border-slate-200 shadow-xl shadow-slate-200/50;
+    backdrop-filter: blur(8px);
+    transform: none;
   }
 
   .btn-primary {
-    @apply bg-accent-orange hover:opacity-90 text-white px-5 py-2.5 rounded-lg font-bold transition-all shadow-lg shadow-accent-orange/20;
-    font-size: 13px;
+    @apply relative overflow-hidden bg-gradient-to-r from-accent-purple to-accent-blue text-white px-6 py-2.5 rounded-xl font-black uppercase tracking-widest text-[11px] transition-all duration-300 shadow-lg shadow-accent-purple/20;
+  }
+
+  .btn-primary:hover {
+    @apply scale-105 shadow-xl shadow-accent-blue/30;
+    filter: brightness(1.1);
+  }
+
+  .btn-primary:active {
+    @apply scale-95;
   }
 
   .btn-outline {
-    @apply border border-border bg-bg-surface-2 text-text-primary px-5 py-2.5 rounded-lg font-bold transition-all hover:border-accent-orange;
-    font-size: 13px;
+    @apply border-2 border-accent-blue/30 bg-transparent text-accent-blue px-6 py-2.5 rounded-xl font-black uppercase tracking-widest text-[11px] transition-all duration-300;
+  }
+
+  .btn-outline:hover {
+    @apply bg-accent-blue/10 border-accent-blue shadow-lg shadow-accent-blue/10;
   }
 
   .light .btn-outline {
-    @apply bg-white border-border-light text-text-primary-light hover:bg-slate-50;
+    @apply border-slate-300 bg-white text-slate-700 hover:border-accent-purple hover:text-accent-purple;
   }
 
   .status-tag {
-    @apply text-[11px] font-black uppercase px-3 py-1.5 rounded-full text-white shadow-sm;
+    @apply text-[9px] font-black uppercase px-3 py-1 rounded-lg text-white shadow-sm border border-white/10;
   }
 
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  .input-field {
+    @apply w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[13px] text-white outline-none transition-all focus:border-accent-blue focus:bg-white/10 focus:ring-2 focus:ring-accent-blue/20;
   }
-  ::-webkit-scrollbar-track {
-    @apply bg-transparent;
+
+  .light .input-field {
+    @apply bg-slate-50 border-slate-200 text-slate-900 focus:bg-white focus:border-accent-purple focus:ring-accent-purple/10;
   }
-  ::-webkit-scrollbar-thumb {
-    @apply bg-border rounded-full;
+}
+
+@layer utilities {
+  .text-gradient-neon {
+    background: linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
-  .light ::-webkit-scrollbar-thumb {
-    @apply bg-slate-300;
+  
+  .glow-cyan {
+    box-shadow: 0 0 15px var(--color-accent-blue);
   }
+
+  .glow-purple {
+    box-shadow: 0 0 15px var(--color-accent-purple);
+  }
+}
+
+/* Animations */
+@keyframes neonPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-neon {
+  animation: neonPulse 2s infinite ease-in-out;
 }

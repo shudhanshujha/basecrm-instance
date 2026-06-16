@@ -12,7 +12,7 @@ export interface ExportOptions {
   summary?: Record<string, string | number>;
 }
 
-export const exportToCSV = ({ headers, data, filename, title, orgName = 'DRISHTIVISION CRM', summary }: ExportOptions) => {
+export const exportToCSV = ({ headers, data, filename, title, orgName = 'BUSINESS CRM', summary }: ExportOptions) => {
   let csvContent = `"${orgName}"\n"${title}"\n"Generated on: ${new Date().toLocaleString()}"\n\n`;
   
   // Create object array for PapaParse from headers and data
@@ -43,7 +43,7 @@ export const exportToCSV = ({ headers, data, filename, title, orgName = 'DRISHTI
   URL.revokeObjectURL(url);
 };
 
-export const exportToExcel = ({ headers, data, filename, title, orgName = 'DRISHTIVISION CRM', summary }: ExportOptions) => {
+export const exportToExcel = ({ headers, data, filename, title, orgName = 'BUSINESS CRM', summary }: ExportOptions) => {
   const aoaData: any[][] = [
     [orgName],
     [title],
@@ -99,7 +99,7 @@ export const exportToExcel = ({ headers, data, filename, title, orgName = 'DRISH
   XLSX.writeFile(workbook, `${filename.replace(/[^a-z0-9]/gi, '_')}_${timestamp}.xlsx`);
 };
 
-export const exportToPDF = ({ headers, data, filename, title, orgName = 'DRISHTIVISION CRM', summary }: ExportOptions) => {
+export const exportToPDF = ({ headers, data, filename, title, orgName = 'BUSINESS CRM', summary }: ExportOptions) => {
   const orientation = headers.length > 6 ? 'landscape' : 'portrait';
   const doc = new jsPDF({ orientation });
   

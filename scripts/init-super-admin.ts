@@ -14,14 +14,14 @@ async function main() {
       console.log('Creating default organization...');
       org = await prisma.organization.create({
         data: {
-          name: 'DrishtiVision Solution',
-          slug: 'drishti-vision'
+          name: 'BaseCRM Global',
+          slug: 'base-crm'
         }
       });
     }
 
-    const email = 'admin@kloutkrew.in';
-    const password = 'aditya@Rand';
+    const email = 'superadmin@basecrm.io';
+    const password = 'super-password-123';
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // 2. Upsert Super Admin Profile

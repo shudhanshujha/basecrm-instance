@@ -4,7 +4,7 @@ import api from '../../lib/axios';
 import toast from 'react-hot-toast';
 
 interface FileUploadProps {
-  entityType: 'site' | 'campaign' | 'invoice' | 'client' | 'expense';
+  entityType: 'asset' | 'deal' | 'invoice' | 'client' | 'expense' | 'activityLog';
   entityId: string;
   onUploadComplete?: (fileRecord: any) => void;
   label?: string;

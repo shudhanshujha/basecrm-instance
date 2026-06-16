@@ -1,6 +1,7 @@
 import React from 'react';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
+import CommandPalette from './CommandPalette';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,6 +11,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
+      <CommandPalette />
       <TopBar onLogout={onLogout} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />

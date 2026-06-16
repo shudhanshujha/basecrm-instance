@@ -9,9 +9,9 @@ if (!process.env.VERCEL) {
 }
 
 import clientRoutes from './routes/clients.js';
-import siteRoutes from './routes/sites.js';
+import assetRoutes from './routes/assets.js';
 import vendorRoutes from './routes/vendors.js';
-import campaignRoutes from './routes/campaigns.js';
+import dealRoutes from './routes/deals.js';
 import invoiceRoutes from './routes/invoices.js';
 import expenseRoutes from './routes/expenses.js';
 import analyticsRoutes from './routes/analytics.js';
@@ -39,9 +39,9 @@ app.use(express.json());
 
 // Routes
 app.use('/api/clients', clientRoutes);
-app.use('/api/sites', siteRoutes);
+app.use('/api/assets', assetRoutes);
 app.use('/api/vendors', vendorRoutes);
-app.use('/api/campaigns', campaignRoutes);
+app.use('/api/deals', dealRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/analytics', analyticsRoutes);
@@ -57,7 +57,7 @@ app.use('/api/ping', pingRoutes);
 
 
 app.get('/api', (req, res) => {
-  res.send('Drishti Vision CRM API is running...');
+  res.send('BaseCRM API is running...');
 });
 
 // For local development

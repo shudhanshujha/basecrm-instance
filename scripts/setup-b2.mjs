@@ -2,7 +2,7 @@ import { S3Client, CreateBucketCommand, PutBucketCorsCommand, ListBucketsCommand
 
 const KEY_ID = '0051d5efe7a49340000000001';
 const APP_KEY = 'K005WOYRFHRXthfXrz+uVeFBG7gh5io';
-const BUCKET_NAME = 'drishtivision-crm-files';
+const BUCKET_NAME = 'basecrm-files';
 const REGION = 'us-east-005';
 const ENDPOINT = `https://s3.${REGION}.backblazeb2.com`;
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   FileText, Search, Plus, Filter, 
   ArrowRight, Download, Eye, ExternalLink,
-  ChevronRight, Calendar, Building, DollarSign, Loader2
+  ChevronRight, Calendar, Building, DollarSign, Loader2, Briefcase
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ExportButton from '../components/ui/ExportButton';
@@ -58,20 +58,20 @@ const Invoices: React.FC = () => {
     (inv.client?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
-  const mtdBilled = invoices.filter(i => i.status !== 'CANCELLED' && i.status !== 'DRAFT').reduce((acc, i) => acc + (i.totalAmount || 0), 0);
+  const totalBilled = invoices.filter(i => i.status !== 'CANCELLED' && i.status !== 'DRAFT').reduce((acc, i) => acc + (i.totalAmount || 0), 0);
   const pendingCollection = invoices.filter(i => i.status === 'PENDING' || i.status === 'OVERDUE').reduce((acc, i) => acc + (i.totalAmount || 0), 0);
-  const gstCollected = invoices.filter(i => i.status === 'PAID').reduce((acc, i) => acc + (i.cgstAmount + i.sgstAmount + i.igstAmount || 0), 0);
-  const settlementRate = mtdBilled > 0 ? ((mtdBilled - pendingCollection) / mtdBilled) * 100 : 0;
+  const taxCollected = invoices.filter(i => i.status === 'PAID').reduce((acc, i) => acc + (i.cgstAmount + i.sgstAmount + i.igstAmount || 0), 0);
+  const settlementRate = totalBilled > 0 ? ((totalBilled - pendingCollection) / totalBilled) * 100 : 0;
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-xl font-bold text-text-primary">Financial Invoicing</h1>
-          <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">Fiscal Billing · GST Compliance Ledger</p>
+          <h1 className="text-xl font-bold text-text-primary uppercase tracking-tight">Billing & Invoices</h1>
+          <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">Financial Invoicing · Accounts Receivable</p>
         </div>
         <div className="flex gap-2">
-          <ExportButton data={invoices} filename="drishtivision_invoices" />
+          <ExportButton data={invoices} filename="business_invoices" />
           <button 
             onClick={() => navigate('/invoices/new')} 
             className="btn-primary text-[12px] py-1.5 flex items-center gap-2 shadow-lg shadow-accent-orange/30"
@@ -84,15 +84,15 @@ const Invoices: React.FC = () => {
       <div className="grid grid-cols-4 gap-4">
          <div className="card border-border/40">
             <div className="text-[9px] text-text-muted uppercase font-black tracking-widest">Total Billed</div>
-            <div className="text-xl font-black text-text-primary mt-2">₹{(mtdBilled / 100000).toFixed(1)}L</div>
+            <div className="text-xl font-black text-text-primary mt-2">₹{(totalBilled / 100000).toFixed(1)}L</div>
          </div>
          <div className="card border-border/40">
             <div className="text-[9px] text-text-muted uppercase font-black tracking-widest">Pending Collections</div>
             <div className="text-xl font-black text-warning mt-2">₹{(pendingCollection / 100000).toFixed(1)}L</div>
          </div>
          <div className="card border-border/40">
-            <div className="text-[9px] text-text-muted uppercase font-black tracking-widest">GST Collected</div>
-            <div className="text-xl font-black text-accent-blue mt-2">₹{(gstCollected / 100000).toFixed(1)}L</div>
+            <div className="text-[9px] text-text-muted uppercase font-black tracking-widest">Tax Collected</div>
+            <div className="text-xl font-black text-accent-blue mt-2">₹{(taxCollected / 100000).toFixed(1)}L</div>
          </div>
          <div className="card bg-success/5 border-success/20">
             <div className="text-[9px] text-success uppercase font-black tracking-widest">Settlement Rate</div>
@@ -118,7 +118,7 @@ const Invoices: React.FC = () => {
             <thead>
                <tr className="bg-bg-surface-2 border-b border-border text-[10px] text-text-muted uppercase font-black tracking-widest">
                   <th className="px-6 py-4 rounded-tl-xl">Invoice Details</th>
-                  <th className="px-6 py-4">Campaign Partner</th>
+                  <th className="px-6 py-4">Associated Deal</th>
                   <th className="px-6 py-4 text-center">Status</th>
                   <th className="px-6 py-4 text-right rounded-tr-xl">Total Amount</th>
                </tr>
@@ -127,7 +127,7 @@ const Invoices: React.FC = () => {
                {isLoading ? (
                  <tr><td colSpan={4} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-accent-orange" /></td></tr>
                ) : filteredInvoices.map((inv) => (
-                  <tr key={inv.id} className="hover:bg-bg-surface-2 transition-colors cursor-pointer group">
+                  <tr key={inv.id} className="hover:bg-bg-surface-2 transition-colors cursor-pointer group" onClick={() => navigate(`/invoices/${inv.id}`)}>
                      <td className="px-6 py-4">
                         <div className="text-[13px] font-bold text-text-primary group-hover:text-accent-orange transition-colors">{inv.invoiceNumber}</div>
                         <div className="flex items-center gap-2 text-[10px] text-text-muted mt-1 uppercase font-black tracking-tighter">
@@ -136,7 +136,7 @@ const Invoices: React.FC = () => {
                      </td>
                      <td className="px-6 py-4">
                         <div className="text-[12px] font-bold text-text-primary">{inv.client?.name || 'N/A'}</div>
-                        <div className="text-[10px] text-text-muted mt-0.5 font-medium uppercase tracking-widest">{inv.campaign?.campaignName || 'General Billing'}</div>
+                        <div className="text-[10px] text-text-muted mt-0.5 font-medium uppercase tracking-widest">{inv.deal?.title || 'General Billing'}</div>
                      </td>
                       <td className="px-6 py-4 text-center">
                          <div className="relative group/status inline-block" onClick={(e) => e.stopPropagation()}>

@@ -81,7 +81,7 @@ const PayoutWizard: React.FC<{ vendor: any; onClose: () => void; onSuccess: () =
                 </div>
                 <div className="space-y-1.5 col-span-2">
                   <label className="text-[11px] font-black text-text-muted uppercase ml-1">Reference Number</label>
-                  <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[12px] outline-none focus:border-accent-blue" placeholder="UTR / Cheque No." value={form.referenceNumber} onChange={e => setForm({...form, referenceNumber: e.target.value})} />
+                  <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[12px] outline-none focus:border-accent-blue" placeholder="UTR / Transaction ID" value={form.referenceNumber} onChange={e => setForm({...form, referenceNumber: e.target.value})} />
                 </div>
               </div>
 
@@ -103,7 +103,7 @@ const PayoutWizard: React.FC<{ vendor: any; onClose: () => void; onSuccess: () =
 
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black text-text-muted uppercase ml-1">Purpose / Notes</label>
-                <textarea rows={2} className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[12px] outline-none focus:border-accent-blue resize-none" placeholder="e.g. Monthly Lease for Panipat Site" value={form.purpose} onChange={e => setForm({...form, purpose: e.target.value})} />
+                <textarea rows={2} className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[12px] outline-none focus:border-accent-blue resize-none" placeholder="e.g. Monthly Professional Services Fee" value={form.purpose} onChange={e => setForm({...form, purpose: e.target.value})} />
               </div>
             </>
           )}
@@ -184,7 +184,7 @@ const Vendors: React.FC = () => {
     contactPerson: '',
     phone: '',
     email: '',
-    vendorType: 'SITE_OWNER',
+    vendorType: 'SUPPLIER',
     gstin: '',
     address: '',
     city: ''
@@ -217,14 +217,14 @@ const Vendors: React.FC = () => {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (window.confirm(`Are you sure you want to delete ${name}? This will remove all associated inventory linkages and payout records.`)) {
+    if (window.confirm(`Are you sure you want to delete ${name}? This will remove all associated contract data and payout records.`)) {
       try {
         await api.delete(`/vendors/${id}`);
         toast.success('Vendor record deleted');
         fetchVendors();
       } catch (error) {
         console.error('Failed to delete vendor:', error);
-        toast.error('Failed to delete vendor. Ensure they have no active sites linked.');
+        toast.error('Failed to delete vendor. Ensure they have no active contracts linked.');
       }
     }
   };
@@ -252,7 +252,7 @@ const Vendors: React.FC = () => {
       fetchVendors();
       setFormData({
         vendorName: '', contactPerson: '', phone: '', email: '',
-        vendorType: 'SITE_OWNER', gstin: '', address: '', city: ''
+        vendorType: 'SUPPLIER', gstin: '', address: '', city: ''
       });
     } catch (error) {
       toast.error('Failed to save vendor');
@@ -265,7 +265,7 @@ const Vendors: React.FC = () => {
       contactPerson: vendor.contactPerson || '',
       phone: vendor.phone || '',
       email: vendor.email || '',
-      vendorType: vendor.vendorType || 'SITE_OWNER',
+      vendorType: vendor.vendorType || 'SUPPLIER',
       gstin: vendor.gstin || '',
       address: vendor.address || '',
       city: vendor.city || ''
@@ -283,15 +283,15 @@ const Vendors: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-xl font-bold text-text-primary">Vendor Management</h1>
-          <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">Strategic Partners · Asset Owners</p>
+          <h1 className="text-xl font-bold text-text-primary uppercase tracking-tight">Vendor Management</h1>
+          <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">Strategic Partners · Service Providers</p>
         </div>
         <div className="flex gap-2">
-          <ExportButton data={filteredVendors} filename="drishtivision_vendors" />
+          <ExportButton data={filteredVendors} filename="business_vendors" />
           <button onClick={() => {
             setFormData({
               vendorName: '', contactPerson: '', phone: '', email: '',
-              vendorType: 'SITE_OWNER', gstin: '', address: '', city: ''
+              vendorType: 'SUPPLIER', gstin: '', address: '', city: ''
             });
             setEditingVendorId(null);
             setShowAddModal(true);
@@ -325,7 +325,7 @@ const Vendors: React.FC = () => {
                </div>
                <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-[14px] font-bold text-text-primary group-hover:text-accent-orange transition-colors">{vendor.vendorName}</h3>
+                    <h3 className="text-[14px] font-bold text-text-primary group-hover:text-accent-orange transition-colors uppercase tracking-tight">{vendor.vendorName}</h3>
                     <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-bg-surface-2 text-text-muted border border-border">{vendor.vendorType}</span>
                     <div className="relative group/status" onClick={(e) => e.stopPropagation()}>
                        <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(vendor.status || 'ACTIVE')}`}>
@@ -333,7 +333,7 @@ const Vendors: React.FC = () => {
                        </span>
                        <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-10 top-5 left-0 min-w-[100px]">
                           {['Active', 'Inactive'].map(s => (
-                             <button key={s} onClick={() => updateStatus(vendor.id, s)} className="text-[10px] text-left hover:text-accent-orange text-text-muted font-bold py-1 uppercase">{s}</button>
+                             <button key={s} onClick={() => updateStatus(vendor.id, s)} className="text-[10px] text-left hover:text-accent-orange text-text-primary font-bold py-1 uppercase">{s}</button>
                           ))}
                        </div>
                     </div>
@@ -347,8 +347,8 @@ const Vendors: React.FC = () => {
 
             <div className="flex items-center gap-6 text-right pr-2">
                <div>
-                  <div className="text-[14px] font-black text-text-primary">{vendor.sites?.length || 0}</div>
-                  <div className="text-[9px] text-text-muted uppercase font-bold tracking-tighter">Sites Linked</div>
+                  <div className="text-[14px] font-black text-text-primary">{vendor.vendorContracts?.length || 0}</div>
+                  <div className="text-[9px] text-text-muted uppercase font-bold tracking-tighter">Active Contracts</div>
                </div>
                <button 
                  onClick={(e) => { e.stopPropagation(); setPayoutVendor(vendor); }}
@@ -398,7 +398,7 @@ const Vendors: React.FC = () => {
                    <div className="grid grid-cols-2 gap-6">
                       <div className="col-span-2 space-y-2">
                          <label className="text-[10px] font-black text-text-muted uppercase ml-1">Vendor / Business Name</label>
-                         <input type="text" required className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[13px] outline-none focus:border-accent-orange transition-colors font-bold" placeholder="e.g. Haryana Outdoor Media" value={formData.vendorName} onChange={e => setFormData({...formData, vendorName: e.target.value})} />
+                         <input type="text" required className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[13px] outline-none focus:border-accent-orange transition-colors font-bold" placeholder="e.g. Global Supplies Ltd" value={formData.vendorName} onChange={e => setFormData({...formData, vendorName: e.target.value})} />
                       </div>
                       <div className="space-y-2">
                          <label className="text-[10px] font-black text-text-muted uppercase ml-1">Contact Person</label>
@@ -406,21 +406,21 @@ const Vendors: React.FC = () => {
                       </div>
                       <div className="space-y-2">
                          <label className="text-[10px] font-black text-text-muted uppercase ml-1">Phone</label>
-                         <input type="text" required className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none" placeholder="+91..." value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+                         <input type="text" required className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none" placeholder="Primary contact" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
                       </div>
                       <div className="space-y-2">
                          <label className="text-[10px] font-black text-text-muted uppercase ml-1">Vendor Type</label>
                          <select className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none font-bold" value={formData.vendorType} onChange={e => setFormData({...formData, vendorType: e.target.value})}>
-                            <option value="SITE_OWNER">Site Owner</option>
-                            <option value="PRINTER">Printing Agency</option>
-                            <option value="FABRICATOR">Mounting/Fabrication</option>
-                            <option value="ELECTRICIAN">Electrician</option>
+                            <option value="SUPPLIER">Supplier</option>
+                            <option value="CONTRACTOR">Contractor</option>
+                            <option value="SERVICE_PROVIDER">Service Provider</option>
+                            <option value="CONSULTANT">Consultant</option>
                             <option value="OTHER">Other Partner</option>
                          </select>
                       </div>
                       <div className="space-y-2">
-                         <label className="text-[10px] font-black text-text-muted uppercase ml-1">GSTIN</label>
-                         <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none font-mono" placeholder="15-digit GSTIN" value={formData.gstin} onChange={e => setFormData({...formData, gstin: e.target.value})} />
+                         <label className="text-[10px] font-black text-text-muted uppercase ml-1">Tax ID / GSTIN</label>
+                         <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none font-mono" placeholder="Tax Registration No" value={formData.gstin} onChange={e => setFormData({...formData, gstin: e.target.value})} />
                       </div>
                    </div>
                 </div>

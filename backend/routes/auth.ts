@@ -26,10 +26,7 @@ router.post('/login', async (req, res) => {
     
     const profile = await getPrisma().profile.findFirst({
       where: { 
-        email: {
-          equals: email.toLowerCase(),
-          mode: 'insensitive'
-        }
+        email: email.toLowerCase()
       },
       include: { organization: true }
     });
@@ -112,6 +109,7 @@ router.put('/organization/:id', authMiddleware, async (req: any, res) => {
       where: { id },
       data: {
         name: req.body.name,
+        taxMode: req.body.taxMode,
         gstin: req.body.gstin,
         panNumber: req.body.panNumber,
         address: req.body.address,

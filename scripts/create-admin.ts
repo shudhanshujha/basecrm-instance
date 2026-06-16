@@ -4,9 +4,10 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function createAdmin() {
-  const email = 'admin@drishtivision.com';
-  const password = 'admin'; // You can change this
-  const orgName = 'DrishtiVision Advertising Services';
+  const email = 'admin@basecrm.io';
+  const password = 'password123'; // You can change this
+  const orgName = 'BaseCRM Operations';
+  const orgSlug = 'basecrm-ops';
 
   console.log('--- MANUAL ADMIN CREATION ---');
 
@@ -21,7 +22,7 @@ async function createAdmin() {
       org = await prisma.organization.create({
         data: {
           name: orgName,
-          slug: 'drishtivision'
+          slug: orgSlug
         }
       });
     }

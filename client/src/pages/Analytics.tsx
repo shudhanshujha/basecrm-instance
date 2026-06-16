@@ -21,10 +21,6 @@ const Analytics: React.FC = () => {
   const [data, setData] = useState<any>(null);
   const [mainAnalytics, setMainAnalytics] = useState<any>(null);
 
-  useEffect(() => {
-    fetchAll();
-  }, [period]);
-
   const fetchAll = async () => {
     setLoading(true);
     try {
@@ -41,6 +37,10 @@ const Analytics: React.FC = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchAll();
+  }, [period]);
 
   // Derived analytics KPIs from real data
   const revTrend = data?.revenue || [];

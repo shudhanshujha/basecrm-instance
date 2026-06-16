@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Generic Multi-Tenant CRM
 
-## Getting Started
+A robust, industry-agnostic CRM for managing clients, deals, invoicing, payments, and expenses. Designed to be a clean starting point for any business, regardless of vertical.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Multi-Tenant Architecture**: Support for multiple organizations with isolated data.
+- **Client & Contact Management**: Comprehensive CRUD with activity history and notes.
+- **Deal Pipeline**: Track sales engagements from Lead to Completed status.
+- **Asset Inventory**: Manage business resources, products, or service slots.
+- **Flexible Invoicing**: Professional invoice generation with configurable tax modes (None, Single Tax, GST India).
+- **Accounts Receivable & Payable**: Track both client payments and vendor payouts.
+- **Financial Reporting**: Real-time P&L reports, revenue trends, and tax summaries.
+- **Document Storage**: Secure file attachments for deals, invoices, and expenses.
+- **Integrated Dashboard**: High-level KPIs and business performance metrics.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠 Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Frontend**: React 19, Vite, TypeScript, Tailwind CSS, Zustand, TanStack Query, Recharts, Lucide React
+- **Backend**: Node.js, Express.js, Prisma ORM
+- **Database**: PostgreSQL (Prisma support for SQLite/MySQL)
+- **Utilities**: @react-pdf/renderer, jspdf, xlsx, papaparse
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🔄 Generic Workflow
 
-## Learn More
+1. **Onboard Clients**: Add company and contact details to the database.
+2. **Track Deals**: Create new deals/projects and assign associated assets or resources.
+3. **Log Activities**: Track progress and milestones through the activity log system.
+4. **Generate Invoices**: Create professional invoices with automatic tax calculations.
+5. **Reconcile Payments**: Record receivables from clients and payables to vendors.
+6. **Analyze Performance**: Review P&L reports and growth trends on the dashboard.
 
-To learn more about Next.js, take a look at the following resources:
+## 🏁 Getting Started
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Clone the repository.
+2. Install dependencies: `npm install` in both root, backend, and client folders.
+3. Set up your `.env` file (see `.env.example`).
+4. Initialize the database: `npx prisma migrate dev`
+5. Run the development servers: `npm run dev`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*Clean, Modular, and Scalable — adaptable to any industry.*

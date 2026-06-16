@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Mail, Phone, ExternalLink, MapPin, X, Building, User, Loader2, Trash2 } from 'lucide-react';
+import { Plus, Search, Mail, Phone, ExternalLink, MapPin, X, Building, User, Loader2, Trash2, Briefcase } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ExportButton from '../components/ui/ExportButton';
 import toast from 'react-hot-toast';
@@ -14,7 +14,7 @@ const Clients: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     contactPerson: '',
-    state: 'Haryana',
+    state: 'General',
     gstin: '',
     clientType: 'REGULAR',
     phone: '',
@@ -61,7 +61,7 @@ const Clients: React.FC = () => {
       setShowAddModal(false);
       fetchClients();
       setFormData({
-        name: '', contactPerson: '', state: 'Haryana', gstin: '',
+        name: '', contactPerson: '', state: 'General', gstin: '',
         clientType: 'REGULAR', phone: '', email: '', address: '', city: ''
       });
     } catch (error) {
@@ -78,11 +78,11 @@ const Clients: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-xl font-bold text-text-primary">Client Database</h1>
-          <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">Strategic Partnerships · Brand Network</p>
+          <h1 className="text-xl font-bold text-text-primary uppercase tracking-tight">Client Database</h1>
+          <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">Account Management · Business Network</p>
         </div>
         <div className="flex gap-2">
-          <ExportButton data={clients} filename="drishtivision_clients" />
+          <ExportButton data={clients} filename="business_clients" />
           <button onClick={() => setShowAddModal(true)} className="btn-primary text-[12px] py-1.5 flex items-center gap-2 shadow-lg shadow-accent-orange/30">
             <Plus size={16} /> Add Client
           </button>
@@ -94,7 +94,7 @@ const Clients: React.FC = () => {
            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={14} />
            <input 
              type="text" 
-             placeholder="Search by client name, GSTIN, or city..." 
+             placeholder="Search by client name, ID, or city..." 
              className="w-full bg-bg-surface-2 border border-border rounded-lg pl-9 pr-3 py-2 text-[12px] focus:outline-none focus:border-accent-orange transition-colors"
              value={searchTerm}
              onChange={(e) => setSearchTerm(e.target.value)}
@@ -119,9 +119,9 @@ const Clients: React.FC = () => {
                     </span>
                   </div>
                   <div className="flex items-center gap-3 mt-1">
-                     <div className="text-[10px] text-text-muted font-mono uppercase tracking-tighter bg-bg-surface-2 px-1.5 rounded">GST: {client.gstin || 'N/A'}</div>
+                     <div className="text-[10px] text-text-muted font-mono uppercase tracking-tighter bg-bg-surface-2 px-1.5 rounded">ID: {client.id.slice(0, 8)}</div>
                      <div className="flex items-center gap-1 text-[10px] text-text-muted font-bold">
-                        <MapPin size={10} className="text-accent-blue" /> {client.city || 'Pan-India'}
+                        <MapPin size={10} className="text-accent-blue" /> {client.city || 'Primary Location'}
                      </div>
                   </div>
                </div>
@@ -129,8 +129,8 @@ const Clients: React.FC = () => {
 
             <div className="flex items-center gap-10 text-right pr-2">
                <div>
-                  <div className="text-[14px] font-black text-text-primary">{client.campaigns?.length || 0}</div>
-                  <div className="text-[9px] text-text-muted uppercase font-bold tracking-tighter">Campaigns</div>
+                  <div className="text-[14px] font-black text-text-primary">{client.deals?.length || 0}</div>
+                  <div className="text-[9px] text-text-muted uppercase font-bold tracking-tighter">Deals</div>
                </div>
                <div className="flex items-center gap-2 pl-4">
                   <button 
@@ -167,7 +167,7 @@ const Clients: React.FC = () => {
                    <div className="grid grid-cols-2 gap-6">
                       <div className="col-span-2 space-y-2">
                          <label className="text-[10px] font-black text-text-muted uppercase ml-1">Client / Company Name</label>
-                         <input type="text" required className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[13px] outline-none focus:border-accent-orange transition-colors font-bold" placeholder="e.g. Reliance Retail Ltd" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                         <input type="text" required className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[13px] outline-none focus:border-accent-orange transition-colors font-bold" placeholder="e.g. Apex Dynamics" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
                       </div>
                       <div className="space-y-2">
                          <label className="text-[10px] font-black text-text-muted uppercase ml-1">Contact Person</label>
@@ -175,11 +175,11 @@ const Clients: React.FC = () => {
                       </div>
                       <div className="space-y-2">
                          <label className="text-[10px] font-black text-text-muted uppercase ml-1">Phone Number</label>
-                         <input type="text" required className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none" placeholder="10-digit mobile" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+                         <input type="text" required className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none" placeholder="Contact number" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
                       </div>
                       <div className="space-y-2">
-                         <label className="text-[10px] font-black text-text-muted uppercase ml-1">GSTIN</label>
-                         <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none font-mono" placeholder="15-digit GSTIN" value={formData.gstin} onChange={e => setFormData({...formData, gstin: e.target.value})} />
+                         <label className="text-[10px] font-black text-text-muted uppercase ml-1">Tax ID / GSTIN</label>
+                         <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none font-mono" placeholder="Tax Registration No" value={formData.gstin} onChange={e => setFormData({...formData, gstin: e.target.value})} />
                       </div>
                       <div className="space-y-2">
                          <label className="text-[10px] font-black text-text-muted uppercase ml-1">Client Category</label>
@@ -197,7 +197,7 @@ const Clients: React.FC = () => {
                 </div>
                 <div className="p-6 border-t border-border flex justify-end gap-3 bg-bg-surface-2 rounded-b-2xl">
                    <button type="button" onClick={() => setShowAddModal(false)} className="btn-outline px-8 py-2.5 text-[12px]">Discard</button>
-                   <button type="submit" className="px-10 py-2.5 bg-accent-orange text-white rounded-xl text-[12px] font-black uppercase tracking-widest shadow-xl shadow-accent-orange/20 hover:scale-105 transition-transform">Save Partnership</button>
+                   <button type="submit" className="px-10 py-2.5 bg-accent-orange text-white rounded-xl text-[12px] font-black uppercase tracking-widest shadow-xl shadow-accent-orange/20 hover:scale-105 transition-transform">Save Client</button>
                 </div>
               </form>
            </div>

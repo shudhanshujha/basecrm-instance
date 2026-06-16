@@ -7,13 +7,15 @@ async function check() {
     const orgCount = await prisma.organization.count();
     const profileCount = await prisma.profile.count();
     const clientCount = await prisma.client.count();
-    const siteCount = await prisma.site.count();
+    const assetCount = await prisma.asset.count();
+    const dealCount = await prisma.deal.count();
 
     console.log('Database Statistics:');
     console.log(`Organizations: ${orgCount}`);
     console.log(`Profiles: ${profileCount}`);
     console.log(`Clients: ${clientCount}`);
-    console.log(`Sites: ${siteCount}`);
+    console.log(`Assets: ${assetCount}`);
+    console.log(`Deals: ${dealCount}`);
 
     if (profileCount > 0) {
       const firstProfile = await prisma.profile.findFirst({

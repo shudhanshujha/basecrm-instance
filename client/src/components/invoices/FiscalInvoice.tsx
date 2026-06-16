@@ -379,9 +379,6 @@ const FiscalInvoice: React.FC<FiscalInvoiceProps> = ({ invoiceData }) => {
           
           {/* SECTION 1: COMPANY HEADER */}
           <View style={styles.header}>
-            <View style={styles.logoBox}>
-              <Image src="/dvs_logo.jpg" style={styles.logo} />
-            </View>
             <View style={styles.companyInfo}>
               <Text style={styles.companyName}>{invoiceData.seller.name}</Text>
               <Text style={styles.companySubInfo}>{invoiceData.seller.address}</Text>

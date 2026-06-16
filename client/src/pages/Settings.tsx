@@ -4,7 +4,7 @@ import {
   ShieldCheck, Globe, Bell, Save, 
   User, Check, X, Smartphone, Mail,
   Download, FileSpreadsheet, FileText, Trash2, AlertCircle, CheckCircle2,
-  Database, Cloud, RefreshCw, Server, UserPlus, Users, Loader2
+  Database, Cloud, RefreshCw, Server, UserPlus, Users, Loader2, Landmark
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNotificationStore } from '../store/useNotificationStore';
@@ -22,12 +22,13 @@ const Settings: React.FC = () => {
   const [userList, setUserList] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [savingOrg, setSavingOrg] = useState(false);
-  const currentUser = JSON.parse(localStorage.getItem('dv_user') || '{}');
+  const currentUser = JSON.parse(localStorage.getItem('bc_user') || '{}');
   const isAdmin = currentUser.role === 'admin' || currentUser.role === 'super_admin';
 
   const [org, setOrg] = useState<any>({
     id: '',
     name: '',
+    taxMode: 'NONE',
     gstin: '',
     panNumber: '',
     address: '',
@@ -160,15 +161,15 @@ const Settings: React.FC = () => {
   const handleSystemBackup = (format: 'excel') => {
     const backupData = [
       { Module: 'Profile', Status: 'Verified', LastSync: new Date().toLocaleString() },
-      { Module: 'Inventory', Count: 147, Health: '100%' },
-      { Module: 'Finance', Revenue: '₹2.4Cr', Compliance: 'GST Ready' }
+      { Module: 'Assets', Count: 'Healthy', Health: '100%' },
+      { Module: 'Finance', Revenue: 'Verified', Compliance: 'Ready' }
     ];
     
     exportToExcel({
       headers: ['Module', 'Details', 'Timestamp'],
       data: backupData.map(d => Object.values(d)),
-      filename: 'dv_system_full_backup',
-      title: 'DRISHTIVISION SYSTEM BACKUP'
+      filename: 'system_full_backup',
+      title: 'BUSINESS CRM SYSTEM BACKUP'
     });
     toast.success(`Full system backup generated as ${format.toUpperCase()}`);
   };
@@ -177,7 +178,7 @@ const Settings: React.FC = () => {
     <div className="space-y-8 pb-20 max-w-5xl mx-auto">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary uppercase tracking-tight">System Configuration</h1>
+          <h1 className="text-2xl font-bold text-text-primary uppercase tracking-tight">System Settings</h1>
           <p className="text-[12px] text-text-muted mt-1 uppercase tracking-widest font-black">Global Parameters & Data Integrity</p>
         </div>
         <div className="flex gap-3">
@@ -192,7 +193,7 @@ const Settings: React.FC = () => {
         <div className="col-span-1 space-y-1">
           {[
             { id: 'profile', label: 'Company Profile', icon: <Building size={16} /> },
-            { id: 'banking', label: 'Bank Details', icon: <CreditCard size={16} /> },
+            { id: 'banking', label: 'Bank Details', icon: <Landmark size={16} /> },
             { id: 'users', label: 'User Management', icon: <Users size={16} /> },
             { id: 'notifications', label: 'Notification Center', icon: <Bell size={16} /> },
             { id: 'backup', label: 'Data & Backup', icon: <Download size={16} /> },
@@ -232,16 +233,31 @@ const Settings: React.FC = () => {
                     <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Registered Company Name</label>
                     <input type="text" value={org.name} onChange={e => setOrg({...org, name: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all" />
                  </div>
+                 
+                 <div className="col-span-2 space-y-2">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Tax Calculation Mode</label>
+                    <select 
+                      value={org.taxMode || 'NONE'} 
+                      onChange={e => setOrg({...org, taxMode: e.target.value})} 
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all"
+                    >
+                       <option value="NONE">No Tax (Subtotal = Total)</option>
+                       <option value="SINGLE_TAX">Single Flat Tax (VAT/Sales Tax)</option>
+                       <option value="GST_INDIA">GST India (CGST + SGST / IGST)</option>
+                       <option value="CUSTOM">Custom Tax Configuration</option>
+                    </select>
+                 </div>
+
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">GSTIN Number</label>
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Tax ID / GSTIN</label>
                     <input type="text" value={org.gstin || ''} onChange={e => setOrg({...org, gstin: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-mono font-bold text-text-primary outline-none" />
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">PAN Number</label>
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Business Registration No</label>
                     <input type="text" value={org.panNumber || ''} onChange={e => setOrg({...org, panNumber: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-mono font-bold text-text-primary outline-none" />
                  </div>
                  <div className="col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Corporate Address</label>
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Registered Address</label>
                     <textarea rows={3} value={org.address || ''} onChange={e => setOrg({...org, address: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-medium text-text-primary outline-none focus:border-accent-orange" />
                  </div>
               </div>
@@ -253,7 +269,7 @@ const Settings: React.FC = () => {
               <div className="flex items-center justify-between border-b border-border pb-4">
                  <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-accent-blue/10 text-accent-blue rounded-xl flex items-center justify-center shadow-inner">
-                       <CreditCard size={20} />
+                       <Landmark size={20} />
                     </div>
                     <h2 className="text-lg font-bold text-text-primary uppercase tracking-tighter">Settlement Accounts</h2>
                  </div>
@@ -276,7 +292,7 @@ const Settings: React.FC = () => {
                     <input type="text" value={org.accountNumber || ''} onChange={e => setOrg({...org, accountNumber: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-mono font-bold text-text-primary outline-none" />
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">IFSC Code</label>
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Routing / IFSC Code</label>
                     <input type="text" value={org.ifscCode || ''} onChange={e => setOrg({...org, ifscCode: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-mono font-bold text-text-primary outline-none" />
                  </div>
               </div>
@@ -285,7 +301,6 @@ const Settings: React.FC = () => {
 
           {activeSection === 'users' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-               {/* Add User Form */}
                <div className="card space-y-6">
                   <div className="flex items-center gap-3 border-b border-border pb-4">
                      <div className="w-10 h-10 bg-accent-orange/10 text-accent-orange rounded-xl flex items-center justify-center">
@@ -316,7 +331,7 @@ const Settings: React.FC = () => {
                           required
                           value={newUser.email}
                           onChange={e => setNewUser({...newUser, email: e.target.value})}
-                          placeholder="user@drishtivision.com"
+                          placeholder="user@company.com"
                           className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all" 
                         />
                      </div>
@@ -350,7 +365,6 @@ const Settings: React.FC = () => {
                   </form>
                </div>
 
-               {/* User List */}
                <div className="card space-y-4">
                   <div className="flex items-center gap-3 border-b border-border pb-4">
                      <h2 className="text-sm font-black text-text-primary uppercase tracking-widest">Active System Users</h2>
@@ -409,9 +423,9 @@ const Settings: React.FC = () => {
               <div className="flex justify-between items-center border-b border-border pb-4">
                  <div className="flex items-center gap-3">
                     <Bell className="text-accent-orange" />
-                    <h2 className="text-lg font-bold">Recent Alerts History</h2>
+                    <h2 className="text-lg font-bold">Alerts History</h2>
                  </div>
-                 <button onClick={clearAll} className="text-[10px] font-black text-danger hover:underline uppercase tracking-widest flex items-center gap-1"><Trash2 size={12} /> Clear All Notification History</button>
+                 <button onClick={clearAll} className="text-[10px] font-black text-danger hover:underline uppercase tracking-widest flex items-center gap-1"><Trash2 size={12} /> Clear History</button>
               </div>
               <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                 {notifications.length === 0 ? (
@@ -420,7 +434,7 @@ const Settings: React.FC = () => {
                   notifications.map(n => (
                     <div key={n.id} className="p-4 bg-bg-surface-2 rounded-xl border border-border flex gap-4 items-start group">
                        <div className="shrink-0 mt-1">
-                          {n.type === 'CAMPAIGN_END' && <AlertCircle size={18} className="text-warning" />}
+                          {n.type === 'DEAL_END' && <AlertCircle size={18} className="text-warning" />}
                           {n.type === 'INVOICE_DUE' && <AlertCircle size={18} className="text-danger" />}
                           {n.type === 'PAYMENT_RECEIVED' && <CheckCircle2 size={18} className="text-success" />}
                        </div>
@@ -439,16 +453,16 @@ const Settings: React.FC = () => {
              <div className="card space-y-8 animate-in fade-in slide-in-from-right-4">
                 <div className="flex items-center gap-3 border-b border-border pb-4">
                    <Download className="text-accent-blue" />
-                   <h2 className="text-lg font-bold">Data Sovereignty & Backup</h2>
+                   <h2 className="text-lg font-bold uppercase tracking-tight">System Data & Backup</h2>
                 </div>
                 <div className="grid grid-cols-1 max-w-sm mx-auto">
                    <div className="p-6 bg-bg-surface-2 border border-border rounded-2xl flex flex-col items-center text-center gap-4 hover:border-success transition-all cursor-pointer group" onClick={() => handleSystemBackup('excel')}>
                       <div className="w-16 h-16 bg-success/10 text-success rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"><FileSpreadsheet size={32} /></div>
                       <div>
-                         <h3 className="text-sm font-bold">Excel Ledger Backup</h3>
-                         <p className="text-[11px] text-text-muted mt-1">Full data extraction in .xlsx format for Tally/Audit</p>
+                         <h3 className="text-sm font-bold uppercase tracking-tight">Excel Spreadsheet Export</h3>
+                         <p className="text-[11px] text-text-muted mt-1 uppercase font-bold">Full data extraction in .xlsx format</p>
                       </div>
-                      <button className="btn-outline w-full py-2 text-[11px]">Generate Excel</button>
+                      <button className="btn-outline w-full py-2 text-[11px] font-black uppercase">Generate Excel</button>
                    </div>
                 </div>
              </div>
@@ -469,12 +483,11 @@ const Settings: React.FC = () => {
                    className="btn-outline flex items-center gap-2 px-4 py-1.5 text-[11px] font-black uppercase tracking-widest"
                  >
                    <RefreshCw size={14} className={checkingHealth ? 'animate-spin' : ''} />
-                   {checkingHealth ? 'Verifying...' : 'Verify System Integrity'}
+                   {checkingHealth ? 'Verifying...' : 'Verify Integrity'}
                  </button>
               </div>
 
               <div className="grid grid-cols-3 gap-6">
-                 {/* API Status */}
                  <div className="p-5 bg-bg-surface-2 border border-border rounded-2xl space-y-4">
                     <div className="flex justify-between items-start">
                        <div className="p-2 bg-accent-orange/10 text-accent-orange rounded-lg">
@@ -488,11 +501,10 @@ const Settings: React.FC = () => {
                     </div>
                     <div>
                        <h3 className="text-sm font-bold text-text-primary uppercase tracking-tight">Core API</h3>
-                       <p className="text-[10px] text-text-muted mt-1">Vercel Serverless Gateway</p>
+                       <p className="text-[10px] text-text-muted mt-1 uppercase font-bold">Service Gateway</p>
                     </div>
                  </div>
 
-                 {/* Database Status */}
                  <div className="p-5 bg-bg-surface-2 border border-border rounded-2xl space-y-4">
                     <div className="flex justify-between items-start">
                        <div className="p-2 bg-accent-blue/10 text-accent-blue rounded-lg">
@@ -505,20 +517,14 @@ const Settings: React.FC = () => {
                           }`}>
                              {healthStatus?.database || 'UNKNOWN'}
                           </span>
-                          {healthStatus?.db_latency && (
-                            <span className="text-[8px] font-bold text-text-muted italic">{healthStatus.db_latency}</span>
-                          )}
                        </div>
                     </div>
                     <div>
-                       <h3 className="text-sm font-bold text-text-primary uppercase tracking-tight">Supabase DB</h3>
-                       <p className="text-[10px] text-text-muted mt-1">
-                         {healthStatus?.db_info?.host || 'PostgreSQL Master Instance'}
-                       </p>
+                       <h3 className="text-sm font-bold text-text-primary uppercase tracking-tight">Database</h3>
+                       <p className="text-[10px] text-text-muted mt-1 uppercase font-bold">Primary Storage</p>
                     </div>
                  </div>
 
-                 {/* Storage Status */}
                  <div className="p-5 bg-bg-surface-2 border border-border rounded-2xl space-y-4">
                     <div className="flex justify-between items-start">
                        <div className="p-2 bg-success/10 text-success rounded-lg">
@@ -531,52 +537,11 @@ const Settings: React.FC = () => {
                           }`}>
                              {healthStatus?.storage || 'UNKNOWN'}
                           </span>
-                          {healthStatus?.storage_latency && (
-                            <span className="text-[8px] font-bold text-text-muted italic">{healthStatus.storage_latency}</span>
-                          )}
                        </div>
                     </div>
                     <div>
-                       <h3 className="text-sm font-bold text-text-primary uppercase tracking-tight">Backblaze R2</h3>
-                       <p className="text-[10px] text-text-muted mt-1">
-                         {healthStatus?.storage_config?.bucket || 'S3-Compatible File Storage'}
-                       </p>
-                    </div>
-                 </div>
-              </div>
-
-              {healthStatus && (
-                <div className="p-4 bg-bg-primary/50 border border-border rounded-xl flex items-center justify-between">
-                   <div className="flex items-center gap-3">
-                      <AlertCircle size={14} className="text-text-muted" />
-                      <p className="text-[11px] text-text-muted uppercase font-bold tracking-widest">
-                         Last Integrity Audit: {new Date(healthStatus.timestamp || Date.now()).toLocaleString()}
-                      </p>
-                   </div>
-                   {healthStatus.database === 'connected' && healthStatus.storage === 'connected' ? (
-                     <div className="flex items-center gap-2 text-success">
-                        <CheckCircle2 size={14} />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Systems Nominal</span>
-                     </div>
-                   ) : (
-                     <div className="flex items-center gap-2 text-danger">
-                        <AlertCircle size={14} />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Degraded Performance</span>
-                     </div>
-                   )}
-                </div>
-              )}
-
-              <div className="space-y-4">
-                 <h3 className="text-[11px] font-black text-text-muted uppercase tracking-widest">Infrastructure Details</h3>
-                 <div className="grid grid-cols-2 gap-4">
-                    <div className="flex justify-between items-center p-3 bg-bg-surface-2 rounded-xl border border-border">
-                       <span className="text-[11px] text-text-muted">Edge Location</span>
-                       <span className="text-[11px] font-bold text-text-primary">us-east-005 (Global)</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-bg-surface-2 rounded-xl border border-border">
-                       <span className="text-[11px] text-text-muted">Persistence Layer</span>
-                       <span className="text-[11px] font-bold text-text-primary">Prisma / PostgreSQL</span>
+                       <h3 className="text-sm font-bold text-text-primary uppercase tracking-tight">Cloud Storage</h3>
+                       <p className="text-[10px] text-text-muted mt-1 uppercase font-bold">File Persistence</p>
                     </div>
                  </div>
               </div>

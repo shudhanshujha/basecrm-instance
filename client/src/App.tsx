@@ -4,13 +4,13 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
-import Sites from './pages/Sites';
-import SiteDetails from './pages/sites/SiteDetails';
+import Assets from './pages/Assets';
+import AssetDetails from './pages/assets/AssetDetails';
 import Analytics from './pages/Analytics';
 import PLReport from './pages/PLReport';
-import Campaigns from './pages/Campaigns';
-import NewCampaignWizard from './pages/campaigns/NewCampaignWizard';
-import CampaignDetails from './pages/campaigns/CampaignDetails';
+import Deals from './pages/Deals';
+import NewDealWizard from './pages/deals/NewDealWizard';
+import DealDetails from './pages/deals/DealDetails';
 import Clients from './pages/Clients';
 import ClientDetails from './pages/clients/ClientDetails';
 import ExpenseTracker from './pages/ExpenseTracker';
@@ -18,7 +18,6 @@ import Payments from './pages/Payments';
 import GSTBalance from './pages/GSTBalance';
 import Vendors from './pages/Vendors';
 import VendorDetails from './pages/VendorDetails';
-import RecurringSites from './pages/RecurringSites';
 import Settings from './pages/Settings';
 import Invoices from './pages/Invoices';
 import InvoiceGenerator from './pages/invoices/InvoiceGenerator';
@@ -32,7 +31,7 @@ function App() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('dv_token');
+      const token = localStorage.getItem('bc_token');
       if (!token) {
         setIsAuthenticated(false);
         return;
@@ -43,15 +42,15 @@ function App() {
         const payload = JSON.parse(window.atob(token.split('.')[1]));
         if (payload.exp && payload.exp * 1000 < Date.now()) {
           console.warn('Session expired (local check)');
-          localStorage.removeItem('dv_token');
-          localStorage.removeItem('dv_auth');
+          localStorage.removeItem('bc_token');
+          localStorage.removeItem('bc_auth');
           setIsAuthenticated(false);
           return;
         }
       } catch (e) {
         // Clear session on malformed token
-        localStorage.removeItem('dv_token');
-        localStorage.removeItem('dv_auth');
+        localStorage.removeItem('bc_token');
+        localStorage.removeItem('bc_auth');
         setIsAuthenticated(false);
         return;
       }
@@ -61,8 +60,8 @@ function App() {
         setIsAuthenticated(true);
       } catch (err) {
         console.error('Session verification failed:', err);
-        localStorage.removeItem('dv_token');
-        localStorage.removeItem('dv_auth');
+        localStorage.removeItem('bc_token');
+        localStorage.removeItem('bc_auth');
         setIsAuthenticated(false);
       }
     };
@@ -73,8 +72,8 @@ function App() {
   const handleLogin = () => setIsAuthenticated(true);
 
   const handleLogout = async () => {
-    localStorage.removeItem('dv_token');
-    localStorage.removeItem('dv_auth');
+    localStorage.removeItem('bc_token');
+    localStorage.removeItem('bc_auth');
     setIsAuthenticated(false);
   };
 
@@ -103,15 +102,15 @@ function App() {
       <Layout onLogout={handleLogout}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/campaigns" element={<Campaigns />} />
-          <Route path="/campaigns/:id" element={<CampaignDetails />} />
-          <Route path="/campaigns/new" element={<NewCampaignWizard />} />
+          <Route path="/deals" element={<Deals />} />
+          <Route path="/deals/:id" element={<DealDetails />} />
+          <Route path="/deals/new" element={<NewDealWizard />} />
           <Route path="/clients" element={<Clients />} />
           <Route path="/clients/:id" element={<ClientDetails />} />
           <Route path="/vendors" element={<Vendors />} />
           <Route path="/vendors/:id" element={<VendorDetails />} />
-          <Route path="/sites" element={<Sites />} />
-          <Route path="/sites/:id" element={<SiteDetails />} />
+          <Route path="/assets" element={<Assets />} />
+          <Route path="/assets/:id" element={<AssetDetails />} />
           <Route path="/invoices" element={<Invoices />} />
           <Route path="/invoices/new" element={<InvoiceGenerator />} />
           <Route path="/invoices/edit/:id" element={<InvoiceGenerator />} />
@@ -121,7 +120,6 @@ function App() {
           <Route path="/pl-report" element={<PLReport />} />
           <Route path="/gst" element={<GSTBalance />} />
           <Route path="/analytics" element={<Analytics />} />
-          <Route path="/recurring" element={<RecurringSites />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </Layout>

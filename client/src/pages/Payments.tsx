@@ -110,7 +110,7 @@ const Payments: React.FC = () => {
           <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">Settlement History · Cash Flow tracking</p>
         </div>
         <div className="flex gap-2">
-          <ExportButton data={activeTab === 'collections' ? collections : payouts} filename={`drishtivision_${activeTab}_ledger`} />
+          <ExportButton data={activeTab === 'collections' ? collections : payouts} filename={`basecrm_${activeTab}_ledger`} />
           <button onClick={() => setShowModal(true)} className="btn-primary text-[12px] py-1.5 flex items-center gap-2">
             <Plus size={16} /> Record {activeTab === 'collections' ? 'Collection' : 'Payout'}
           </button>

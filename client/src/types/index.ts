@@ -1,19 +1,27 @@
 export interface Vendor {
   id: string;
-  name: string;
+  vendorName: string;
   contactPerson: string;
   email: string;
   phone: string;
   status: 'ACTIVE' | 'INACTIVE';
 }
 
-export interface Campaign {
+export interface Deal {
   id: string;
-  name: string;
+  title: string;
   clientId: string;
   startDate: string;
   endDate: string;
-  budget: number;
+  value: number;
+  status: string;
+}
+
+export interface Asset {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
   status: string;
 }
 
@@ -21,8 +29,8 @@ export interface Invoice {
   id: string;
   invoiceNumber: string;
   clientId: string;
-  amount: number;
-  date: string;
+  totalAmount: number;
+  invoiceDate: string;
   dueDate: string;
   status: string;
 }
@@ -39,6 +47,4 @@ export interface AnalyticsData {
   revenue: number;
   expenses: number;
   profit: number;
-  labels: string[];
-  data: number[];
 }

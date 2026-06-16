@@ -3,7 +3,7 @@ import api from '../lib/axios';
 
 export interface Notification {
   id: string;
-  type: 'CAMPAIGN_END' | 'INVOICE_DUE' | 'PAYMENT_RECEIVED' | 'SYSTEM';
+  type: 'DEAL_END' | 'INVOICE_DUE' | 'PAYMENT_RECEIVED' | 'SYSTEM';
   message: string;
   date: string;
   isRead: boolean;

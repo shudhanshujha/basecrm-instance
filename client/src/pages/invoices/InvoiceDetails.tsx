@@ -12,10 +12,6 @@ const InvoiceDetails: React.FC = () => {
   const [invoice, setInvoice] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchInvoice();
-  }, [id]);
-
   const fetchInvoice = async () => {
     try {
       setIsLoading(true);
@@ -27,6 +23,10 @@ const InvoiceDetails: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchInvoice();
+  }, [id]);
 
   if (isLoading) {
     return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-accent-orange" /></div>;
@@ -47,24 +47,24 @@ const InvoiceDetails: React.FC = () => {
     placeOfSupply: invoice.placeOfSupply || 'HARYANA (06)',
     descriptionHeader: invoice.notes || 'Advertising Services',
     gstConfig: invoice.igstAmount > 0 ? 'INTER' : (invoice.cgstAmount > 0 ? 'INTRA' : 'NONE'),
-    upiId: invoice.upiId || '7015177522@pnb',
+    upiId: invoice.upiId || 'merchant@bank',
     showUpiQr: invoice.showUpiQr !== null ? invoice.showUpiQr : true,
     showDigitalSignature: invoice.showDigitalSignature !== null ? invoice.showDigitalSignature : false,
     signatureUrl: invoice.signatureUrl || '',
     seller: {
-      name: invoice.organization?.name || 'DRISHTI VISION SOLUTION',
-      address: invoice.organization?.address || '2/182, Arya Nagar, Sonepat, 131001, Haryana',
-      phone: invoice.organization?.phone ? [invoice.organization.phone] : ['7015177522', '8307096269'],
-      email: invoice.organization?.email || 'drishtivisionad@gmail.com',
-      gstin: invoice.organization?.gstin || '06AONPP6480J1ZB',
-      msmeRegNo: invoice.organization?.msmeRegNo || 'UDYAM-HR-18-0006940',
-      state: 'HARYANA',
-      stateCode: '06',
+      name: invoice.organization?.name || 'BASE CRM OPERATIONS',
+      address: invoice.organization?.address || '123 Business District, Tech Park, 560001, India',
+      phone: invoice.organization?.phone ? [invoice.organization.phone] : ['+91 9999999999'],
+      email: invoice.organization?.email || 'admin@basecrm.io',
+      gstin: invoice.organization?.gstin || '00AAAAA0000A1Z5',
+      msmeRegNo: invoice.organization?.msmeRegNo || 'UDYAM-XX-00-0000000',
+      state: 'Generic',
+      stateCode: '00',
       bank: invoice.bankDetails ? (typeof invoice.bankDetails === 'string' ? JSON.parse(invoice.bankDetails) : invoice.bankDetails) : {
-        name: 'Punjab National Bank',
-        branch: 'Mission Chowk Sonepat',
-        accountNo: '00561132000617',
-        ifsc: 'PUNB0005610'
+        name: 'Generic Business Bank',
+        branch: 'Main Branch',
+        accountNo: '000000000000',
+        ifsc: 'BANK0000000'
       }
     },
     buyer: {
