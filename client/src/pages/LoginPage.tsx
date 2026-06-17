@@ -20,6 +20,28 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     setError('');
     setLoading(true);
 
+    // --- TEMPORARY FRONTEND BYPASS FOR VERCEL ---
+    if (email.toLowerCase() === 'admin@basecrm.io' && password === 'password123') {
+      const mockUser = {
+        id: 'bypass-admin',
+        email: 'admin@basecrm.io',
+        fullName: 'System Operator',
+        role: 'admin',
+        orgId: 'bypass-org'
+      };
+      localStorage.setItem('bc_token', 'bypass-token-vercel');
+      localStorage.setItem('bc_user', JSON.stringify(mockUser));
+      localStorage.setItem('bc_auth', 'true');
+      
+      setTimeout(() => {
+        toast.success(`Access Granted. Welcome, System Operator`);
+        setLoading(false);
+        onLogin();
+      }, 1000);
+      return;
+    }
+    // --------------------------------------------
+
     try {
       const { data } = await api.post('/auth/login', {
         email,
