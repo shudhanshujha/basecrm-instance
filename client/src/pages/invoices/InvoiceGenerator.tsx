@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
-  ArrowLeft, Plus, Trash2, Loader2, Database, Printer
+  ArrowLeft, Plus, Trash2, Loader2, Database, Printer, QrCode, Eye, EyeOff
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
@@ -466,9 +466,38 @@ const InvoiceGenerator: React.FC = () => {
                 ))}
               </div>
             </div>
+
+            <div className="card space-y-6">
+              <h2 className="text-[12px] font-black text-accent-orange uppercase tracking-[2px] border-b border-border pb-3">04. Payment & UPI QR</h2>
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black text-text-muted uppercase">UPI ID (for QR)</label>
+                  <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[13px] outline-none" value={formData.upiId} onChange={e => setFormData({...formData, upiId: e.target.value})} placeholder="merchant@upi" />
+                </div>
+                {formData.upiId && (
+                  <div className="flex items-center gap-6 p-4 bg-bg-surface-2 rounded-xl border border-border">
+                    <div className="bg-white p-2 rounded-lg shadow-md">
+                      <img src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(`upi://pay?pa=${formData.upiId}&pn=${encodeURIComponent(formData.seller.name)}&am=${totals.grandTotal.toFixed(2)}&cu=INR`)}`} alt="UPI QR" className="w-28 h-28" />
+                    </div>
+                    <div className="space-y-2 text-[11px]">
+                      <p className="font-bold text-text-primary">Scan to Pay</p>
+                      <p className="text-text-muted">UPI: {formData.upiId}</p>
+                      <p className="text-text-muted">Amount: ₹{totals.grandTotal.toFixed(2)}</p>
+                      <button
+                        onClick={() => setFormData({...formData, showUpiQr: !formData.showUpiQr})}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${formData.showUpiQr ? 'bg-success/10 text-success' : 'bg-bg-surface text-text-muted'}`}
+                      >
+                        {formData.showUpiQr ? <Eye size={14} /> : <EyeOff size={14} />}
+                        {formData.showUpiQr ? 'Show on Invoice' : 'Hidden on Invoice'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-
+ 
         <div className="flex-1 bg-bg-surface-2 overflow-hidden p-4 print:p-0 print:bg-white flex flex-col">
           <PDFViewer width="100%" height="100%" showToolbar={false}>
             <FiscalInvoice invoiceData={pdfData} />
