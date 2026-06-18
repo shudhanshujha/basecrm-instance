@@ -55,11 +55,23 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
 
       if (filename.includes('invoice')) {
         flattened['INVOICE NO'] = item.invoiceNumber || 'N/A';
-        flattened['CLIENT'] = item.client?.name || 'N/A';
-        flattened['DATE'] = item.invoiceDate ? format(new Date(item.invoiceDate), 'dd MMM yyyy') : 'N/A';
+        flattened['CLIENT NAME'] = item.client?.name || 'N/A';
+        flattened['CLIENT GSTIN'] = item.client?.gstin || 'N/A';
+        flattened['CLIENT STATE'] = item.client?.state || 'N/A';
+        flattened['INVOICE DATE'] = item.invoiceDate ? format(new Date(item.invoiceDate), 'dd MMM yyyy') : 'N/A';
         flattened['DUE DATE'] = item.dueDate ? format(new Date(item.dueDate), 'dd MMM yyyy') : 'N/A';
-        flattened['TAXABLE AMOUNT'] = item.taxableAmount || 0;
-        flattened['TOTAL'] = item.totalAmount || 0;
+        flattened['TAXABLE AMOUNT'] = item.taxableAmount || item.subtotal || 0;
+        flattened['CGST RATE'] = item.cgstRate ? `${item.cgstRate}%` : (item.cgstAmount > 0 ? '9%' : '0%');
+        flattened['CGST AMOUNT'] = item.cgstAmount || 0;
+        flattened['SGST RATE'] = item.sgstRate ? `${item.sgstRate}%` : (item.sgstAmount > 0 ? '9%' : '0%');
+        flattened['SGST AMOUNT'] = item.sgstAmount || 0;
+        flattened['IGST RATE'] = item.igstRate ? `${item.igstRate}%` : (item.igstAmount > 0 ? '18%' : '0%');
+        flattened['IGST AMOUNT'] = item.igstAmount || 0;
+        flattened['TOTAL TAX'] = (item.cgstAmount || 0) + (item.sgstAmount || 0) + (item.igstAmount || 0);
+        flattened['DISCOUNT'] = item.discount || 0;
+        flattened['TOTAL AMOUNT'] = item.totalAmount || 0;
+        flattened['AMOUNT IN WORDS'] = item.amountInWords || '';
+        flattened['LINKED DEAL'] = item.deal?.title || item.dealTitle || 'N/A';
         flattened['STATUS'] = item.status || 'N/A';
         return flattened;
       }
