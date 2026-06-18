@@ -18,7 +18,7 @@
   --color-bg-primary-light: #f0f2f5;
   --color-bg-surface-light: rgba(255, 255, 255, 0.9);
   --color-bg-surface-2-light: #eef2f6;
-  --color-border-light: rgba(112, 0, 255, 0.1);
+  --color-border-light: #d1d5db;
 }
 
 @layer base {
@@ -36,7 +36,7 @@
     --color-bg-primary: #f0f2f5;
     --color-bg-surface: rgba(255, 255, 255, 0.9);
     --color-bg-surface-2: #eef2f6;
-    --color-border: rgba(0, 0, 0, 0.1);
+    --color-border: #d1d5db;
     --color-accent-orange: #ea580c;
     --color-accent-blue: #2563eb;
     --color-accent-purple: #7c3aed;
