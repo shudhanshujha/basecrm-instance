@@ -28,7 +28,11 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
   const getFilteredData = () => {
     const now = new Date();
     return data.filter(item => {
-      const itemDate = new Date(item.date || item.invoiceDate || item.createdAt || item.paymentDate || now);
+      if (timeRange === 'all') return true;
+      const dateField = item.date || item.invoiceDate || item.paymentDate || item.createdAt;
+      if (!dateField) return false;
+      const itemDate = new Date(dateField);
+      if (isNaN(itemDate.getTime())) return false;
       switch (timeRange) {
         case '30d': return isAfter(itemDate, subDays(now, 30));
         case '90d': return isAfter(itemDate, subDays(now, 90));
@@ -44,6 +48,89 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
       const flattened: Record<string, any> = {};
       
       // ENTITY-SPECIFIC MAPPING
+      if (filename.includes('client')) {
+        flattened['CLIENT NAME'] = item.name || 'N/A';
+        flattened['CONTACT PERSON'] = item.contactPerson || 'N/A';
+        flattened['PHONE'] = item.phone || 'N/A';
+        flattened['EMAIL'] = item.email || 'N/A';
+        flattened['ADDRESS'] = item.address || 'N/A';
+        flattened['CITY'] = item.city || 'N/A';
+        flattened['STATE'] = item.state || 'N/A';
+        flattened['GSTIN'] = item.gstin || 'N/A';
+        flattened['PAN'] = item.panNumber || 'N/A';
+        flattened['TYPE'] = item.clientType || 'N/A';
+        flattened['NOTES'] = item.notes || '';
+        flattened['TOTAL DEALS'] = item.deals?.length || 0;
+        flattened['TOTAL INVOICES'] = item.invoices?.length || 0;
+        flattened['CREATED AT'] = item.createdAt ? format(new Date(item.createdAt), 'dd MMM yyyy') : 'N/A';
+        return flattened;
+      }
+
+      if (filename.includes('expense')) {
+        flattened['DATE'] = item.date ? format(new Date(item.date), 'dd MMM yyyy') : 'N/A';
+        flattened['CATEGORY'] = item.category || 'N/A';
+        flattened['AMOUNT'] = item.amount || 0;
+        flattened['DESCRIPTION'] = item.description || '';
+        flattened['PAYMENT MODE'] = item.paymentMode || 'N/A';
+        flattened['REFERENCE NO'] = item.referenceNumber || '';
+        flattened['GSTIN'] = item.gstin || '';
+        flattened['TAXABLE AMOUNT'] = item.taxableAmount || 0;
+        flattened['CGST'] = item.cgstAmount || 0;
+        flattened['SGST'] = item.sgstAmount || 0;
+        flattened['IGST'] = item.igstAmount || 0;
+        flattened['CREATED AT'] = item.createdAt ? format(new Date(item.createdAt), 'dd MMM yyyy') : 'N/A';
+        return flattened;
+      }
+
+      if (filename.includes('vendor')) {
+        flattened['VENDOR NAME'] = item.vendorName || 'N/A';
+        flattened['CONTACT PERSON'] = item.contactPerson || 'N/A';
+        flattened['PHONE'] = item.phone || 'N/A';
+        flattened['EMAIL'] = item.email || 'N/A';
+        flattened['ADDRESS'] = item.address || 'N/A';
+        flattened['CITY'] = item.city || 'N/A';
+        flattened['GSTIN'] = item.gstin || 'N/A';
+        flattened['PAN'] = item.panNumber || 'N/A';
+        flattened['TYPE'] = item.vendorType || 'N/A';
+        flattened['BANK NAME'] = item.bankName || '';
+        flattened['ACCOUNT NO'] = item.accountNumber || '';
+        flattened['IFSC'] = item.ifscCode || '';
+        flattened['STATUS'] = item.status || 'N/A';
+        flattened['NOTES'] = item.notes || '';
+        flattened['TOTAL CONTRACTS'] = item.vendorContracts?.length || 0;
+        flattened['CREATED AT'] = item.createdAt ? format(new Date(item.createdAt), 'dd MMM yyyy') : 'N/A';
+        return flattened;
+      }
+
+      if (filename.includes('collection')) {
+        flattened['PAYMENT DATE'] = item.paymentDate ? format(new Date(item.paymentDate), 'dd MMM yyyy') : 'N/A';
+        flattened['AMOUNT'] = item.amount || 0;
+        flattened['PAYMENT MODE'] = item.paymentMode || 'N/A';
+        flattened['REFERENCE NO'] = item.referenceNumber || '';
+        flattened['BANK NAME'] = item.bankName || '';
+        flattened['CHEQUE NO'] = item.chequeNumber || '';
+        flattened['NOTES'] = item.notes || '';
+        flattened['CLIENT NAME'] = item.client?.name || 'N/A';
+        flattened['CLIENT GSTIN'] = item.client?.gstin || '';
+        flattened['INVOICE NO'] = item.invoice?.invoiceNumber || 'N/A';
+        flattened['INVOICE AMOUNT'] = item.invoice?.totalAmount || 0;
+        return flattened;
+      }
+
+      if (filename.includes('payout')) {
+        flattened['PAYMENT DATE'] = item.paymentDate ? format(new Date(item.paymentDate), 'dd MMM yyyy') : 'N/A';
+        flattened['AMOUNT'] = item.amount || 0;
+        flattened['PAYMENT MODE'] = item.paymentMode || 'N/A';
+        flattened['REFERENCE NO'] = item.referenceNumber || '';
+        flattened['PURPOSE'] = item.purpose || '';
+        flattened['NOTES'] = item.notes || '';
+        flattened['VENDOR NAME'] = item.vendor?.vendorName || 'N/A';
+        flattened['VENDOR GSTIN'] = item.vendor?.gstin || '';
+        flattened['MONTH'] = item.month || '';
+        flattened['YEAR'] = item.year || '';
+        return flattened;
+      }
+
       if (filename.includes('asset')) {
         flattened['ASSET NAME'] = item.name || 'N/A';
         flattened['CATEGORY'] = item.category || 'N/A';
@@ -114,9 +201,11 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
       'Total Records': mappedData.length,
     };
 
-    const amountKeys = Object.keys(mappedData[0] || {}).filter(k => 
-      k.toLowerCase().includes('amount') || k.toLowerCase().includes('total') || k.toLowerCase().includes('value') || k.toLowerCase().includes('rate')
-    );
+    const amountKeys = Object.keys(mappedData[0] || {}).filter(k => {
+      const key = k.toLowerCase();
+      if (key.includes('rate') || key.includes('name') || key.includes('words')) return false;
+      return key.includes('amount') || key.includes('total') || key.includes('value');
+    });
 
     amountKeys.forEach(key => {
       const total = mappedData.reduce((sum, row) => {
