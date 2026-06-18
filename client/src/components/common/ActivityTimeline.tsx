@@ -63,10 +63,10 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
                      <span className="text-[9px] font-black uppercase tracking-[2px] opacity-40">·</span>
                      <span className="text-[9px] font-black uppercase tracking-[2px] opacity-40">{format(new Date(activity.date), 'dd MMM yyyy')}</span>
                   </div>
-                  <h4 className="text-[14px] font-bold text-white mt-1 tracking-tight">{activity.title}</h4>
-               </div>
-               <div className="text-right">
-                  <div className="text-[14px] font-black text-white">₹{activity.value.toLocaleString()}</div>
+                   <h4 className="text-[14px] font-bold text-text-primary mt-1 tracking-tight">{activity.title}</h4>
+                </div>
+                <div className="text-right">
+                   <div className="text-[14px] font-black text-text-primary">₹{activity.value.toLocaleString()}</div>
                   <div className={`text-[8px] font-black uppercase px-2 py-0.5 rounded mt-2 inline-block ${
                     activity.status === 'PAID' || activity.status === 'WON' || activity.status === 'COMPLETED'
                       ? 'bg-success/10 text-success border border-success/20'
@@ -78,7 +78,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
             </div>
             
             <div className="mt-4 flex justify-end">
-               <button className="text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-white flex items-center gap-2 transition-all">
+               <button className="text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-text-primary flex items-center gap-2 transition-all">
                   Inspect Node <ArrowRight size={12} />
                </button>
             </div>

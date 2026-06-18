@@ -37,7 +37,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ deals, onStatusChange, onView
             <div className={`flex justify-between items-center mb-4 pb-2 border-b-2 ${col.color}`}>
               <div className="flex items-center gap-2">
                 <div className={`w-2 h-2 rounded-full ${col.dot}`} />
-                <h3 className="text-[11px] font-black uppercase tracking-[2px] text-white">
+                <h3 className="text-[11px] font-black uppercase tracking-[2px] text-text-primary">
                   {col.label} <span className="ml-1 opacity-40">({colDeals.length})</span>
                 </h3>
               </div>
@@ -56,10 +56,10 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ deals, onStatusChange, onView
                     className="group bg-bg-surface/40 border border-white/5 p-4 rounded-2xl hover:border-white/20 transition-all cursor-grab active:cursor-grabbing shadow-lg"
                   >
                     <div className="flex justify-between items-start mb-3">
-                      <h4 className="text-[13px] font-bold text-white group-hover:text-accent-orange transition-colors truncate pr-4">
+                      <h4 className="text-[13px] font-bold text-text-primary group-hover:text-accent-orange transition-colors truncate pr-4">
                         {deal.title}
                       </h4>
-                      <button className="text-text-muted hover:text-white transition-colors">
+                      <button className="text-text-muted hover:text-text-primary transition-colors">
                         <MoreVertical size={14} />
                       </button>
                     </div>

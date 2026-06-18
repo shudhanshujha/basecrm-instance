@@ -203,13 +203,13 @@ const ClientDetails: React.FC = () => {
                                  <Briefcase size={20} />
                               </div>
                               <div>
-                                 <p className="text-[13px] font-bold text-white uppercase tracking-tight">{d.title}</p>
-                                 <p className="text-[10px] text-text-muted mt-0.5 uppercase font-black tracking-widest">{format(new Date(d.startDate), 'dd MMM yy')} — {format(new Date(d.endDate), 'dd MMM yy')}</p>
-                              </div>
-                           </div>
-                           <div className="flex items-center gap-8 text-right">
-                              <div>
-                                 <p className="text-[14px] font-black text-white">₹{d.value?.toLocaleString() || 0}</p>
+                                  <p className="text-[13px] font-bold text-text-primary uppercase tracking-tight">{d.title}</p>
+                                  <p className="text-[10px] text-text-muted mt-0.5 uppercase font-black tracking-widest">{format(new Date(d.startDate), 'dd MMM yy')} — {format(new Date(d.endDate), 'dd MMM yy')}</p>
+                               </div>
+                            </div>
+                            <div className="flex items-center gap-8 text-right">
+                               <div>
+                                  <p className="text-[14px] font-black text-text-primary">₹{d.value?.toLocaleString() || 0}</p>
                                  <p className="text-[9px] text-text-muted uppercase font-bold tracking-tighter">Agreement Value</p>
                               </div>
                               <span className={`text-[8px] font-black uppercase px-2.5 py-0.5 rounded-lg text-white border ${d.status === 'ACTIVE' ? 'bg-success/10 text-success border-success/20' : 'bg-accent-blue/10 text-accent-blue border-accent-blue/20'}`}>
@@ -233,13 +233,13 @@ const ClientDetails: React.FC = () => {
                                  <FileText size={18} />
                               </div>
                               <div>
-                                 <p className="text-[13px] font-black text-white uppercase tracking-tight">#{inv.invoiceNumber}</p>
-                                 <p className="text-[10px] text-text-muted mt-1 uppercase font-bold">{format(new Date(inv.invoiceDate), 'dd MMMM yyyy')}</p>
-                              </div>
-                           </div>
-                           <div className="text-right flex items-center gap-10">
-                              <div>
-                                 <p className="text-[14px] font-black text-white">₹{inv.totalAmount.toLocaleString()}</p>
+                                  <p className="text-[13px] font-black text-text-primary uppercase tracking-tight">#{inv.invoiceNumber}</p>
+                                  <p className="text-[10px] text-text-muted mt-1 uppercase font-bold">{format(new Date(inv.invoiceDate), 'dd MMMM yyyy')}</p>
+                               </div>
+                            </div>
+                            <div className="text-right flex items-center gap-10">
+                               <div>
+                                  <p className="text-[14px] font-black text-text-primary">₹{inv.totalAmount.toLocaleString()}</p>
                                  <p className="text-[9px] text-text-muted uppercase font-black tracking-widest mt-1">Total Due</p>
                               </div>
                               <span className={`text-[8px] font-black uppercase px-3 py-1 rounded-lg border ${inv.status === 'PAID' ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
@@ -262,7 +262,7 @@ const ClientDetails: React.FC = () => {
                                  <CreditCard size={18} />
                               </div>
                               <div>
-                                 <p className="text-[13px] font-black text-white uppercase tracking-tight">Payment Receipt</p>
+                                  <p className="text-[13px] font-black text-text-primary uppercase tracking-tight">Payment Receipt</p>
                                  <p className="text-[10px] text-text-muted mt-1 uppercase font-bold">{format(new Date(p.paymentDate), 'dd MMMM yyyy')} · {p.paymentMode}</p>
                               </div>
                            </div>

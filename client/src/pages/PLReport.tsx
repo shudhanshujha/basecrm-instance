@@ -63,9 +63,9 @@ const PLReport: React.FC = () => {
            <div className="text-[10px] text-text-muted uppercase tracking-widest font-black">Gross Income</div>
            <div className="text-xl font-black text-text-primary mt-2">₹{pl.income.total?.toLocaleString() || 0}</div>
         </div>
-        <div className="card flex flex-col justify-center border-border/40 text-white min-h-[100px]">
+        <div className="card flex flex-col justify-center border-border/40 min-h-[100px]">
            <div className="text-[10px] text-text-muted uppercase tracking-widest font-black">Total Operating Costs</div>
-           <div className="text-xl font-black text-white mt-2">₹{pl.expenses.total?.toLocaleString() || 0}</div>
+           <div className="text-xl font-black text-text-primary mt-2">₹{pl.expenses.total?.toLocaleString() || 0}</div>
         </div>
         <div className="card flex flex-col justify-center border-border/40 min-h-[100px]">
            <div className="text-[10px] text-text-muted uppercase tracking-widest font-black">Tax Liability (GST/VAT)</div>
@@ -116,9 +116,9 @@ const PLReport: React.FC = () => {
               <div className="flex justify-between items-center p-4 bg-bg-surface-2 rounded-xl border border-border">
                 <div className="flex flex-col">
                   <span className="text-[10px] text-text-primary uppercase font-black tracking-widest">Net Operating Profit</span>
-                  <span className="text-xs text-white mt-1 italic opacity-70">Before Tax Provisions</span>
+                  <span className="text-xs text-text-muted mt-1 italic opacity-70">Before Tax Provisions</span>
                 </div>
-                <span className="text-2xl font-black text-white tracking-tighter">₹{(pl.income.total - pl.expenses.total)?.toLocaleString() || 0}</span>
+                <span className="text-2xl font-black text-text-primary tracking-tighter">₹{(pl.income.total - pl.expenses.total)?.toLocaleString() || 0}</span>
               </div>
             </div>
          </div>

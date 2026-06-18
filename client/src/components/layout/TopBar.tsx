@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useThemeStore } from '../../store/useThemeStore';
 import { useNotificationStore } from '../../store/useNotificationStore';
-import { Sun, Moon, Bell, CheckCircle2, AlertCircle, IndianRupee, LogOut, Layout, Orbit } from 'lucide-react';
+import { Bell, CheckCircle2, AlertCircle, LogOut, Orbit } from 'lucide-react';
 
 const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
-  const { isDarkMode, toggleTheme } = useThemeStore();
   const { notifications, fetchNotifications, markAsRead, clearAll } = useNotificationStore();
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
@@ -46,13 +44,6 @@ const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
       </div>
 
       <div className="flex items-center gap-4">
-        <button 
-          onClick={toggleTheme}
-          className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-text-muted hover:text-accent-blue hover:border-accent-blue/50 transition-all duration-300 group"
-        >
-          {isDarkMode ? <Sun size={18} className="group-hover:rotate-45 transition-transform" /> : <Moon size={18} className="group-hover:-rotate-12 transition-transform" />}
-        </button>
-
         <div className="relative" ref={notificationRef}>
           <div 
             onClick={() => setShowNotifications(!showNotifications)}

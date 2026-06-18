@@ -46,7 +46,7 @@ const KPICard: React.FC<KPICardProps> = ({ label, value, trend, trendType }) => 
 
       <div>
         <div className="text-[10px] text-text-muted uppercase font-black tracking-[2px] mb-1 opacity-70 group-hover:text-text-primary transition-colors">{label}</div>
-        <div className="text-2xl font-black text-white tracking-tight group-hover:translate-x-1 transition-transform duration-300">{value}</div>
+        <div className="text-2xl font-black text-text-primary tracking-tight group-hover:translate-x-1 transition-transform duration-300">{value}</div>
         {trend && (
            <div className="text-[8px] text-text-muted mt-2 font-bold uppercase tracking-widest opacity-50 group-hover:opacity-100 transition-opacity">
              {trend.split(' ').slice(1).join(' ')}
