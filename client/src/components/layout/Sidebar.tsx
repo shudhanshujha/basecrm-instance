@@ -21,39 +21,41 @@ import api from '../../lib/axios';
 
 const Sidebar = () => {
   return (
-    <div className="w-[240px] bg-bg-surface/40 border-r border-border h-full flex flex-col backdrop-blur-xl relative overflow-hidden">
+    <div className="app-sidebar w-[240px] bg-bg-surface/40 border-r border-border h-full flex flex-col backdrop-blur-xl relative">
       {/* Decorative background element */}
       <div className="absolute top-[-100px] left-[-100px] w-64 h-64 bg-accent-purple/5 rounded-full blur-[80px] pointer-events-none" />
       
-      <div className="px-4 py-8">
-        <div className="text-[10px] font-black text-accent-blue uppercase tracking-[3px] px-2 mb-6 animate-pulse">Command Center</div>
-        <div className="flex flex-col gap-1.5">
-          <NavItem to="/" icon={<LayoutDashboard size={18} />} label="Dashboard" />
-          <NavItem to="/deals" icon={<Zap size={18} />} label="Deals" />
-          <NavItem to="/clients" icon={<Users size={18} />} label="Clients" />
-          <NavItem to="/vendors" icon={<Truck size={18} />} label="Vendors" />
-          <NavItem to="/assets" icon={<Package size={18} />} label="Assets" />
+      <div className="flex-1 overflow-y-auto px-4 py-8 space-y-8">
+        <div>
+          <div className="text-[10px] font-black text-accent-blue uppercase tracking-[3px] px-2 mb-6 animate-pulse">Command Center</div>
+          <div className="flex flex-col gap-1.5">
+            <NavItem to="/" icon={<LayoutDashboard size={18} />} label="Dashboard" />
+            <NavItem to="/deals" icon={<Zap size={18} />} label="Deals" />
+            <NavItem to="/clients" icon={<Users size={18} />} label="Clients" />
+            <NavItem to="/vendors" icon={<Truck size={18} />} label="Vendors" />
+            <NavItem to="/assets" icon={<Package size={18} />} label="Assets" />
+          </div>
         </div>
-      </div>
 
-      <div className="px-4 mb-8">
-        <div className="text-[10px] font-black text-accent-purple uppercase tracking-[3px] px-2 mb-6 border-l-2 border-accent-purple/50 pl-3">Treasury</div>
-        <div className="flex flex-col gap-1.5">
-          <NavItem to="/invoices" icon={<FileText size={18} />} label="Invoices" />
-          <NavItem to="/expenses" icon={<Activity size={18} />} label="Expenses" />
-          <NavItem to="/payments" icon={<CreditCard size={18} />} label="Payments" />
-          <NavItem to="/pl-report" icon={<BarChart3 size={18} />} label="P&L Report" />
+        <div>
+          <div className="text-[10px] font-black text-accent-purple uppercase tracking-[3px] px-2 mb-6 border-l-2 border-accent-purple/50 pl-3">Treasury</div>
+          <div className="flex flex-col gap-1.5">
+            <NavItem to="/invoices" icon={<FileText size={18} />} label="Invoices" />
+            <NavItem to="/expenses" icon={<Activity size={18} />} label="Expenses" />
+            <NavItem to="/payments" icon={<CreditCard size={18} />} label="Payments" />
+            <NavItem to="/pl-report" icon={<BarChart3 size={18} />} label="P&L Report" />
+          </div>
         </div>
-      </div>
 
-      <div className="px-4 mb-8 flex-1">
-        <div className="text-[10px] font-black text-success uppercase tracking-[3px] px-2 mb-6 border-l-2 border-success/50 pl-3">Intelligence</div>
-        <div className="flex flex-col gap-1.5">
-          <NavItem to="/analytics" icon={<LineChart size={18} />} label="Analytics" />
+        <div>
+          <div className="text-[10px] font-black text-success uppercase tracking-[3px] px-2 mb-6 border-l-2 border-success/50 pl-3">Intelligence</div>
+          <div className="flex flex-col gap-1.5">
+            <NavItem to="/analytics" icon={<LineChart size={18} />} label="Analytics" />
+          </div>
         </div>
       </div>
       
-      <div className="px-4 mb-6 pt-4 border-t border-border/40">
+      <div className="px-4 py-4 border-t border-border/40 shrink-0 bg-bg-surface/60">
         <NavItem to="/settings" icon={<Cpu size={18} />} label="Settings" />
       </div>
     </div>

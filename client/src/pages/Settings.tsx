@@ -4,7 +4,7 @@ import {
   ShieldCheck, Globe, Bell, Save, 
   User, Check, X, Smartphone, Mail,
   Download, FileSpreadsheet, FileText, Trash2, AlertCircle, CheckCircle2,
-  Database, Cloud, RefreshCw, Server, UserPlus, Users, Loader2, Landmark
+  Database, Cloud, RefreshCw, Server, Users, Loader2, Landmark
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNotificationStore } from '../store/useNotificationStore';
@@ -38,12 +38,12 @@ const Settings: React.FC = () => {
     ifscCode: ''
   });
 
-  const [newUser, setNewUser] = useState({
-    email: '',
-    password: '',
-    fullName: '',
-    role: 'member'
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
   });
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     fetchInitialData();
@@ -91,41 +91,36 @@ const Settings: React.FC = () => {
     }
   };
 
-  const handleCreateUser = async (e: React.FormEvent) => {
+  const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await api.post('/auth/register', newUser);
-      toast.success('User created successfully');
-      setNewUser({ email: '', password: '', fullName: '', role: 'member' });
-      fetchUsers();
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to create user');
-    }
-  };
-
-  const handleDeleteUser = async (id: string, name: string) => {
-    if (!isAdmin) return;
-    if (id === currentUser.id) {
-      toast.error('You cannot delete your own administrative account');
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast.error('New passwords do not match');
       return;
     }
-
-    if (window.confirm(`Are you sure you want to PERMANENTLY delete the account for ${name}? This action cannot be undone.`)) {
-      try {
-        await api.delete(`/auth/users/${id}`);
-        toast.success('User account removed');
-        fetchUsers();
-      } catch (err: any) {
-        toast.error(err.response?.data?.error || 'Failed to delete user');
-      }
+    if (passwordForm.newPassword.length < 6) {
+      toast.error('New password must be at least 6 characters');
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      await api.patch('/auth/password', {
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword
+      });
+      toast.success('Password changed successfully');
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to change password');
+    } finally {
+      setChangingPassword(false);
     }
   };
 
-  const handleResetPassword = async (id: string, name: string) => {
+  const handleAdminResetPassword = async (id: string, name: string) => {
     if (!isAdmin) return;
     const newPassword = window.prompt(`Enter new password for ${name}:`, '');
     
-    if (newPassword === null) return; // Cancelled
+    if (newPassword === null) return;
     if (newPassword.length < 6) {
       toast.error('Password must be at least 6 characters');
       return;
@@ -301,120 +296,100 @@ const Settings: React.FC = () => {
 
           {activeSection === 'users' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-               <div className="card space-y-6">
-                  <div className="flex items-center gap-3 border-b border-border pb-4">
-                     <div className="w-10 h-10 bg-accent-orange/10 text-accent-orange rounded-xl flex items-center justify-center">
-                        <UserPlus size={20} />
-                     </div>
-                     <div>
-                        <h2 className="text-lg font-bold text-text-primary uppercase tracking-tighter">Add New User</h2>
-                        <p className="text-[10px] text-text-muted uppercase font-bold tracking-widest">Grant access to the system</p>
-                     </div>
+              <div className="card space-y-6">
+                <div className="flex items-center gap-3 border-b border-border pb-4">
+                  <div className="w-10 h-10 bg-accent-orange/10 text-accent-orange rounded-xl flex items-center justify-center">
+                    <ShieldCheck size={20} />
                   </div>
-                  
-                  <form onSubmit={handleCreateUser} className="grid grid-cols-2 gap-4">
-                     <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Full Name</label>
-                        <input 
-                          type="text" 
-                          required
-                          value={newUser.fullName}
-                          onChange={e => setNewUser({...newUser, fullName: e.target.value})}
-                          placeholder="e.g. John Doe"
-                          className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all" 
-                        />
-                     </div>
-                     <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Email Address</label>
-                        <input 
-                          type="email" 
-                          required
-                          value={newUser.email}
-                          onChange={e => setNewUser({...newUser, email: e.target.value})}
-                          placeholder="user@company.com"
-                          className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all" 
-                        />
-                     </div>
-                     <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Password</label>
-                        <input 
-                          type="password" 
-                          required
-                          value={newUser.password}
-                          onChange={e => setNewUser({...newUser, password: e.target.value})}
-                          placeholder="••••••••"
-                          className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all" 
-                        />
-                     </div>
-                     <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">System Role</label>
-                        <select 
-                          value={newUser.role}
-                          onChange={e => setNewUser({...newUser, role: e.target.value})}
-                          className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all"
-                        >
-                           <option value="member">Member (View & Edit)</option>
-                           <option value="admin">Administrator (Full Access)</option>
-                        </select>
-                     </div>
-                     <div className="col-span-2 pt-2">
-                        <button type="submit" className="btn-primary w-full py-3 flex items-center justify-center gap-2 shadow-lg shadow-accent-orange/20">
-                           <UserPlus size={16} /> Create User Account
-                        </button>
-                     </div>
-                  </form>
-               </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-text-primary uppercase tracking-tighter">Change Password</h2>
+                    <p className="text-[10px] text-text-muted uppercase font-bold tracking-widest">Enter your current password to set a new one</p>
+                  </div>
+                </div>
 
-               <div className="card space-y-4">
+                <form onSubmit={handleChangePassword} className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Current Password</label>
+                    <input 
+                      type="password" 
+                      required
+                      value={passwordForm.currentPassword}
+                      onChange={e => setPasswordForm({...passwordForm, currentPassword: e.target.value})}
+                      placeholder="Enter current password"
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all" 
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">New Password</label>
+                    <input 
+                      type="password" 
+                      required
+                      value={passwordForm.newPassword}
+                      onChange={e => setPasswordForm({...passwordForm, newPassword: e.target.value})}
+                      placeholder="At least 6 characters"
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all" 
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Confirm New Password</label>
+                    <input 
+                      type="password" 
+                      required
+                      value={passwordForm.confirmPassword}
+                      onChange={e => setPasswordForm({...passwordForm, confirmPassword: e.target.value})}
+                      placeholder="Repeat new password"
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all" 
+                    />
+                  </div>
+                  <div className="col-span-2 pt-2">
+                    <button type="submit" disabled={changingPassword} className="btn-primary w-full py-3 flex items-center justify-center gap-2 shadow-lg shadow-accent-orange/20">
+                      {changingPassword ? <Loader2 size={16} className="animate-spin" /> : <ShieldCheck size={16} />} Change Password
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {isAdmin && (
+                <div className="card space-y-4">
                   <div className="flex items-center gap-3 border-b border-border pb-4">
-                     <h2 className="text-sm font-black text-text-primary uppercase tracking-widest">Active System Users</h2>
+                    <h2 className="text-sm font-black text-text-primary uppercase tracking-widest">Active System Users</h2>
                   </div>
                   <div className="space-y-2">
-                     {loadingUsers ? (
-                       <div className="p-8 text-center text-text-muted italic">Loading users...</div>
-                     ) : userList.length === 0 ? (
-                        <div className="p-8 text-center text-text-muted italic">No users found.</div>
-                     ) : userList.map(user => (
-                        <div key={user.id} className="flex items-center justify-between p-4 bg-bg-surface-2 border border-border rounded-xl">
-                           <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-bg-surface border border-border rounded-lg flex items-center justify-center text-text-muted font-bold text-[10px]">
-                                 {user.fullName?.split(' ').map((n: any) => n[0]).join('')}
-                              </div>
-                              <div>
-                                 <p className="text-[13px] font-bold text-text-primary">{user.fullName}</p>
-                                 <p className="text-[11px] text-text-muted">{user.email}</p>
-                              </div>
-                           </div>
-                           <div className="flex items-center gap-4">
-                              <div className="flex items-center gap-2 mr-4">
-                                {isAdmin && user.id !== currentUser.id && (
-                                  <>
-                                    <button 
-                                      onClick={() => handleResetPassword(user.id, user.fullName)}
-                                      className="p-2 text-text-muted hover:text-accent-orange transition-colors"
-                                      title="Reset Password"
-                                    >
-                                      <RefreshCw size={14} />
-                                    </button>
-                                    <button 
-                                      onClick={() => handleDeleteUser(user.id, user.fullName)}
-                                      className="p-2 text-text-muted hover:text-danger transition-colors"
-                                      title="Delete Account"
-                                    >
-                                      <Trash2 size={14} />
-                                    </button>
-                                  </>
-                                )}
-                              </div>
-                              <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${user.role === 'admin' ? 'bg-accent-orange text-white' : 'bg-accent-blue text-white'}`}>
-                                 {user.role}
-                              </span>
-                              <p className="text-[10px] text-text-muted font-bold uppercase">{new Date(user.createdAt).toLocaleDateString()}</p>
-                           </div>
+                    {loadingUsers ? (
+                      <div className="p-8 text-center text-text-muted italic">Loading users...</div>
+                    ) : userList.length === 0 ? (
+                      <div className="p-8 text-center text-text-muted italic">No users found.</div>
+                    ) : userList.map(user => (
+                      <div key={user.id} className="flex items-center justify-between p-4 bg-bg-surface-2 border border-border rounded-xl">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-bg-surface border border-border rounded-lg flex items-center justify-center text-text-muted font-bold text-[10px]">
+                            {user.fullName?.split(' ').map((n: any) => n[0]).join('')}
+                          </div>
+                          <div>
+                            <p className="text-[13px] font-bold text-text-primary">{user.fullName}</p>
+                            <p className="text-[11px] text-text-muted">{user.email}</p>
+                          </div>
                         </div>
-                     ))}
+                        <div className="flex items-center gap-4">
+                          {user.id !== currentUser.id && (
+                            <button 
+                              onClick={() => handleAdminResetPassword(user.id, user.fullName)}
+                              className="p-2 text-text-muted hover:text-accent-orange transition-colors"
+                              title="Reset Password"
+                            >
+                              <RefreshCw size={14} />
+                            </button>
+                          )}
+                          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${user.role === 'admin' ? 'bg-accent-orange text-white' : 'bg-accent-blue text-white'}`}>
+                            {user.role}
+                          </span>
+                          <p className="text-[10px] text-text-muted font-bold uppercase">{new Date(user.createdAt).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-               </div>
+                </div>
+              )}
             </div>
           )}
 

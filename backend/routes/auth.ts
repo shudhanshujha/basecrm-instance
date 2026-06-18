@@ -68,6 +68,73 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Public signup - creates a new organization and admin profile
+router.post('/signup', async (req, res) => {
+  try {
+    const { email, password, fullName, companyName } = req.body;
+
+    if (!email || !password || !fullName || !companyName) {
+      return res.status(400).json({ error: 'Email, password, full name, and company name are required' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    const existing = await getPrisma().profile.findUnique({ where: { email: email.toLowerCase() } });
+    if (existing) {
+      return res.status(400).json({ error: 'An account with this email already exists' });
+    }
+
+    const slug = companyName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString(36);
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const result = await getPrisma().$transaction(async (tx) => {
+      const org = await tx.organization.create({
+        data: {
+          name: companyName,
+          slug,
+        }
+      });
+
+      const profile = await tx.profile.create({
+        data: {
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          fullName,
+          role: 'admin',
+          orgId: org.id,
+        },
+        include: { organization: true }
+      });
+
+      return profile;
+    });
+
+    const token = jwt.sign(
+      { id: result.id, email: result.email, orgId: result.orgId, role: result.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.status(201).json({
+      token,
+      user: {
+        id: result.id,
+        email: result.email,
+        fullName: result.fullName,
+        role: result.role,
+        orgId: result.orgId,
+        organization: result.organization
+      }
+    });
+  } catch (error: any) {
+    console.error('Signup error:', error);
+    res.status(500).json({ error: 'Failed to create account', details: error.message });
+  }
+});
+
 // Get current user session
 router.get('/me', authMiddleware, async (req: any, res) => {
   try {
@@ -130,6 +197,42 @@ router.put('/organization/:id', authMiddleware, async (req: any, res) => {
   }
 });
 
+// Change own password (requires current password)
+router.patch('/password', authMiddleware, async (req: any, res) => {
+  try {
+    const userId = req.user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current password and new password are required' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters' });
+    }
+
+    const profile = await getPrisma().profile.findUnique({ where: { id: userId } });
+    if (!profile) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, profile.password);
+    if (!isValid) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await getPrisma().profile.update({
+      where: { id: userId },
+      data: { password: hashedPassword }
+    });
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Failed to change password' });
+  }
+});
+
 // Update User Password (Admin only)
 router.patch('/users/:id/password', authMiddleware, async (req: any, res) => {
   try {
@@ -137,7 +240,6 @@ router.patch('/users/:id/password', authMiddleware, async (req: any, res) => {
     const { newPassword } = req.body;
     const adminId = req.user.id;
 
-    // Verify admin role
     const admin = await getPrisma().profile.findUnique({ where: { id: adminId } });
     if (admin?.role !== 'admin') {
       return res.status(403).json({ error: 'Only administrators can reset passwords' });
@@ -145,6 +247,12 @@ router.patch('/users/:id/password', authMiddleware, async (req: any, res) => {
 
     if (!newPassword || newPassword.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    // Verify target user belongs to same org
+    const targetUser = await getPrisma().profile.findUnique({ where: { id } });
+    if (!targetUser || targetUser.orgId !== admin.orgId) {
+      return res.status(403).json({ error: 'User not found in your organization' });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -169,10 +277,15 @@ router.delete('/users/:id', authMiddleware, async (req: any, res) => {
       return res.status(400).json({ error: 'You cannot delete your own administrative account' });
     }
 
-    // Verify admin role
     const admin = await getPrisma().profile.findUnique({ where: { id: adminId } });
     if (admin?.role !== 'admin') {
       return res.status(403).json({ error: 'Only administrators can delete accounts' });
+    }
+
+    // Verify target user belongs to same org
+    const targetUser = await getPrisma().profile.findUnique({ where: { id } });
+    if (!targetUser || targetUser.orgId !== admin.orgId) {
+      return res.status(403).json({ error: 'User not found in your organization' });
     }
 
     await getPrisma().profile.delete({ where: { id } });

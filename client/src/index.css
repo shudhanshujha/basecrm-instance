@@ -14,10 +14,7 @@
   --color-danger: #ff0055;
   --color-warning: #ffcc00;
 
-  /* Creative Additions */
   --color-neon-glow: rgba(0, 242, 255, 0.4);
-  
-  /* Light Mode (Kept for compatibility, but styled for "Cyber Lite") */
   --color-bg-primary-light: #f0f2f5;
   --color-bg-surface-light: rgba(255, 255, 255, 0.9);
   --color-bg-surface-2-light: #eef2f6;
@@ -35,9 +32,50 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  .light {
+    --color-bg-primary: #f0f2f5;
+    --color-bg-surface: rgba(255, 255, 255, 0.9);
+    --color-bg-surface-2: #eef2f6;
+    --color-border: rgba(0, 0, 0, 0.1);
+    --color-accent-orange: #ea580c;
+    --color-accent-blue: #2563eb;
+    --color-accent-purple: #7c3aed;
+    --color-text-primary: #1e293b;
+    --color-text-muted: #64748b;
+    --color-success: #16a34a;
+    --color-danger: #dc2626;
+    --color-warning: #b45309;
+    --color-neon-glow: rgba(37, 99, 235, 0.3);
+  }
+
+  .light .app-sidebar {
+    background: var(--color-bg-surface-light);
+    border-right-color: var(--color-border-light);
+  }
+
+  .light .app-topbar {
+    background: var(--color-bg-surface-light);
+    border-bottom-color: var(--color-border-light);
+  }
+
   .light body {
-    @apply bg-bg-primary-light text-slate-900;
+    @apply bg-bg-primary text-text-primary;
     background-image: none;
+  }
+
+  .light .app-topbar,
+  .light .app-topbar .text-white {
+    @apply text-text-primary;
+  }
+
+  .light .app-topbar .bg-white\/5,
+  .light .app-topbar .bg-danger\/5 {
+    @apply bg-bg-surface-2;
+  }
+
+  .light .app-topbar .border-white\/10,
+  .light .app-topbar .border-danger\/10 {
+    @apply border-border;
   }
   
   h1, h2, h3, h4 {

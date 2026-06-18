@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Loader2, ShieldCheck, Zap, Lock, Terminal, Globe } from 'lucide-react';
+import { Eye, EyeOff, Loader2, ShieldCheck, Zap, Lock, Terminal, Globe, Building, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import api from '../lib/axios';
@@ -9,8 +9,11 @@ interface LoginPageProps {
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
+  const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -20,47 +23,40 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     setError('');
     setLoading(true);
 
-    // --- TEMPORARY FRONTEND BYPASS FOR VERCEL ---
-    if (email.toLowerCase() === 'admin@basecrm.io' && password === 'password123') {
-      const mockUser = {
-        id: 'bypass-admin',
-        email: 'admin@basecrm.io',
-        fullName: 'System Operator',
-        role: 'admin',
-        orgId: 'bypass-org'
-      };
-      localStorage.setItem('bc_token', 'bypass-token-vercel');
-      localStorage.setItem('bc_user', JSON.stringify(mockUser));
-      localStorage.setItem('bc_auth', 'true');
-      
-      setTimeout(() => {
-        toast.success(`Access Granted. Welcome, System Operator`);
-        setLoading(false);
-        onLogin();
-      }, 1000);
-      return;
-    }
-    // --------------------------------------------
-
     try {
-      const { data } = await api.post('/auth/login', {
-        email,
-        password,
-      });
-
-      if (data.token) {
-        localStorage.setItem('bc_token', data.token);
-        localStorage.setItem('bc_user', JSON.stringify(data.user));
-        localStorage.setItem('bc_auth', 'true');
-        toast.success(`Access Granted. Welcome, ${data.user.fullName || 'Operator'}`);
-        onLogin();
+      if (isSignup) {
+        const { data } = await api.post('/auth/signup', {
+          email,
+          password,
+          fullName,
+          companyName,
+        });
+        if (data.token) {
+          localStorage.setItem('bc_token', data.token);
+          localStorage.setItem('bc_user', JSON.stringify(data.user));
+          localStorage.setItem('bc_auth', 'true');
+          toast.success(`Organization Created. Welcome, ${data.user.fullName || 'Operator'}`);
+          onLogin();
+        }
+      } else {
+        const { data } = await api.post('/auth/login', {
+          email,
+          password,
+        });
+        if (data.token) {
+          localStorage.setItem('bc_token', data.token);
+          localStorage.setItem('bc_user', JSON.stringify(data.user));
+          localStorage.setItem('bc_auth', 'true');
+          toast.success(`Access Granted. Welcome, ${data.user.fullName || 'Operator'}`);
+          onLogin();
+        }
       }
     } catch (err: any) {
-      console.error('Login error:', err);
-      let errorMessage = 'System Error: Authentication Protocol Failed.';
+      console.error('Auth error:', err);
+      let errorMessage = isSignup ? 'System Error: Registration Protocol Failed.' : 'System Error: Authentication Protocol Failed.';
       if (err.response?.data?.error) errorMessage = err.response.data.error;
       setError(errorMessage);
-      toast.error('Identity Verification Failed');
+      toast.error(isSignup ? 'Registration Failed' : 'Identity Verification Failed');
     } finally {
       setLoading(false);
     }
@@ -141,7 +137,43 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                <div className="w-10 h-[1px] bg-accent-blue animate-pulse" />
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {isSignup && (
+                <>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center px-1">
+                      <label className="text-[9px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
+                        <Building size={10} /> Organization
+                      </label>
+                    </div>
+                    <input
+                      type="text"
+                      value={companyName}
+                      onChange={e => setCompanyName(e.target.value)}
+                      placeholder="YOUR COMPANY OR FREELANCE NAME"
+                      className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-5 py-4 text-[13px] text-white outline-none focus:border-accent-blue/50 focus:ring-4 focus:ring-accent-blue/5 transition-all placeholder:text-white/10 uppercase font-bold"
+                      disabled={loading}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center px-1">
+                      <label className="text-[9px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
+                        <User size={10} /> Full Name
+                      </label>
+                    </div>
+                    <input
+                      type="text"
+                      value={fullName}
+                      onChange={e => setFullName(e.target.value)}
+                      placeholder="YOUR NAME"
+                      className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-5 py-4 text-[13px] text-white outline-none focus:border-accent-blue/50 focus:ring-4 focus:ring-accent-blue/5 transition-all placeholder:text-white/10 uppercase font-bold"
+                      disabled={loading}
+                      required
+                    />
+                  </div>
+                </>
+              )}
               <div className="space-y-2">
                 <div className="flex justify-between items-center px-1">
                    <label className="text-[9px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
@@ -213,16 +245,26 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   {loading ? (
                     <>
                       <Loader2 size={16} className="animate-spin" />
-                      Decrypting...
+                      {isSignup ? 'Initializing...' : 'Decrypting...'}
                     </>
                   ) : (
                     <>
-                      Execute Login
+                      {isSignup ? 'Create Account' : 'Execute Login'}
                       <Zap size={14} className="group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
                 </div>
               </button>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => { setIsSignup(!isSignup); setError(''); }}
+                  className="text-[10px] text-text-muted hover:text-accent-blue uppercase tracking-wider font-bold transition-colors"
+                >
+                  {isSignup ? 'Already have an account? Login' : 'New organization? Create account'}
+                </button>
+              </div>
             </form>
           </div>
         </motion.div>

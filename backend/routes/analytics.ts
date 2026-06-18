@@ -334,18 +334,21 @@ router.get('/dashboard', async (req: any, res) => {
 });
 
 
-router.get('/payments-summary', async (req, res) => {
+router.get('/payments-summary', async (req: any, res) => {
   try {
+    const orgId = await getOrgId(req);
+    if (!orgId) return res.status(403).json({ error: 'No organization linked' });
+
     const now = new Date();
     const startOfMonthStart = startOfMonth(now);
 
     const clientPaymentsAgg = await getPrisma().payment.aggregate({
-      where: { paymentDate: { gte: startOfMonthStart } },
+      where: { orgId, paymentDate: { gte: startOfMonthStart } },
       _sum: { amount: true }
     });
 
     const vendorPaymentsAgg = await getPrisma().vendorPayment.aggregate({
-      where: { paymentDate: { gte: startOfMonthStart } },
+      where: { orgId, paymentDate: { gte: startOfMonthStart } },
       _sum: { amount: true }
     });
 

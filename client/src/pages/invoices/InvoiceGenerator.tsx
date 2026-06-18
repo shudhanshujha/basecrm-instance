@@ -1,15 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
-  ArrowLeft, Printer, Download, Plus, Trash2, Minus,
-  ChevronDown, Building, User, FileText, IndianRupee,
-  ShieldCheck, MapPin, Phone, Mail, Loader2, Database, Settings,
-  Pencil, RotateCcw, Briefcase
+  ArrowLeft, Plus, Trash2, Loader2, Database, Printer
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { PDFDownloadLink, usePDF } from '@react-pdf/renderer';
+import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 import FiscalInvoice from '../../components/invoices/FiscalInvoice';
-import { numberToWords } from '../../lib/numberToWords';
 import api from '../../lib/axios';
 
 const InvoiceGenerator: React.FC = () => {
@@ -197,9 +193,6 @@ const InvoiceGenerator: React.FC = () => {
     }
   };
 
-  const [zoom, setZoom] = useState(0.65);
-  const [isClient, setIsClient] = useState(true);
-
   useEffect(() => {
     fetchInitialData();
   }, [id]);
@@ -261,30 +254,6 @@ const InvoiceGenerator: React.FC = () => {
     igstTotal: totals.igstTotal,
     grandTotal: totals.grandTotal
   }), [formData, totals]);
-
-  const [instance, updateInstance] = usePDF({ document: <FiscalInvoice invoiceData={pdfData} /> });
-
-  useEffect(() => {
-    if (isClient) {
-      updateInstance(<FiscalInvoice invoiceData={pdfData} />);
-    }
-  }, [pdfData, isClient]);
-
-  const handleDownloadPdf = () => {
-    if (instance.loading) {
-      toast('PDF is still compiling, please wait...', { icon: '⏳' });
-      return;
-    }
-    if (instance.url) {
-      const link = document.createElement('a');
-      link.href = instance.url;
-      link.download = `${formData.invoiceNumber || 'invoice'}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast.success('PDF Download Started');
-    }
-  };
 
   const handleClientSelect = (clientId: string) => {
     const client = clients.find(c => c.id === clientId);
@@ -385,7 +354,7 @@ const InvoiceGenerator: React.FC = () => {
           <button onClick={() => navigate('/invoices')} className="p-2 hover:bg-bg-surface-2 rounded-lg transition-colors">
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-sm font-black uppercase tracking-widest">Generic Invoice Generator</h1>
+          <h1 className="text-sm font-black uppercase tracking-widest">{id ? 'Edit Invoice' : 'New Invoice'}</h1>
         </div>
         
         <div className="flex items-center gap-3">
@@ -398,16 +367,14 @@ const InvoiceGenerator: React.FC = () => {
             Record & Save
           </button>
           
-          {isClient && (
-            <button 
-              onClick={handleDownloadPdf}
-              disabled={instance.loading}
-              className="bg-accent-orange text-white px-6 py-2 rounded-lg font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-accent-orange/20 hover:bg-accent-orange/90 transition-all disabled:opacity-50"
-            >
-              {instance.loading ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
-              {instance.loading ? 'Compiling...' : 'Download PDF'}
-            </button>
-          )}
+          <PDFDownloadLink document={<FiscalInvoice invoiceData={pdfData} />} fileName={`${formData.invoiceNumber || 'invoice'}.pdf`}>
+            {({ loading }) => (
+              <button disabled={loading} className="bg-accent-orange text-white px-6 py-2 rounded-lg font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-accent-orange/20 hover:bg-accent-orange/90 transition-all disabled:opacity-50">
+                {loading ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
+                {loading ? 'Compiling...' : 'Download PDF'}
+              </button>
+            )}
+          </PDFDownloadLink>
         </div>
       </div>
 
@@ -502,98 +469,10 @@ const InvoiceGenerator: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex-1 bg-bg-surface-2 overflow-auto p-6 custom-scrollbar print:p-0 print:bg-white flex flex-col items-center">
-          <div className="sticky top-0 z-20 mb-4 bg-bg-surface/80 backdrop-blur-md border border-border px-4 py-2 rounded-full flex items-center gap-4 shadow-xl">
-            <button onClick={() => setZoom(Math.max(0.3, zoom - 0.05))} className="p-1 hover:text-accent-orange transition-colors"><Minus size={16} /></button>
-            <span className="text-[10px] font-black uppercase tracking-widest min-w-[50px] text-center">Zoom: {Math.round(zoom * 100)}%</span>
-            <button onClick={() => setZoom(Math.min(1.5, zoom + 0.05))} className="p-1 hover:text-accent-orange transition-colors"><Plus size={16} /></button>
-            <div className="w-px h-4 bg-border" />
-            <button onClick={() => setZoom(0.65)} className="text-[10px] font-black hover:text-accent-orange transition-colors">Reset</button>
-          </div>
-
-          <div className="shadow-2xl print:shadow-none origin-top transition-all duration-300" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
-            <div className="bg-white text-black w-[794px] min-h-[1123px] p-8 font-sans flex flex-col relative shrink-0 border border-black">
-              <div className="text-center py-4 border-b border-black">
-                 <h1 className="text-2xl font-black uppercase tracking-tight">{formData.seller.name}</h1>
-                 <p className="text-[10px]">{formData.seller.address}</p>
-                 <p className="text-[10px] uppercase font-bold mt-2">Invoice No: {formData.invoiceNumber} | Date: {formData.invoiceDate}</p>
-              </div>
-
-              <div className="grid grid-cols-2 border-b border-black text-[12px] min-h-[120px]">
-                 <div className="p-4 border-r border-black space-y-1">
-                    <p className="font-black uppercase text-[10px] text-gray-500 mb-2">Billed By</p>
-                    <p className="font-bold">{formData.seller.name}</p>
-                    <p className="text-[11px]">{formData.seller.address}</p>
-                    <p className="text-[11px]">GSTIN: {formData.seller.gstin}</p>
-                 </div>
-                 <div className="p-4 space-y-1">
-                    <p className="font-black uppercase text-[10px] text-gray-500 mb-2">Billed To</p>
-                    <p className="font-bold">{formData.buyer.name || '-'}</p>
-                    <p className="text-[11px]">{formData.buyer.address || '-'}</p>
-                    <p className="text-[11px]">GSTIN: {formData.buyer.gstin || '-'}</p>
-                 </div>
-              </div>
-
-              <div className="flex-1 mt-4">
-                 <table className="w-full text-[12px] border-collapse">
-                    <thead className="bg-gray-100 font-bold border-b border-black">
-                       <tr>
-                          <th className="p-2 text-left w-12">#</th>
-                          <th className="p-2 text-left">Description</th>
-                          <th className="p-2 text-right w-20">Qty</th>
-                          <th className="p-2 text-right w-32">Rate</th>
-                          <th className="p-2 text-right w-32">Amount</th>
-                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                       {totals.items.map((item, i) => (
-                          <tr key={i}>
-                             <td className="p-2 text-left">{i + 1}</td>
-                             <td className="p-2 text-left font-bold">{item.description}</td>
-                             <td className="p-2 text-right">{item.qty}</td>
-                             <td className="p-2 text-right">₹{item.rate.toLocaleString()}</td>
-                             <td className="p-2 text-right font-bold">₹{item.amount.toLocaleString()}</td>
-                          </tr>
-                       ))}
-                    </tbody>
-                 </table>
-              </div>
-
-              <div className="mt-8 border-t border-black pt-4">
-                 <div className="flex justify-between">
-                    <div className="max-w-[400px]">
-                       <p className="text-[10px] font-black uppercase text-gray-500 mb-2">Amount in Words</p>
-                       <p className="text-[14px] font-bold italic">{numberToWords(Math.round(totals.grandTotal))}</p>
-                    </div>
-                    <div className="w-64 space-y-2">
-                       <div className="flex justify-between text-[12px]">
-                          <span>Subtotal:</span>
-                          <span>₹{totals.taxableTotal.toLocaleString()}</span>
-                       </div>
-                       <div className="flex justify-between text-[14px] font-black border-t border-black pt-2">
-                          <span>Grand Total:</span>
-                          <span>₹{Math.round(totals.grandTotal).toLocaleString()}</span>
-                       </div>
-                    </div>
-                 </div>
-              </div>
-
-              <div className="mt-auto pt-10 border-t border-black flex justify-between items-end">
-                 <div className="space-y-1 text-[10px]">
-                    <p className="font-bold uppercase border-b border-black pb-1 mb-1">Bank Details</p>
-                    <p>Bank: {formData.seller.bank.name}</p>
-                    <p>A/c No: {formData.seller.bank.accountNo}</p>
-                    <p>IFSC: {formData.seller.bank.ifsc}</p>
-                 </div>
-                 <div className="text-center w-48">
-                    <p className="text-[9px] mb-8 font-bold">For {formData.seller.name}</p>
-                    <div className="border-t border-black pt-1">
-                       <p className="text-[10px] font-bold uppercase">Authorised Signatory</p>
-                    </div>
-                 </div>
-              </div>
-            </div>
-          </div>
+        <div className="flex-1 bg-bg-surface-2 overflow-hidden p-4 print:p-0 print:bg-white flex flex-col">
+          <PDFViewer width="100%" height="100%" showToolbar={false}>
+            <FiscalInvoice invoiceData={pdfData} />
+          </PDFViewer>
         </div>
       </div>
     </div>

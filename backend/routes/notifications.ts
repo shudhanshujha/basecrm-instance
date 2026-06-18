@@ -1,16 +1,31 @@
 import { Router } from 'express';
 import { getPrisma } from '../prismaClient.js';
+import { authMiddleware } from '../middleware/auth.js';
 
 const router = Router();
 
-router.get('/', async (req, res) => {
+router.use(authMiddleware);
+
+const getOrgId = async (req: any) => {
+  if (req.user.orgId) return req.user.orgId;
+  if (req.user.id === 'bypass-admin') return 'bypass-org';
+  const profile = await getPrisma().profile.findUnique({
+    where: { id: req.user.id }
+  });
+  return profile?.orgId;
+};
+
+router.get('/', async (req: any, res) => {
   try {
+    const orgId = await getOrgId(req);
+    if (!orgId) return res.status(403).json({ error: 'No organization linked' });
+
     const notifications: any[] = [];
     const now = new Date();
     
     // 1. Overdue invoices
     const overdueInvoices = await getPrisma().invoice.findMany({
-      where: { status: 'OVERDUE' },
+      where: { orgId, status: 'OVERDUE' },
       include: { client: true }
     });
     overdueInvoices.forEach(inv => {
@@ -28,6 +43,7 @@ router.get('/', async (req, res) => {
     nextWeek.setDate(now.getDate() + 7);
     const endingDeals = await getPrisma().deal.findMany({
       where: { 
+        orgId,
         status: 'ACTIVE',
         endDate: { gte: now, lte: nextWeek }
       }
@@ -47,7 +63,7 @@ router.get('/', async (req, res) => {
     const threeDaysAgo = new Date();
     threeDaysAgo.setDate(now.getDate() - 3);
     const recentPayments = await getPrisma().payment.findMany({
-      where: { paymentDate: { gte: threeDaysAgo } },
+      where: { orgId, paymentDate: { gte: threeDaysAgo } },
       include: { client: true }
     });
     recentPayments.forEach(pay => {

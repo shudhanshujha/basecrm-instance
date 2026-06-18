@@ -34,7 +34,7 @@ const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
   }, []);
 
   return (
-    <div className="h-[60px] bg-bg-surface/30 border-b border-border flex items-center justify-between px-6 shrink-0 relative z-50 backdrop-blur-md">
+    <div className="app-topbar h-[60px] bg-bg-surface/30 border-b border-border flex items-center justify-between px-6 shrink-0 relative z-50 backdrop-blur-md">
       <div className="flex items-center gap-4 group cursor-default">
         <div className="w-10 h-10 bg-gradient-to-br from-accent-purple to-accent-blue rounded-2xl flex items-center justify-center text-white shadow-[0_0_20px_rgba(112,0,255,0.3)] group-hover:rotate-12 transition-transform duration-500">
           <Orbit size={22} className="animate-spin-slow" />

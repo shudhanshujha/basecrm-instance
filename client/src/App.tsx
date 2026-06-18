@@ -22,7 +22,6 @@ import Settings from './pages/Settings';
 import Invoices from './pages/Invoices';
 import InvoiceGenerator from './pages/invoices/InvoiceGenerator';
 import InvoiceDetails from './pages/invoices/InvoiceDetails';
-import { supabase } from './lib/supabase';
 
 import api from './lib/axios';
 
