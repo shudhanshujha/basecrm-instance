@@ -88,7 +88,7 @@ const Dashboard: React.FC = () => {
                 <button 
                   key={r} 
                   onClick={() => setPeriod(r as any)}
-                  className={`px-4 py-1 text-[9px] font-black uppercase rounded-lg transition-all ${period === r ? 'bg-accent-blue text-white shadow-[0_0_15px_rgba(0,242,255,0.3)]' : 'text-text-muted hover:text-text-primary'}`}
+                  className={`px-4 py-1 text-[9px] font-semibold uppercase rounded-lg transition-all ${period === r ? 'bg-accent-blue text-white shadow-[0_0_15px_rgba(88,166,255,0.3)]' : 'text-text-muted hover:text-text-primary'}`}
                 >
                   {r}
                 </button>

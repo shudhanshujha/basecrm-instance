@@ -178,7 +178,7 @@ const Settings: React.FC = () => {
         </div>
         <div className="flex gap-3">
           <button onClick={() => setActiveSection('backup')} className="btn-outline flex items-center gap-2 px-4 text-accent-blue border-accent-blue/30"><Download size={16} /> System Backup</button>
-          <button onClick={handleSave} className="btn-primary flex items-center gap-2 px-6 shadow-lg shadow-accent-orange/30">
+          <button onClick={handleSave} className="btn-primary flex items-center gap-2 px-6 shadow-lg shadow-accent-purple/30">
             <Save size={18} /> Save All Changes
           </button>
         </div>
@@ -197,9 +197,9 @@ const Settings: React.FC = () => {
             <button
               key={item.id}
               onClick={() => setActiveSection(item.id as any)}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-[12px] font-black uppercase tracking-wider transition-all ${
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-[12px] font-semibold uppercase tracking-wider transition-all ${
                 activeSection === item.id 
-                  ? 'bg-accent-orange text-white shadow-lg shadow-accent-orange/20' 
+                  ? 'bg-accent-blue/10 text-accent-blue/30 text-accent-blue shadow-lg shadow-accent-blue/10' 
                   : 'text-text-muted hover:bg-bg-surface-2 hover:text-text-primary'
               }`}
             >
@@ -212,12 +212,12 @@ const Settings: React.FC = () => {
           {activeSection === 'profile' && (
             <div className="card space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="flex items-center justify-between border-b border-border pb-4">
-                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-accent-orange/10 text-accent-orange rounded-xl flex items-center justify-center shadow-inner">
-                       <Building size={20} />
-                    </div>
-                    <h2 className="text-lg font-bold text-text-primary uppercase tracking-tighter">Business Identity</h2>
-                 </div>
+                  <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 bg-accent-purple/10 text-accent-purple rounded-xl flex items-center justify-center shadow-inner">
+                        <Building size={20} />
+                     </div>
+                     <h2 className="text-lg font-bold text-text-primary uppercase tracking-tighter">Business Identity</h2>
+                  </div>
                  <button onClick={handleOrgSave} disabled={savingOrg} className="btn-primary py-1.5 px-4 text-[11px] flex items-center gap-2">
                     {savingOrg ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Save Profile
                  </button>
@@ -226,7 +226,7 @@ const Settings: React.FC = () => {
               <div className="grid grid-cols-2 gap-6">
                  <div className="col-span-2 space-y-2">
                     <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Registered Company Name</label>
-                    <input type="text" value={org.name} onChange={e => setOrg({...org, name: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all" />
+                     <input type="text" value={org.name} onChange={e => setOrg({...org, name: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-bold text-text-primary outline-none focus:border-accent-blue transition-all" />
                  </div>
                  
                  <div className="col-span-2 space-y-2">
@@ -234,7 +234,7 @@ const Settings: React.FC = () => {
                     <select 
                       value={org.taxMode || 'NONE'} 
                       onChange={e => setOrg({...org, taxMode: e.target.value})} 
-                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all"
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-bold text-text-primary outline-none focus:border-accent-blue transition-all"
                     >
                        <option value="NONE">No Tax (Subtotal = Total)</option>
                        <option value="SINGLE_TAX">Single Flat Tax (VAT/Sales Tax)</option>
@@ -253,7 +253,7 @@ const Settings: React.FC = () => {
                  </div>
                  <div className="col-span-2 space-y-2">
                     <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Registered Address</label>
-                    <textarea rows={3} value={org.address || ''} onChange={e => setOrg({...org, address: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-medium text-text-primary outline-none focus:border-accent-orange" />
+                    <textarea rows={3} value={org.address || ''} onChange={e => setOrg({...org, address: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-medium text-text-primary outline-none focus:border-accent-blue" />
                  </div>
               </div>
             </div>
@@ -298,7 +298,7 @@ const Settings: React.FC = () => {
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="card space-y-6">
                 <div className="flex items-center gap-3 border-b border-border pb-4">
-                  <div className="w-10 h-10 bg-accent-orange/10 text-accent-orange rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-accent-purple/10 text-accent-purple rounded-xl flex items-center justify-center">
                     <ShieldCheck size={20} />
                   </div>
                   <div>
@@ -316,7 +316,7 @@ const Settings: React.FC = () => {
                       value={passwordForm.currentPassword}
                       onChange={e => setPasswordForm({...passwordForm, currentPassword: e.target.value})}
                       placeholder="Enter current password"
-                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all" 
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-blue transition-all" 
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -327,7 +327,7 @@ const Settings: React.FC = () => {
                       value={passwordForm.newPassword}
                       onChange={e => setPasswordForm({...passwordForm, newPassword: e.target.value})}
                       placeholder="At least 6 characters"
-                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all" 
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-blue transition-all" 
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -338,11 +338,11 @@ const Settings: React.FC = () => {
                       value={passwordForm.confirmPassword}
                       onChange={e => setPasswordForm({...passwordForm, confirmPassword: e.target.value})}
                       placeholder="Repeat new password"
-                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-orange transition-all" 
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-blue transition-all" 
                     />
                   </div>
                   <div className="col-span-2 pt-2">
-                    <button type="submit" disabled={changingPassword} className="btn-primary w-full py-3 flex items-center justify-center gap-2 shadow-lg shadow-accent-orange/20">
+                    <button type="submit" disabled={changingPassword} className="btn-primary w-full py-3 flex items-center justify-center gap-2 shadow-lg shadow-accent-purple/20">
                       {changingPassword ? <Loader2 size={16} className="animate-spin" /> : <ShieldCheck size={16} />} Change Password
                     </button>
                   </div>
@@ -372,15 +372,15 @@ const Settings: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-4">
                           {user.id !== currentUser.id && (
-                            <button 
-                              onClick={() => handleAdminResetPassword(user.id, user.fullName)}
-                              className="p-2 text-text-muted hover:text-accent-orange transition-colors"
-                              title="Reset Password"
-                            >
-                              <RefreshCw size={14} />
-                            </button>
+                          <button 
+                            onClick={() => handleAdminResetPassword(user.id, user.fullName)}
+                            className="p-2 text-text-muted hover:text-accent-blue transition-colors"
+                            title="Reset Password"
+                          >
+                            <RefreshCw size={14} />
+                          </button>
                           )}
-                          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${user.role === 'admin' ? 'bg-accent-orange text-white' : 'bg-accent-blue text-white'}`}>
+                          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${user.role === 'admin' ? 'bg-accent-purple text-white' : 'bg-accent-blue text-white'}`}>
                             {user.role}
                           </span>
                           <p className="text-[10px] text-text-muted font-bold uppercase">{new Date(user.createdAt).toLocaleDateString()}</p>
@@ -396,10 +396,10 @@ const Settings: React.FC = () => {
           {activeSection === 'notifications' && (
             <div className="card space-y-6 animate-in fade-in slide-in-from-right-4">
               <div className="flex justify-between items-center border-b border-border pb-4">
-                 <div className="flex items-center gap-3">
-                    <Bell className="text-accent-orange" />
-                    <h2 className="text-lg font-bold">Alerts History</h2>
-                 </div>
+                  <div className="flex items-center gap-3">
+                     <Bell className="text-accent-purple" />
+                     <h2 className="text-lg font-bold">Alerts History</h2>
+                  </div>
                  <button onClick={clearAll} className="text-[10px] font-black text-danger hover:underline uppercase tracking-widest flex items-center gap-1"><Trash2 size={12} /> Clear History</button>
               </div>
               <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
@@ -465,9 +465,9 @@ const Settings: React.FC = () => {
               <div className="grid grid-cols-3 gap-6">
                  <div className="p-5 bg-bg-surface-2 border border-border rounded-2xl space-y-4">
                     <div className="flex justify-between items-start">
-                       <div className="p-2 bg-accent-orange/10 text-accent-orange rounded-lg">
-                          <Globe size={20} />
-                       </div>
+                     <div className="p-2 bg-accent-blue/10 text-accent-blue rounded-lg">
+                           <Globe size={20} />
+                        </div>
                        <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full ${
                          healthStatus?.api === 'live' ? 'bg-success text-white' : 'bg-text-muted text-white'
                        }`}>

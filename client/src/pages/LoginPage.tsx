@@ -83,15 +83,15 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         className="absolute top-1/4 left-1/3 w-96 h-96 bg-accent-blue/10 rounded-full blur-[100px] pointer-events-none" 
       />
-      <motion.div 
-        animate={{ 
-          y: [0, 20, 0],
-          opacity: [0.05, 0.15, 0.05],
-          scale: [1, 1.2, 1]
-        }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute bottom-1/4 right-1/3 w-[500px] h-[500px] bg-accent-orange/5 rounded-full blur-[120px] pointer-events-none" 
-      />
+        <motion.div 
+          animate={{ 
+            y: [0, 20, 0],
+            opacity: [0.05, 0.15, 0.05],
+            scale: [1, 1.2, 1]
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="absolute bottom-1/4 right-1/3 w-[500px] h-[500px] bg-accent-purple/5 rounded-full blur-[120px] pointer-events-none" 
+        />
 
       <div className="w-full max-w-[450px] relative z-10">
         {/* Futuristic Header */}
@@ -111,14 +111,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                className="absolute -inset-2 border border-dashed border-accent-blue/20 rounded-full pointer-events-none"
              />
           </div>
-          <h1 className="text-3xl font-black text-white uppercase tracking-[-1px]">
-             Base<span className="text-accent-blue">CRM</span>.sys
-          </h1>
-          <div className="flex items-center justify-center gap-3 mt-2 text-text-muted">
-             <div className="h-[1px] w-8 bg-white/10" />
-             <p className="text-[10px] uppercase tracking-[4px] font-black opacity-60">Neural Network Access</p>
-             <div className="h-[1px] w-8 bg-white/10" />
-          </div>
+           <h1 className="text-3xl font-black text-white uppercase tracking-[-1px]">
+              Base<span className="text-accent-blue">CRM</span>.sys
+           </h1>
         </motion.div>
 
         {/* Cyber Login Card */}
@@ -128,9 +123,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           className="relative"
         >
           {/* Card Border Glow */}
-          <div className="absolute -inset-[1px] bg-gradient-to-r from-accent-blue/50 via-accent-purple/50 to-accent-orange/50 rounded-[32px] blur-[2px] opacity-30" />
+          <div className="absolute -inset-[1px] bg-gradient-to-r from-accent-blue/50 via-accent-purple/50 to-accent-blue/50 rounded-[32px] blur-[2px] opacity-30" />
           
-          <div className="relative bg-[#0d1117]/80 backdrop-blur-xl border border-white/10 rounded-[30px] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+          <div className="relative bg-bg-primary/80 backdrop-blur-xl border border-border rounded-[30px] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
             {/* Top Right Scanner Animation */}
             <div className="absolute top-0 right-0 p-4 opacity-20">
                <Terminal size={12} className="text-accent-blue mb-1" />
@@ -177,27 +172,27 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               <div className="space-y-2">
                 <div className="flex justify-between items-center px-1">
                    <label className="text-[9px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
-                      <Globe size={10} /> Identity Token
+                      <Globe size={10} /> Username
                    </label>
                 </div>
                 <div className="relative group">
-                   <input
-                     type="email"
-                     autoFocus
-                     value={email}
-                     onChange={e => setEmail(e.target.value)}
-                     placeholder="OPERATOR@SYSTEM.IO"
-                     className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-5 py-4 text-[13px] text-white outline-none focus:border-accent-blue/50 focus:ring-4 focus:ring-accent-blue/5 transition-all placeholder:text-white/10 uppercase font-bold"
-                     disabled={loading}
-                     required
-                   />
+                    <input
+                      type="email"
+                      autoFocus
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      placeholder="username@company.com"
+                      className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-5 py-4 text-[13px] text-white outline-none focus:border-accent-blue/50 focus:ring-4 focus:ring-accent-blue/5 transition-all placeholder:text-white/10 font-bold"
+                      disabled={loading}
+                      required
+                    />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center px-1">
                    <label className="text-[9px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
-                      <Lock size={10} /> Security Key
+                      <Lock size={10} /> Password
                    </label>
                 </div>
                 <div className="relative group">

@@ -83,7 +83,7 @@ const Clients: React.FC = () => {
         </div>
         <div className="flex gap-2">
           <ExportButton data={clients} filename="business_clients" />
-          <button onClick={() => setShowAddModal(true)} className="btn-primary text-[12px] py-1.5 flex items-center gap-2 shadow-lg shadow-accent-orange/30">
+          <button onClick={() => setShowAddModal(true)} className="btn-primary text-[12px] py-1.5 flex items-center gap-2 shadow-lg shadow-accent-purple/30">
             <Plus size={16} /> Add Client
           </button>
         </div>
@@ -95,7 +95,7 @@ const Clients: React.FC = () => {
            <input 
              type="text" 
              placeholder="Search by client name, ID, or city..." 
-             className="w-full bg-bg-surface-2 border border-border rounded-lg pl-9 pr-3 py-2 text-[12px] focus:outline-none focus:border-accent-orange transition-colors"
+              className="w-full bg-bg-surface-2 border border-border rounded-lg pl-9 pr-3 py-2 text-[12px] focus:outline-none focus:border-accent-blue transition-colors"
              value={searchTerm}
              onChange={(e) => setSearchTerm(e.target.value)}
            />
@@ -104,16 +104,16 @@ const Clients: React.FC = () => {
 
       <div className="grid grid-cols-1 gap-3">
         {isLoading ? (
-          <div className="card flex justify-center py-20"><Loader2 className="animate-spin text-accent-orange" /></div>
+          <div className="card flex justify-center py-20"><Loader2 className="animate-spin text-accent-blue" /></div>
         ) : filteredClients.map((client) => (
-          <div key={client.id} onClick={() => navigate(`/clients/${client.id}`)} className="card hover:border-accent-orange transition-all cursor-pointer group flex items-center justify-between bg-bg-surface border-border/50">
+          <div key={client.id} onClick={() => navigate(`/clients/${client.id}`)} className="card hover:border-accent-blue transition-all cursor-pointer group flex items-center justify-between bg-bg-surface border-border/50">
             <div className="flex items-center gap-4">
-               <div className="w-12 h-12 bg-bg-surface-2 rounded-xl border border-border flex items-center justify-center font-black text-accent-orange text-[16px] shadow-sm group-hover:scale-105 transition-transform">
+ className="w-12 h-12 bg-bg-surface-2 rounded-xl border border-border flex items-center justify-center font-bold text-accent-blue text-[16px] shadow-sm group-hover:scale-105 transition-transform">
                   {client.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                </div>
                <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-[14px] font-bold text-text-primary group-hover:text-accent-orange transition-colors">{client.name}</h3>
+                     <h3 className="text-[14px] font-bold text-text-primary group-hover:text-accent-blue transition-colors">{client.name}</h3>
                     <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white shadow-sm ${client.clientType === 'PREMIUM' ? 'bg-success' : 'bg-text-muted'}`}>
                       {client.clientType}
                     </span>
@@ -140,7 +140,7 @@ const Clients: React.FC = () => {
                   >
                     <Trash2 size={16} />
                   </button>
-                  <button className="p-2 text-text-muted group-hover:text-accent-orange transition-colors border border-transparent group-hover:border-border rounded-lg">
+                  <button className="p-2 text-text-muted group-hover:text-accent-blue transition-colors border border-transparent group-hover:border-border rounded-lg">
                     <ExternalLink size={18} />
                   </button>
                </div>
@@ -157,7 +157,7 @@ const Clients: React.FC = () => {
            <div className="bg-bg-surface border border-border rounded-3xl w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
               <div className="p-6 border-b border-border flex justify-between items-center bg-bg-surface-2">
                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-accent-orange/10 text-accent-orange rounded-2xl flex items-center justify-center shadow-inner"><Building size={20} /></div>
+                     <div className="w-10 h-10 bg-accent-purple/10 text-accent-purple rounded-2xl flex items-center justify-center shadow-inner"><Building size={20} /></div>
                     <h2 className="text-xl font-black text-text-primary uppercase tracking-tighter">Register New Client</h2>
                  </div>
                  <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-bg-surface border border-transparent hover:border-border rounded-xl transition-colors"><X size={18} /></button>
@@ -167,7 +167,7 @@ const Clients: React.FC = () => {
                    <div className="grid grid-cols-2 gap-6">
                       <div className="col-span-2 space-y-2">
                          <label className="text-[10px] font-black text-text-muted uppercase ml-1">Client / Company Name</label>
-                         <input type="text" required className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[13px] outline-none focus:border-accent-orange transition-colors font-bold" placeholder="e.g. Apex Dynamics" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                          <input type="text" required className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[13px] outline-none focus:border-accent-blue transition-colors font-bold" placeholder="e.g. Apex Dynamics" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
                       </div>
                       <div className="space-y-2">
                          <label className="text-[10px] font-black text-text-muted uppercase ml-1">Contact Person</label>
@@ -197,7 +197,7 @@ const Clients: React.FC = () => {
                 </div>
                 <div className="p-6 border-t border-border flex justify-end gap-3 bg-bg-surface-2 rounded-b-2xl">
                    <button type="button" onClick={() => setShowAddModal(false)} className="btn-outline px-8 py-2.5 text-[12px]">Discard</button>
-                   <button type="submit" className="px-10 py-2.5 bg-accent-orange text-white rounded-xl text-[12px] font-black uppercase tracking-widest shadow-xl shadow-accent-orange/20 hover:scale-105 transition-transform">Save Client</button>
+                    <button type="submit" className="btn-primary px-10 py-2.5 text-[12px] font-bold uppercase tracking-wider shadow-xl shadow-accent-purple/20 hover:scale-[1.02] transition-transform">Save Client</button>
                 </div>
               </form>
            </div>

@@ -81,28 +81,28 @@ const Deals: React.FC = () => {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-black text-text-primary uppercase tracking-tight">Deal Pipeline</h1>
-          <p className="text-[10px] text-text-muted mt-2 uppercase font-black tracking-[3px] flex items-center gap-2">
-             <div className="w-1.5 h-1.5 bg-accent-orange rounded-full animate-pulse" />
+          <p className="text-[10px] text-text-muted mt-2 uppercase font-bold tracking-[3px] flex items-center gap-2">
+             <div className="w-1.5 h-1.5 bg-accent-blue rounded-full animate-pulse" />
              {deals.filter(d => d.status === 'ACTIVE').length} ACTIVE NODES · SYSTEM OPERATIONAL
           </p>
         </div>
         <div className="flex gap-3">
-          <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
-             <button 
-               onClick={() => setViewMode('kanban')}
-                className={`p-2 rounded-lg transition-all ${viewMode === 'kanban' ? 'bg-accent-orange text-white shadow-lg shadow-accent-orange/20' : 'text-text-muted hover:text-text-primary'}`}
-              >
-                 <LayoutGrid size={18} />
-              </button>
+            <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
               <button 
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-accent-orange text-white shadow-lg shadow-accent-orange/20' : 'text-text-muted hover:text-text-primary'}`}
-             >
-                <ListIcon size={18} />
-             </button>
-          </div>
+                onClick={() => setViewMode('kanban')}
+                 className={`p-2 rounded-lg transition-all ${viewMode === 'kanban' ? 'bg-accent-blue text-white shadow-lg shadow-accent-blue/20' : 'text-text-muted hover:text-text-primary'}`}
+               >
+                  <LayoutGrid size={18} />
+               </button>
+               <button 
+                 onClick={() => setViewMode('list')}
+                 className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-accent-blue text-white shadow-lg shadow-accent-blue/20' : 'text-text-muted hover:text-text-primary'}`}
+              >
+                 <ListIcon size={18} />
+              </button>
+           </div>
           <ExportButton data={deals} filename="deals_list" />
-          <button onClick={() => navigate('/deals/new')} className="btn-primary text-[11px] px-6 flex items-center gap-2 shadow-xl shadow-accent-orange/20">
+          <button onClick={() => navigate('/deals/new')} className="btn-primary text-[11px] px-6 flex items-center gap-2 shadow-xl shadow-accent-purple/20">
             <Plus size={16} /> New Deal
           </button>
         </div>
@@ -111,7 +111,7 @@ const Deals: React.FC = () => {
       <div className="grid grid-cols-4 gap-6">
          {[
             { label: 'Total Inflow', val: deals.length, color: 'text-text-primary' },
-           { label: 'Active Stream', val: deals.filter(d => d.status === 'ACTIVE').length, color: 'text-accent-orange' },
+           { label: 'Active Stream', val: deals.filter(d => d.status === 'ACTIVE').length, color: 'text-accent-blue' },
            { label: 'Pipeline Value', val: `₹${(deals.reduce((acc, d) => acc + (d.value || 0), 0) / 100000).toFixed(1)}L`, color: 'text-accent-blue' },
            { label: 'Lead Generation', val: deals.filter(d => d.status === 'LEAD').length, color: 'text-success' }
          ].map((stat, i) => (
@@ -128,7 +128,7 @@ const Deals: React.FC = () => {
             <input 
               type="text" 
               placeholder="Filter deals or clients..." 
-              className="w-full bg-bg-surface border border-white/5 rounded-2xl pl-12 pr-4 py-3 text-[13px] text-text-primary focus:outline-none focus:border-accent-orange/50 transition-all"
+              className="w-full bg-bg-surface border border-white/5 rounded-2xl pl-12 pr-4 py-3 text-[13px] text-text-primary focus:outline-none focus:border-accent-blue/50 transition-all"
               value={searchTerm}
               onChange={(e) => setSearchState(e.target.value)}
             />
@@ -139,7 +139,7 @@ const Deals: React.FC = () => {
                 <button 
                   key={s} 
                   onClick={() => setStatusFilter(s)}
-                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${statusFilter === s ? 'bg-accent-orange text-white shadow-lg shadow-accent-orange/20' : 'bg-white/5 text-text-muted border border-white/5 hover:text-text-primary'}`}
+                  className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${statusFilter === s ? 'bg-accent-blue text-white shadow-lg shadow-accent-blue/20' : 'bg-white/5 text-text-muted border border-white/5 hover:text-text-primary'}`}
                 >
                   {s}
                 </button>
@@ -166,7 +166,7 @@ const Deals: React.FC = () => {
             exit={{ opacity: 0 }}
             className="py-40 text-center"
           >
-            <Loader2 className="animate-spin mx-auto text-accent-orange" size={40} />
+            <Loader2 className="animate-spin mx-auto text-accent-blue" size={40} />
             <p className="text-[10px] font-black uppercase tracking-[3px] text-text-muted mt-4">Syncing Pipeline Data...</p>
           </motion.div>
         ) : viewMode === 'kanban' ? (
@@ -194,12 +194,12 @@ const Deals: React.FC = () => {
               <motion.div 
                 key={deal.id}
                 layout
-                className="card border-white/5 bg-bg-surface/30 hover:border-accent-orange/30 transition-all group"
+                className="card border-white/5 bg-bg-surface/30 hover:border-accent-blue/30 transition-all group"
               >
                 <div className="flex justify-between items-start">
                   <div className="space-y-2">
                      <div className="flex items-center gap-3">
-                         <h3 className="text-[15px] font-bold text-text-primary group-hover:text-accent-orange transition-colors">{deal.title}</h3>
+                          <h3 className="text-[15px] font-bold text-text-primary group-hover:text-accent-blue transition-colors">{deal.title}</h3>
                         <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded shadow-inner text-white ${getStatusBg(deal.status)}`}>
                           {deal.status}
                         </span>

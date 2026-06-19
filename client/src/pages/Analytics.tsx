@@ -78,7 +78,7 @@ const Analytics: React.FC = () => {
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`px-4 py-1.5 rounded-lg text-[11px] font-black uppercase transition-all ${period === p ? 'bg-accent-orange text-white shadow-md' : 'text-text-muted hover:text-text-primary'}`}
+                className={`px-4 py-1.5 rounded-lg text-[11px] font-semibold uppercase transition-all ${period === p ? 'bg-accent-blue text-white shadow-[0_0_15px_rgba(88,166,255,0.3)]' : 'text-text-muted hover:text-text-primary'}`}
               >{p}</button>
             ))}
           </div>
@@ -102,9 +102,9 @@ const Analytics: React.FC = () => {
           <div className="text-2xl font-black text-accent-blue mt-2">{loading ? '—' : `₹${avgYield}L`}</div>
           <div className="text-[10px] text-accent-blue/60 font-bold mt-2 uppercase">Per Month</div>
         </div>
-        <div className="card bg-accent-orange/5 border-accent-orange/20">
-          <div className="text-[10px] text-accent-orange font-black uppercase tracking-tighter">Net Profit ({period})</div>
-          <div className={`text-2xl font-black mt-2 ${totalProfit >= 0 ? 'text-success' : 'text-danger'}`}>
+        <div className="card bg-accent-purple/5 border-accent-purple/20">
+          <div className="text-[10px] text-accent-purple font-semibold uppercase tracking-tighter">Net Profit ({period})</div>
+          <div className={`text-2xl font-bold mt-2 ${totalProfit >= 0 ? 'text-success' : 'text-danger'}`}>
             {loading ? '—' : `₹${totalProfit.toFixed(2)}L`}
           </div>
           <div className="flex items-center gap-1 text-[10px] mt-2">
@@ -124,12 +124,12 @@ const Analytics: React.FC = () => {
               <p className="text-[10px] text-text-muted italic">Monthly breakdown in Lakhs (₹L)</p>
             </div>
             <div className="flex gap-4 text-[9px] font-black uppercase tracking-widest">
-              <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-accent-orange rounded-full shadow-[0_0_8px_#f97316]"></div> Revenue</div>
+              <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-accent-blue rounded-full shadow-[0_0_8px_#58a6ff]"></div> Revenue</div>
               <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-accent-blue rounded-full shadow-[0_0_8px_#3b82f6]"></div> Expenses</div>
             </div>
           </div>
           <div className="flex-1 relative">
-            {loading && <div className="absolute inset-0 flex items-center justify-center bg-bg-surface/60 z-10 rounded-xl"><Loader2 size={20} className="animate-spin text-accent-orange" /></div>}
+            {loading && <div className="absolute inset-0 flex items-center justify-center bg-bg-surface/60 z-10 rounded-xl"><Loader2 size={20} className="animate-spin text-accent-blue" /></div>}
             {!loading && revTrend.length === 0 ? <EmptyChart /> : (
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={revTrend}>
@@ -152,7 +152,7 @@ const Analytics: React.FC = () => {
             <p className="text-[10px] text-text-muted italic">Vendor payouts vs indirect costs</p>
           </div>
           <div className="flex-1 relative">
-            {loading && <div className="absolute inset-0 flex items-center justify-center bg-bg-surface/60 z-10 rounded-xl"><Loader2 size={20} className="animate-spin text-accent-orange" /></div>}
+            {loading && <div className="absolute inset-0 flex items-center justify-center bg-bg-surface/60 z-10 rounded-xl"><Loader2 size={20} className="animate-spin text-accent-blue" /></div>}
             {!loading && expBreakdown.length === 0 ? <EmptyChart message="No expense data yet" /> : (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -175,7 +175,7 @@ const Analytics: React.FC = () => {
             Top Client Revenue ({period})
           </div>
           <div className="flex-1 relative">
-            {loading && <div className="absolute inset-0 flex items-center justify-center bg-bg-surface/60 z-10 rounded-xl"><Loader2 size={20} className="animate-spin text-accent-orange" /></div>}
+            {loading && <div className="absolute inset-0 flex items-center justify-center bg-bg-surface/60 z-10 rounded-xl"><Loader2 size={20} className="animate-spin text-accent-blue" /></div>}
             {!loading && (data?.breakdown || []).length === 0 ? <EmptyChart message="No client invoice data yet" /> : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data?.breakdown || []} layout="vertical" margin={{ left: 10 }}>
@@ -195,12 +195,12 @@ const Analytics: React.FC = () => {
         </div>
 
         <div className="card h-[360px] flex flex-col border-border/40 overflow-hidden relative shadow-xl">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-orange to-purple-500"></div>
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-blue to-accent-purple"></div>
           <div className="mb-8 font-black uppercase tracking-widest text-[11px] text-text-muted">
             GST Collected vs Paid (All-time)
           </div>
           <div className="flex-1 relative">
-            {loading && <div className="absolute inset-0 flex items-center justify-center bg-bg-surface/60 z-10 rounded-xl"><Loader2 size={20} className="animate-spin text-accent-orange" /></div>}
+            {loading && <div className="absolute inset-0 flex items-center justify-center bg-bg-surface/60 z-10 rounded-xl"><Loader2 size={20} className="animate-spin text-accent-blue" /></div>}
             {!loading && !gstReport ? <EmptyChart message="No GST data yet" /> : (() => {
               const gstData = [
                 { name: 'CGST', collected: gstReport?.collected?.cgst || 0, paid: gstReport?.paid?.cgst || 0, balance: gstReport?.balance?.cgst || 0 },

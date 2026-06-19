@@ -74,7 +74,7 @@ const Invoices: React.FC = () => {
           <ExportButton data={invoices} filename="business_invoices" />
           <button 
             onClick={() => navigate('/invoices/new')} 
-            className="btn-primary text-[12px] py-1.5 flex items-center gap-2 shadow-lg shadow-accent-orange/30"
+            className="btn-primary text-[12px] py-1.5 flex items-center gap-2 shadow-lg shadow-accent-purple/30"
           >
             <Plus size={16} /> Generate Invoice
           </button>
@@ -106,7 +106,7 @@ const Invoices: React.FC = () => {
            <input 
              type="text" 
              placeholder="Search by invoice number or client..." 
-             className="w-full bg-bg-surface-2 border border-border rounded-xl pl-9 pr-3 py-2.5 text-[12px] focus:outline-none focus:border-accent-orange transition-colors"
+              className="w-full bg-bg-surface-2 border border-border rounded-xl pl-9 pr-3 py-2.5 text-[12px] focus:outline-none focus:border-accent-blue transition-colors"
              value={searchTerm}
              onChange={(e) => setSearchTerm(e.target.value)}
            />
@@ -125,11 +125,11 @@ const Invoices: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-border">
                {isLoading ? (
-                 <tr><td colSpan={4} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-accent-orange" /></td></tr>
+                  <tr><td colSpan={4} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-accent-blue" /></td></tr>
                ) : filteredInvoices.map((inv) => (
                   <tr key={inv.id} className="hover:bg-bg-surface-2 transition-colors cursor-pointer group" onClick={() => navigate(`/invoices/${inv.id}`)}>
                      <td className="px-6 py-4">
-                        <div className="text-[13px] font-bold text-text-primary group-hover:text-accent-orange transition-colors">{inv.invoiceNumber}</div>
+                         <div className="text-[13px] font-bold text-text-primary group-hover:text-accent-blue transition-colors">{inv.invoiceNumber}</div>
                         <div className="flex items-center gap-2 text-[10px] text-text-muted mt-1 uppercase font-black tracking-tighter">
                            <Calendar size={12} className="text-accent-blue" /> {inv.invoiceDate ? format(new Date(inv.invoiceDate), 'dd MMM yyyy') : 'N/A'}
                         </div>
@@ -145,7 +145,7 @@ const Invoices: React.FC = () => {
                             </span>
                             <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-[100] top-full left-1/2 -translate-x-1/2 mt-1 min-w-[120px]">
                                {['DRAFT', 'PENDING', 'PAID', 'OVERDUE', 'CANCELLED'].map(s => (
-                                  <button key={s} onClick={() => updateStatus(inv.id, s)} className="text-[9px] text-left hover:text-accent-orange text-text-primary font-bold py-1.5 uppercase transition-colors" style={{ fontSize: '9px' }}>{s}</button>
+                                  <button key={s} onClick={() => updateStatus(inv.id, s)} className="text-[9px] text-left hover:text-accent-blue text-text-primary font-bold py-1.5 uppercase transition-colors" style={{ fontSize: '9px' }}>{s}</button>
                                ))}
                             </div>
                          </div>
@@ -153,7 +153,7 @@ const Invoices: React.FC = () => {
                      <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-4">
                            <div className="text-[14px] font-black text-text-primary">₹{(inv.totalAmount || 0).toLocaleString()}</div>
-                           <button onClick={(e) => { e.stopPropagation(); navigate(`/invoices/${inv.id}`); }} className="p-2 text-text-muted hover:text-accent-orange border border-transparent hover:border-border rounded-lg transition-all">
+                            <button onClick={(e) => { e.stopPropagation(); navigate(`/invoices/${inv.id}`); }} className="p-2 text-text-muted hover:text-accent-blue border border-transparent hover:border-border rounded-lg transition-all">
                               <Eye size={16} />
                            </button>
                         </div>

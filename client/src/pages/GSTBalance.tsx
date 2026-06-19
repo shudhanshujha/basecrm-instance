@@ -29,7 +29,7 @@ const GSTBalance: React.FC = () => {
     }
   };
 
-  if (loading) return <div className="p-20 text-center"><Loader2 className="animate-spin mx-auto text-accent-orange" /></div>;
+  if (loading) return <div className="p-20 text-center"><Loader2 className="animate-spin mx-auto text-accent-blue" /></div>;
 
   const gst = data?.gstReport || {};
   const collected = gst.collected || { cgst: 0, sgst: 0, igst: 0 };
@@ -61,11 +61,11 @@ const GSTBalance: React.FC = () => {
             <div className="text-xl font-black text-text-primary mt-2">₹{((paid.cgst || 0) + (paid.sgst || 0) + (paid.igst || 0))?.toLocaleString() || 0}</div>
             <p className="text-[9px] text-accent-blue font-bold mt-2 uppercase tracking-tighter">Tax on Purchases</p>
          </div>
-         <div className="card bg-accent-orange border-accent-orange shadow-lg shadow-accent-orange/20">
-            <div className="text-[9px] text-white/80 uppercase font-black tracking-widest">Net Payable</div>
-            <div className="text-xl font-black text-white mt-2">₹{((balance.cgst || 0) + (balance.sgst || 0) + (balance.igst || 0))?.toLocaleString() || 0}</div>
-            <p className="text-[9px] text-white/60 mt-2 font-bold italic uppercase tracking-tighter">Final Liability</p>
-         </div>
+          <div className="card bg-gradient-to-r from-accent-orange to-accent-purple border border-accent-orange/30 shadow-lg shadow-accent-orange/20">
+             <div className="text-[9px] text-white/80 uppercase font-semibold tracking-widest">Net Payable</div>
+             <div className="text-xl font-bold text-white mt-2">₹{((balance.cgst || 0) + (balance.sgst || 0) + (balance.igst || 0))?.toLocaleString() || 0}</div>
+             <p className="text-[9px] text-white/60 mt-2 font-semibold italic uppercase tracking-tighter">Final Liability</p>
+          </div>
          <div className="card border-border/40 bg-bg-surface-2/50">
             <div className="text-[9px] text-text-muted uppercase font-black tracking-widest">Filing Readiness</div>
             <div className="text-xl font-black text-warning mt-2">Verified</div>
