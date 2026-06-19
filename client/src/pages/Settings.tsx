@@ -174,7 +174,7 @@ const Settings: React.FC = () => {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold text-text-primary uppercase tracking-tight">System Settings</h1>
-          <p className="text-[15px] text-text-muted mt-1 uppercase tracking-widest font-black">Global Parameters & Data Integrity</p>
+          <p className="text-[15px] text-text-muted mt-1 uppercase tracking-widest font-black">Global Parameters &amp; Data Integrity</p>
         </div>
         <div className="flex gap-3">
           <button onClick={() => setActiveSection('backup')} className="btn-outline flex items-center gap-2 px-4 text-accent-blue border-accent-blue/30"><Download size={16} /> System Backup</button>
@@ -184,32 +184,33 @@ const Settings: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-8">
-        <div className="col-span-1 space-y-1">
+      <div className="flex gap-8">
+        {/* Fixed-width sidebar — prevents label wrapping */}
+        <div className="w-[220px] shrink-0 space-y-1">
           {[
             { id: 'profile', label: 'Company Profile', icon: <Building size={16} /> },
             { id: 'banking', label: 'Bank Details', icon: <Landmark size={16} /> },
             { id: 'users', label: 'User Management', icon: <Users size={16} /> },
             { id: 'notifications', label: 'Notification Center', icon: <Bell size={16} /> },
-            { id: 'backup', label: 'Data & Backup', icon: <Download size={16} /> },
+            { id: 'backup', label: 'Data &amp; Backup', icon: <Download size={16} /> },
             { id: 'infra', label: 'System Architecture', icon: <Server size={16} /> },
           ].map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveSection(item.id as any)}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-[13px] font-semibold uppercase tracking-wider transition-all whitespace-nowrap overflow-hidden ${
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-[13px] font-semibold uppercase tracking-wider transition-all whitespace-nowrap ${
                 activeSection === item.id 
                   ? 'bg-accent-blue/10 text-accent-blue shadow-lg shadow-accent-blue/10 border border-accent-blue/20' 
                   : 'text-text-muted hover:bg-bg-surface-2 hover:text-text-primary'
               }`}
             >
               <span className="shrink-0">{item.icon}</span>
-              <span className="truncate">{item.label}</span>
+              <span>{item.label}</span>
             </button>
           ))}
         </div>
 
-        <div className="col-span-3 space-y-6">
+        <div className="flex-1 min-w-0 space-y-6">
           {activeSection === 'profile' && (
             <div className="card space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="flex items-center justify-between border-b border-border pb-4">
@@ -429,7 +430,7 @@ const Settings: React.FC = () => {
              <div className="card space-y-8 animate-in fade-in slide-in-from-right-4">
                 <div className="flex items-center gap-3 border-b border-border pb-4">
                    <Download className="text-accent-blue" />
-                   <h2 className="text-lg font-bold uppercase tracking-tight">System Data & Backup</h2>
+                   <h2 className="text-lg font-bold uppercase tracking-tight">System Data &amp; Backup</h2>
                 </div>
                 <div className="grid grid-cols-1 max-w-sm mx-auto">
                    <div className="p-6 bg-bg-surface-2 border border-border rounded-2xl flex flex-col items-center text-center gap-4 hover:border-success transition-all cursor-pointer group" onClick={() => handleSystemBackup('excel')}>
