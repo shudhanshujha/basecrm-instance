@@ -108,7 +108,7 @@ const Clients: React.FC = () => {
         ) : filteredClients.map((client) => (
           <div key={client.id} onClick={() => navigate(`/clients/${client.id}`)} className="card hover:border-accent-blue transition-all cursor-pointer group flex items-center justify-between bg-bg-surface border-border/50">
             <div className="flex items-center gap-4">
- className="w-12 h-12 bg-bg-surface-2 rounded-xl border border-border flex items-center justify-center font-bold text-accent-blue text-[16px] shadow-sm group-hover:scale-105 transition-transform">
+               <div className="w-12 h-12 bg-bg-surface-2 rounded-xl border border-border flex items-center justify-center font-bold text-accent-blue text-[16px] shadow-sm group-hover:scale-105 transition-transform">
                   {client.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                </div>
                <div>
