@@ -55,7 +55,10 @@
   .card:hover {
     @apply border-accent-blue/30;
     box-shadow: 0 8px 32px 0 rgba(88, 166, 255, 0.08);
-    .btn-primary {
+    transform: translateY(-1px);
+  }
+
+  .btn-primary {
     @apply relative overflow-hidden bg-gradient-to-r from-accent-purple to-accent-blue text-white px-6 py-2.5 rounded-xl font-semibold uppercase tracking-wider text-[12px] transition-all duration-300 shadow-lg shadow-accent-purple/20;
   }
 
