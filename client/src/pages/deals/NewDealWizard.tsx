@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   User, Calendar, DollarSign, Box, 
@@ -83,7 +83,7 @@ const NewDealWizard: React.FC = () => {
     return (
       <div className="h-full w-full flex flex-col items-center justify-center gap-4 text-text-muted">
         <Loader2 className="animate-spin text-accent-orange" size={40} />
-        <p className="font-black uppercase tracking-widest text-[10px]">Syncing Database...</p>
+        <p className="font-black uppercase tracking-widest text-[13px]">Syncing Database...</p>
       </div>
     );
   }
@@ -110,25 +110,25 @@ const NewDealWizard: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-xl font-bold uppercase tracking-tight">Deal Identity</h2>
-                <p className="text-[11px] text-text-muted font-medium uppercase tracking-widest">Step 01 · Basic Information</p>
+                <p className="text-[14px] text-text-muted font-medium uppercase tracking-widest">Step 01 · Basic Information</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Deal Title</label>
+                <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">Deal Title</label>
                 <input 
                   type="text" 
                   placeholder="e.g. Q3 Consulting Engagement"
-                  className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3.5 text-[13px] focus:outline-none focus:border-accent-orange transition-all font-bold"
+                  className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3.5 text-[16px] focus:outline-none focus:border-accent-orange transition-all font-bold"
                   value={formData.title}
                   onChange={e => setFormData({...formData, title: e.target.value})}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Assign Client</label>
+                <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">Assign Client</label>
                 <select 
-                  className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3.5 text-[13px] outline-none focus:border-accent-orange appearance-none font-bold text-text-primary"
+                  className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3.5 text-[16px] outline-none focus:border-accent-orange appearance-none font-bold text-text-primary"
                   value={formData.clientId}
                   onChange={e => setFormData({...formData, clientId: e.target.value})}
                 >
@@ -152,45 +152,45 @@ const NewDealWizard: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-xl font-bold uppercase tracking-tight">Timeline & Value</h2>
-                <p className="text-[11px] text-text-muted font-medium uppercase tracking-widest">Step 02 · Schedule & Financials</p>
+                <p className="text-[14px] text-text-muted font-medium uppercase tracking-widest">Step 02 · Schedule & Financials</p>
               </div>
             </div>
 
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Start Date</label>
+                    <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">Start Date</label>
                     <input 
                       type="date" 
-                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-accent-blue"
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] outline-none focus:border-accent-blue"
                       value={formData.startDate}
                       onChange={e => setFormData({...formData, startDate: e.target.value})}
                     />
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">End Date</label>
+                    <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">End Date</label>
                     <input 
                       type="date" 
-                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-accent-blue"
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] outline-none focus:border-accent-blue"
                       value={formData.endDate}
                       onChange={e => setFormData({...formData, endDate: e.target.value})}
                     />
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Category</label>
+                    <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">Category</label>
                     <input 
                       type="text" 
-                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-accent-blue font-bold"
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] outline-none focus:border-accent-blue font-bold"
                       value={formData.category}
                       onChange={e => setFormData({...formData, category: e.target.value})}
                     />
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Estimated Value (₹)</label>
+                    <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">Estimated Value (₹)</label>
                     <input 
                       type="number" 
                       placeholder="0.00" 
-                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-accent-blue font-bold" 
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] outline-none focus:border-accent-blue font-bold" 
                       value={formData.value}
                       onChange={e => setFormData({...formData, value: e.target.value})}
                     />
@@ -198,10 +198,10 @@ const NewDealWizard: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                 <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Initial Notes</label>
+                 <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">Initial Notes</label>
                  <textarea 
                    rows={4}
-                   className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-accent-blue resize-none"
+                   className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] outline-none focus:border-accent-blue resize-none"
                    placeholder="Enter any preliminary deal notes..."
                    value={formData.notes}
                    onChange={e => setFormData({...formData, notes: e.target.value})}
@@ -219,7 +219,7 @@ const NewDealWizard: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-xl font-bold uppercase tracking-tight">Asset Allocation</h2>
-                <p className="text-[11px] text-text-muted font-medium uppercase tracking-widest">Step 03 · Resource Assignment</p>
+                <p className="text-[14px] text-text-muted font-medium uppercase tracking-widest">Step 03 · Resource Assignment</p>
               </div>
             </div>
 
@@ -233,10 +233,10 @@ const NewDealWizard: React.FC = () => {
                     <div className="flex items-center gap-4">
                        <div className={`w-2 h-10 rounded-full ${asset.status === 'ACTIVE' ? 'bg-success' : 'bg-warning'}`}></div>
                        <div>
-                          <p className="text-[13px] font-bold text-text-primary uppercase">{asset.name}</p>
+                          <p className="text-[16px] font-bold text-text-primary uppercase">{asset.name}</p>
                           <div className="flex items-center gap-2 mt-1">
-                             <span className="text-[10px] text-text-muted font-bold uppercase tracking-tighter">{asset.category}</span>
-                             <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md ${asset.status === 'ACTIVE' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
+                             <span className="text-[13px] text-text-muted font-bold uppercase tracking-tighter">{asset.category}</span>
+                             <span className={`text-[11px] font-black uppercase px-1.5 py-0.5 rounded-md ${asset.status === 'ACTIVE' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
                                 {asset.status}
                              </span>
                           </div>
@@ -258,14 +258,14 @@ const NewDealWizard: React.FC = () => {
         <div className="flex justify-between mt-12 pt-6 border-t border-border">
            <button 
              onClick={step === 1 ? () => navigate('/deals') : handleBack}
-             className="btn-outline px-6 py-2 flex items-center gap-2 text-[12px]"
+             className="btn-outline px-6 py-2 flex items-center gap-2 text-[15px]"
            >
              {step === 1 ? <X size={16} /> : <ChevronLeft size={16} />} 
              {step === 1 ? 'Cancel' : 'Back'}
            </button>
            <button 
              onClick={step === 3 ? handleSubmit : handleNext}
-             className="btn-primary px-8 py-2 flex items-center gap-2 text-[12px] shadow-lg shadow-accent-orange/30"
+             className="btn-primary px-8 py-2 flex items-center gap-2 text-[15px] shadow-lg shadow-accent-orange/30"
            >
              {step === 3 ? 'Finalize Deal' : 'Continue'} 
              {step === 3 ? <Check size={16} /> : <ChevronRight size={16} />}

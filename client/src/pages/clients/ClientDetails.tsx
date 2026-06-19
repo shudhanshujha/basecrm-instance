@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Mail, Phone, MapPin, 
@@ -88,7 +88,7 @@ const ClientDetails: React.FC = () => {
   if (loading) return (
     <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
       <Loader2 className="animate-spin text-accent-orange" size={40} />
-      <p className="text-[10px] font-black uppercase tracking-[3px] text-text-muted">Syncing System Entity...</p>
+      <p className="text-[13px] font-black uppercase tracking-[3px] text-text-muted">Syncing System Entity...</p>
     </div>
   );
 
@@ -114,7 +114,7 @@ const ClientDetails: React.FC = () => {
                 ) : (
                   <h1 className="text-2xl font-bold text-text-primary uppercase tracking-tight">{client.name}</h1>
                 )}
-                <span className="bg-success text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-sm shadow-success/20">{client.clientType || 'REGULAR'} Partner</span>
+                <span className="bg-success text-white text-[12px] font-black uppercase px-2 py-0.5 rounded-full shadow-sm shadow-success/20">{client.clientType || 'REGULAR'} Partner</span>
              </div>
              <p className="text-xs text-text-muted mt-1 uppercase tracking-widest font-bold flex items-center gap-2">
                 <div className="w-1.5 h-1.5 bg-accent-orange rounded-full animate-pulse" />
@@ -125,13 +125,13 @@ const ClientDetails: React.FC = () => {
         <div className="flex gap-2">
            {isEditing ? (
              <>
-               <button onClick={() => setIsEditing(false)} className="btn-outline px-4 py-1.5 flex items-center gap-2 text-[12px]"><X size={14} /> Cancel</button>
-               <button onClick={handleSave} className="btn-primary px-6 py-1.5 flex items-center gap-2 text-[12px]"><Check size={14} /> Save Profile</button>
+               <button onClick={() => setIsEditing(false)} className="btn-outline px-4 py-1.5 flex items-center gap-2 text-[15px]"><X size={14} /> Cancel</button>
+               <button onClick={handleSave} className="btn-primary px-6 py-1.5 flex items-center gap-2 text-[15px]"><Check size={14} /> Save Profile</button>
              </>
            ) : (
              <>
                <button onClick={handleDelete} className="p-2.5 text-text-muted hover:text-danger hover:bg-danger/10 border border-border rounded-xl transition-all"><Trash2 size={18} /></button>
-               <button onClick={() => setIsEditing(true)} className="btn-outline px-4 py-1.5 flex items-center gap-2 text-[12px] hover:text-accent-orange"><Edit3 size={14} /> Edit Information</button>
+               <button onClick={() => setIsEditing(true)} className="btn-outline px-4 py-1.5 flex items-center gap-2 text-[15px] hover:text-accent-orange"><Edit3 size={14} /> Edit Information</button>
              </>
            )}
         </div>
@@ -139,22 +139,22 @@ const ClientDetails: React.FC = () => {
 
       <div className="grid grid-cols-4 gap-4">
          <div className="col-span-1 card bg-bg-surface/30 border-white/5 flex flex-col justify-center gap-3">
-            <div className="flex items-center gap-3 text-text-muted text-[11px]">
+            <div className="flex items-center gap-3 text-text-muted text-[14px]">
                <Mail size={14} className="text-accent-blue" />
                {isEditing ? (
                  <input className="bg-bg-surface border border-border rounded px-2 py-0.5 w-full outline-none" value={client.email || ''} onChange={e => setClient({...client, email: e.target.value})} />
                ) : <span className="font-bold truncate">{client.email || 'No email registered'}</span>}
             </div>
-            <div className="flex items-center gap-3 text-text-muted text-[11px]">
+            <div className="flex items-center gap-3 text-text-muted text-[14px]">
                <Phone size={14} className="text-accent-orange" />
                {isEditing ? (
                  <input className="bg-bg-surface border border-border rounded px-2 py-0.5 w-full outline-none" value={client.phone || ''} onChange={e => setClient({...client, phone: e.target.value})} />
                ) : <span className="font-bold">{client.phone || 'No phone registered'}</span>}
             </div>
-            <div className="flex items-start gap-3 text-text-muted text-[11px]">
+            <div className="flex items-start gap-3 text-text-muted text-[14px]">
                <MapPin size={14} className="text-danger shrink-0 mt-0.5" />
                {isEditing ? (
-                 <textarea className="bg-bg-surface border border-border rounded px-2 py-0.5 w-full outline-none h-16 text-[10px]" value={client.address || ''} onChange={e => setClient({...client, address: e.target.value})} />
+                 <textarea className="bg-bg-surface border border-border rounded px-2 py-0.5 w-full outline-none h-16 text-[13px]" value={client.address || ''} onChange={e => setClient({...client, address: e.target.value})} />
                ) : <span className="leading-tight font-medium opacity-70 italic">{client.address || 'No address registered'}</span>}
             </div>
          </div>
@@ -164,11 +164,11 @@ const ClientDetails: React.FC = () => {
             <div className="absolute top-0 right-0 p-2 opacity-20 group-hover:scale-110 transition-transform">
                <TrendingUp size={40} className="text-danger rotate-180" />
             </div>
-            <div className="text-[10px] text-danger uppercase tracking-widest font-black">Outstanding Node</div>
+            <div className="text-[13px] text-danger uppercase tracking-widest font-black">Outstanding Node</div>
             <div className="text-2xl font-black text-danger mt-2">
               ₹{outstanding.toLocaleString()}
             </div>
-            <div className="text-[10px] text-danger/60 font-bold mt-2 uppercase">{client.invoices?.filter((i: any) => i.status === 'PENDING').length || 0} Open Invoices</div>
+            <div className="text-[13px] text-danger/60 font-bold mt-2 uppercase">{client.invoices?.filter((i: any) => i.status === 'PENDING').length || 0} Open Invoices</div>
          </div>
       </div>
 
@@ -178,7 +178,7 @@ const ClientDetails: React.FC = () => {
               <button 
                 key={tab}
                 onClick={() => setActiveTab(tab as any)}
-                className={`px-8 py-4 text-[11px] font-black uppercase tracking-widest transition-all relative ${activeTab === tab ? 'text-accent-orange bg-white/5' : 'text-text-muted hover:text-text-primary'}`}
+                className={`px-8 py-4 text-[14px] font-black uppercase tracking-widest transition-all relative ${activeTab === tab ? 'text-accent-orange bg-white/5' : 'text-text-muted hover:text-text-primary'}`}
               >
                 {tab}
                 {activeTab === tab && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-accent-orange rounded-t-full shadow-[0_-4px_12px_#f97316]"></motion.div>}
@@ -203,23 +203,23 @@ const ClientDetails: React.FC = () => {
                                  <Briefcase size={20} />
                               </div>
                               <div>
-                                  <p className="text-[13px] font-bold text-text-primary uppercase tracking-tight">{d.title}</p>
-                                  <p className="text-[10px] text-text-muted mt-0.5 uppercase font-black tracking-widest">{format(new Date(d.startDate), 'dd MMM yy')} — {format(new Date(d.endDate), 'dd MMM yy')}</p>
+                                  <p className="text-[16px] font-bold text-text-primary uppercase tracking-tight">{d.title}</p>
+                                  <p className="text-[13px] text-text-muted mt-0.5 uppercase font-black tracking-widest">{format(new Date(d.startDate), 'dd MMM yy')} — {format(new Date(d.endDate), 'dd MMM yy')}</p>
                                </div>
                             </div>
                             <div className="flex items-center gap-8 text-right">
                                <div>
-                                  <p className="text-[14px] font-black text-text-primary">₹{d.value?.toLocaleString() || 0}</p>
-                                 <p className="text-[9px] text-text-muted uppercase font-bold tracking-tighter">Agreement Value</p>
+                                  <p className="text-[17px] font-black text-text-primary">₹{d.value?.toLocaleString() || 0}</p>
+                                 <p className="text-[12px] text-text-muted uppercase font-bold tracking-tighter">Agreement Value</p>
                               </div>
-                              <span className={`text-[8px] font-black uppercase px-2.5 py-0.5 rounded-lg text-white border ${d.status === 'ACTIVE' ? 'bg-success/10 text-success border-success/20' : 'bg-accent-blue/10 text-accent-blue border-accent-blue/20'}`}>
+                              <span className={`text-[11px] font-black uppercase px-2.5 py-0.5 rounded-lg text-white border ${d.status === 'ACTIVE' ? 'bg-success/10 text-success border-success/20' : 'bg-accent-blue/10 text-accent-blue border-accent-blue/20'}`}>
                                 {d.status}
                               </span>
                               <ArrowRight size={16} className="text-text-muted group-hover:text-accent-orange transition-colors" />
                            </div>
                         </div>
                      )) : (
-                       <div className="py-20 text-center text-text-muted italic text-[12px] border-2 border-dashed border-white/5 rounded-3xl uppercase tracking-widest font-black">No system engagement nodes found.</div>
+                       <div className="py-20 text-center text-text-muted italic text-[15px] border-2 border-dashed border-white/5 rounded-3xl uppercase tracking-widest font-black">No system engagement nodes found.</div>
                      )}
                   </motion.div>
                )}
@@ -233,22 +233,22 @@ const ClientDetails: React.FC = () => {
                                  <FileText size={18} />
                               </div>
                               <div>
-                                  <p className="text-[13px] font-black text-text-primary uppercase tracking-tight">#{inv.invoiceNumber}</p>
-                                  <p className="text-[10px] text-text-muted mt-1 uppercase font-bold">{format(new Date(inv.invoiceDate), 'dd MMMM yyyy')}</p>
+                                  <p className="text-[16px] font-black text-text-primary uppercase tracking-tight">#{inv.invoiceNumber}</p>
+                                  <p className="text-[13px] text-text-muted mt-1 uppercase font-bold">{format(new Date(inv.invoiceDate), 'dd MMMM yyyy')}</p>
                                </div>
                             </div>
                             <div className="text-right flex items-center gap-10">
                                <div>
-                                  <p className="text-[14px] font-black text-text-primary">₹{inv.totalAmount.toLocaleString()}</p>
-                                 <p className="text-[9px] text-text-muted uppercase font-black tracking-widest mt-1">Total Due</p>
+                                  <p className="text-[17px] font-black text-text-primary">₹{inv.totalAmount.toLocaleString()}</p>
+                                 <p className="text-[12px] text-text-muted uppercase font-black tracking-widest mt-1">Total Due</p>
                               </div>
-                              <span className={`text-[8px] font-black uppercase px-3 py-1 rounded-lg border ${inv.status === 'PAID' ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
+                              <span className={`text-[11px] font-black uppercase px-3 py-1 rounded-lg border ${inv.status === 'PAID' ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
                                  {inv.status}
                               </span>
                            </div>
                         </div>
                      )) : (
-                        <div className="py-20 text-center text-text-muted italic text-[12px] border-2 border-dashed border-white/5 rounded-3xl">No invoice records found.</div>
+                        <div className="py-20 text-center text-text-muted italic text-[15px] border-2 border-dashed border-white/5 rounded-3xl">No invoice records found.</div>
                      )}
                   </motion.div>
                )}
@@ -262,17 +262,17 @@ const ClientDetails: React.FC = () => {
                                  <CreditCard size={18} />
                               </div>
                               <div>
-                                  <p className="text-[13px] font-black text-text-primary uppercase tracking-tight">Payment Receipt</p>
-                                 <p className="text-[10px] text-text-muted mt-1 uppercase font-bold">{format(new Date(p.paymentDate), 'dd MMMM yyyy')} · {p.paymentMode}</p>
+                                  <p className="text-[16px] font-black text-text-primary uppercase tracking-tight">Payment Receipt</p>
+                                 <p className="text-[13px] text-text-muted mt-1 uppercase font-bold">{format(new Date(p.paymentDate), 'dd MMMM yyyy')} · {p.paymentMode}</p>
                               </div>
                            </div>
                            <div className="text-right">
-                              <p className="text-[15px] font-black text-success tracking-tight">₹{p.amount.toLocaleString()}</p>
-                              <p className="text-[9px] text-text-muted uppercase font-black tracking-widest mt-1">Node Settled</p>
+                              <p className="text-[18px] font-black text-success tracking-tight">₹{p.amount.toLocaleString()}</p>
+                              <p className="text-[12px] text-text-muted uppercase font-black tracking-widest mt-1">Node Settled</p>
                            </div>
                         </div>
                      )) : (
-                        <div className="py-20 text-center text-text-muted italic text-[12px] border-2 border-dashed border-white/5 rounded-3xl">No payment history compiled.</div>
+                        <div className="py-20 text-center text-text-muted italic text-[15px] border-2 border-dashed border-white/5 rounded-3xl">No payment history compiled.</div>
                      )}
                   </motion.div>
                )}

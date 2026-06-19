@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Calendar, Box, 
@@ -109,9 +109,9 @@ const DealDetails: React.FC = () => {
             <div className="flex items-center gap-2">
                <Briefcase size={16} className="text-accent-blue" />
                <h1 className="text-2xl font-bold text-text-primary uppercase tracking-tight">{deal.title}</h1>
-               <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white ${deal.status === 'ACTIVE' ? 'bg-success' : 'bg-text-muted'}`}>{deal.status}</span>
+               <span className={`text-[12px] font-black uppercase px-2.5 py-0.5 rounded-full text-white ${deal.status === 'ACTIVE' ? 'bg-success' : 'bg-text-muted'}`}>{deal.status}</span>
             </div>
-            <p className="text-[11px] text-text-muted uppercase tracking-widest font-black mt-1">Client: {deal.client?.name} · {format(new Date(deal.startDate), 'dd MMM yyyy')} - {format(new Date(deal.endDate), 'dd MMM yyyy')}</p>
+            <p className="text-[14px] text-text-muted uppercase tracking-widest font-black mt-1">Client: {deal.client?.name} · {format(new Date(deal.startDate), 'dd MMM yyyy')} - {format(new Date(deal.endDate), 'dd MMM yyyy')}</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -125,7 +125,7 @@ const DealDetails: React.FC = () => {
              }))} 
              filename={`${(deal.title || 'deal').replace(/[^a-z0-9]/gi, '_')}_activities`} 
            />
-           <button onClick={() => navigate('/invoices')} className="btn-primary flex items-center gap-2 text-[12px]">
+           <button onClick={() => navigate('/invoices')} className="btn-primary flex items-center gap-2 text-[15px]">
              View Billing
            </button>
         </div>
@@ -135,11 +135,11 @@ const DealDetails: React.FC = () => {
          <KPICard label="Total Deal Value" value={`₹${(dealValue / 100000).toFixed(1)}L`} />
          <KPICard label="Activities Logged" value={(deal.activityLogs?.length || 0).toString()} />
          <div className="card border-border/40 flex flex-col justify-center">
-            <div className="text-[10px] text-text-muted uppercase font-black tracking-widest">Invoices Generated</div>
+            <div className="text-[13px] text-text-muted uppercase font-black tracking-widest">Invoices Generated</div>
             <div className="text-xl font-black text-text-primary mt-1">{deal.invoices?.length || 0}</div>
          </div>
          <div className="card bg-accent-blue/5 border-accent-blue/20 flex flex-col justify-center">
-            <div className="text-[10px] text-accent-blue uppercase font-black tracking-widest">Time Remaining</div>
+            <div className="text-[13px] text-accent-blue uppercase font-black tracking-widest">Time Remaining</div>
             <div className="text-2xl font-black text-text-primary mt-1">{daysLeft} Days</div>
          </div>
       </div>
@@ -148,11 +148,11 @@ const DealDetails: React.FC = () => {
          <div className="col-span-2 space-y-6">
             <div className="card p-0 overflow-hidden border-border/50 shadow-xl">
                <div className="p-4 border-b border-border bg-bg-surface-2 flex justify-between items-center">
-                  <h3 className="text-[11px] font-black text-text-primary uppercase tracking-widest flex items-center gap-2">
+                  <h3 className="text-[14px] font-black text-text-primary uppercase tracking-widest flex items-center gap-2">
                      <Box size={14} className="text-accent-orange" /> Associated Activities & Assets
                   </h3>
                   <div className="flex gap-2">
-                    <button onClick={() => navigate('/assets')} className="bg-bg-surface border border-border text-[9px] font-black text-accent-orange px-3 py-1 rounded-full hover:border-accent-orange transition-all uppercase tracking-tighter flex items-center gap-1.5">
+                    <button onClick={() => navigate('/assets')} className="bg-bg-surface border border-border text-[12px] font-black text-accent-orange px-3 py-1 rounded-full hover:border-accent-orange transition-all uppercase tracking-tighter flex items-center gap-1.5">
                        <Plus size={12} /> Add Activity/Asset
                     </button>
                   </div>
@@ -160,7 +160,7 @@ const DealDetails: React.FC = () => {
                <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                      <thead>
-                        <tr className="bg-bg-surface-2/30 border-b border-border text-[9px] text-text-muted uppercase font-black tracking-widest">
+                        <tr className="bg-bg-surface-2/30 border-b border-border text-[12px] text-text-muted uppercase font-black tracking-widest">
                            <th className="px-6 py-4">Activity / Description</th>
                            <th className="px-6 py-4">Asset Involved</th>
                            <th className="px-6 py-4 text-right">Timestamp</th>
@@ -170,16 +170,16 @@ const DealDetails: React.FC = () => {
                         {deal.activityLogs?.length > 0 ? deal.activityLogs.map((log: any, i: number) => (
                            <tr key={i} className="hover:bg-bg-surface-2 transition-colors cursor-pointer group" onClick={() => log.assetId && navigate(`/assets/${log.assetId}`)}>
                               <td className="px-6 py-4">
-                                 <div className="text-[13px] font-bold text-text-primary group-hover:text-accent-orange transition-colors">{log.activityType}</div>
-                                 <div className="text-[10px] text-text-muted font-bold mt-1">{log.description}</div>
+                                 <div className="text-[16px] font-bold text-text-primary group-hover:text-accent-orange transition-colors">{log.activityType}</div>
+                                 <div className="text-[13px] text-text-muted font-bold mt-1">{log.description}</div>
                               </td>
-                              <td className="px-6 py-4 text-[11px] font-medium text-text-primary uppercase">{log.asset?.name || 'N/A'}</td>
-                              <td className="px-6 py-4 text-right font-mono text-[11px] text-text-muted">
+                              <td className="px-6 py-4 text-[14px] font-medium text-text-primary uppercase">{log.asset?.name || 'N/A'}</td>
+                              <td className="px-6 py-4 text-right font-mono text-[14px] text-text-muted">
                                  {new Date(log.timestamp).toLocaleDateString()}
                               </td>
                            </tr>
                         )) : (
-                          <tr><td colSpan={3} className="text-center py-10 text-text-muted text-[12px] italic">No activities recorded for this deal yet.</td></tr>
+                          <tr><td colSpan={3} className="text-center py-10 text-text-muted text-[15px] italic">No activities recorded for this deal yet.</td></tr>
                         )}
                      </tbody>
                   </table>
@@ -189,7 +189,7 @@ const DealDetails: React.FC = () => {
 
          <div className="space-y-6">
             <div className="card">
-               <h3 className="text-[13px] font-black text-text-primary uppercase tracking-widest mb-6 border-b border-border pb-3">Deal Milestones</h3>
+               <h3 className="text-[16px] font-black text-text-primary uppercase tracking-widest mb-6 border-b border-border pb-3">Deal Milestones</h3>
                <div className="space-y-6">
                   {milestones.length > 0 ? milestones.map((m, i) => (
                      <div key={m.id} className="flex gap-4 relative group">
@@ -207,8 +207,8 @@ const DealDetails: React.FC = () => {
                         </button>
                         <div className="flex-1 flex justify-between items-start">
                            <div>
-                             <p className="text-[12px] font-bold text-text-primary">{m.label}</p>
-                             <p className="text-[10px] text-text-muted font-bold mt-0.5 uppercase">{m.date}</p>
+                             <p className="text-[15px] font-bold text-text-primary">{m.label}</p>
+                             <p className="text-[13px] text-text-muted font-bold mt-0.5 uppercase">{m.date}</p>
                            </div>
                            <button onClick={() => removeMilestone(m.id)} className="text-text-muted hover:text-danger opacity-0 group-hover:opacity-100 transition-opacity">
                              <Trash2 size={14} />
@@ -216,13 +216,13 @@ const DealDetails: React.FC = () => {
                         </div>
                      </div>
                   )) : (
-                    <div className="text-[11px] text-text-muted italic">No milestones defined.</div>
+                    <div className="text-[14px] text-text-muted italic">No milestones defined.</div>
                   )}
                </div>
 
                <div className="mt-6 pt-4 border-t border-border flex gap-2">
-                 <input type="text" placeholder="Task name..." className="flex-1 bg-bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-[11px] outline-none focus:border-accent-blue" value={newMilestone.label} onChange={e => setNewMilestone({...newMilestone, label: e.target.value})} />
-                 <input type="date" className="bg-bg-surface-2 border border-border rounded-lg px-2 py-1.5 text-[11px] outline-none w-28" value={newMilestone.date} onChange={e => setNewMilestone({...newMilestone, date: e.target.value})} />
+                 <input type="text" placeholder="Task name..." className="flex-1 bg-bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-[14px] outline-none focus:border-accent-blue" value={newMilestone.label} onChange={e => setNewMilestone({...newMilestone, label: e.target.value})} />
+                 <input type="date" className="bg-bg-surface-2 border border-border rounded-lg px-2 py-1.5 text-[14px] outline-none w-28" value={newMilestone.date} onChange={e => setNewMilestone({...newMilestone, date: e.target.value})} />
                  <button onClick={addMilestone} className="p-2 bg-accent-blue text-white rounded-lg"><Plus size={14} /></button>
                </div>
             </div>
@@ -231,9 +231,9 @@ const DealDetails: React.FC = () => {
                <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <TrendingUp size={18} className="text-accent-orange" />
-                    <span className="text-[11px] font-black uppercase text-accent-orange tracking-widest">Deal Notes</span>
+                    <span className="text-[14px] font-black uppercase text-accent-orange tracking-widest">Deal Notes</span>
                   </div>
-                  <button onClick={handleSaveNotes} disabled={isSaving} className="text-[10px] font-bold text-accent-blue hover:underline flex items-center gap-1">
+                  <button onClick={handleSaveNotes} disabled={isSaving} className="text-[13px] font-bold text-accent-blue hover:underline flex items-center gap-1">
                     {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Save
                   </button>
                </div>
@@ -241,7 +241,7 @@ const DealDetails: React.FC = () => {
                  rows={6}
                  value={dealNotes}
                  onChange={e => setDealNotes(e.target.value)}
-                 className="w-full flex-1 bg-bg-surface border border-border rounded-xl p-3 text-[12px] text-text-primary resize-none outline-none focus:border-accent-orange transition-colors"
+                 className="w-full flex-1 bg-bg-surface border border-border rounded-xl p-3 text-[15px] text-text-primary resize-none outline-none focus:border-accent-orange transition-colors"
                  placeholder="Enter deal details, progress notes, or client-specific information here..."
                />
             </div>

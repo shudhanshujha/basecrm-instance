@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { 
   Settings as SettingsIcon, Building, CreditCard, 
   ShieldCheck, Globe, Bell, Save, 
@@ -174,7 +174,7 @@ const Settings: React.FC = () => {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold text-text-primary uppercase tracking-tight">System Settings</h1>
-          <p className="text-[12px] text-text-muted mt-1 uppercase tracking-widest font-black">Global Parameters & Data Integrity</p>
+          <p className="text-[15px] text-text-muted mt-1 uppercase tracking-widest font-black">Global Parameters & Data Integrity</p>
         </div>
         <div className="flex gap-3">
           <button onClick={() => setActiveSection('backup')} className="btn-outline flex items-center gap-2 px-4 text-accent-blue border-accent-blue/30"><Download size={16} /> System Backup</button>
@@ -197,9 +197,9 @@ const Settings: React.FC = () => {
             <button
               key={item.id}
               onClick={() => setActiveSection(item.id as any)}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-[12px] font-semibold uppercase tracking-wider transition-all ${
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold uppercase tracking-wider transition-all ${
                 activeSection === item.id 
-                  ? 'bg-accent-blue/10 text-accent-blue/30 text-accent-blue shadow-lg shadow-accent-blue/10' 
+                  ? 'bg-accent-blue/10 text-accent-blue shadow-lg shadow-accent-blue/10 border border-accent-blue/20' 
                   : 'text-text-muted hover:bg-bg-surface-2 hover:text-text-primary'
               }`}
             >
@@ -218,23 +218,23 @@ const Settings: React.FC = () => {
                      </div>
                      <h2 className="text-lg font-bold text-text-primary uppercase tracking-tighter">Business Identity</h2>
                   </div>
-                 <button onClick={handleOrgSave} disabled={savingOrg} className="btn-primary py-1.5 px-4 text-[11px] flex items-center gap-2">
+                 <button onClick={handleOrgSave} disabled={savingOrg} className="btn-primary py-1.5 px-4 text-[14px] flex items-center gap-2">
                     {savingOrg ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Save Profile
                  </button>
               </div>
 
               <div className="grid grid-cols-2 gap-6">
                  <div className="col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Registered Company Name</label>
-                     <input type="text" value={org.name} onChange={e => setOrg({...org, name: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-bold text-text-primary outline-none focus:border-accent-blue transition-all" />
+                    <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">Registered Company Name</label>
+                     <input type="text" value={org.name} onChange={e => setOrg({...org, name: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] font-bold text-text-primary outline-none focus:border-accent-blue transition-all" />
                  </div>
                  
                  <div className="col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Tax Calculation Mode</label>
+                    <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">Tax Calculation Mode</label>
                     <select 
                       value={org.taxMode || 'NONE'} 
                       onChange={e => setOrg({...org, taxMode: e.target.value})} 
-                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-bold text-text-primary outline-none focus:border-accent-blue transition-all"
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] font-bold text-text-primary outline-none focus:border-accent-blue transition-all"
                     >
                        <option value="NONE">No Tax (Subtotal = Total)</option>
                        <option value="SINGLE_TAX">Single Flat Tax (VAT/Sales Tax)</option>
@@ -244,16 +244,16 @@ const Settings: React.FC = () => {
                  </div>
 
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Tax ID / GSTIN</label>
-                    <input type="text" value={org.gstin || ''} onChange={e => setOrg({...org, gstin: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-mono font-bold text-text-primary outline-none" />
+                    <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">Tax ID / GSTIN</label>
+                    <input type="text" value={org.gstin || ''} onChange={e => setOrg({...org, gstin: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] font-mono font-bold text-text-primary outline-none" />
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Business Registration No</label>
-                    <input type="text" value={org.panNumber || ''} onChange={e => setOrg({...org, panNumber: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-mono font-bold text-text-primary outline-none" />
+                    <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">Business Registration No</label>
+                    <input type="text" value={org.panNumber || ''} onChange={e => setOrg({...org, panNumber: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] font-mono font-bold text-text-primary outline-none" />
                  </div>
                  <div className="col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Registered Address</label>
-                    <textarea rows={3} value={org.address || ''} onChange={e => setOrg({...org, address: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-medium text-text-primary outline-none focus:border-accent-blue" />
+                    <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">Registered Address</label>
+                    <textarea rows={3} value={org.address || ''} onChange={e => setOrg({...org, address: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] font-medium text-text-primary outline-none focus:border-accent-blue" />
                  </div>
               </div>
             </div>
@@ -268,27 +268,27 @@ const Settings: React.FC = () => {
                     </div>
                     <h2 className="text-lg font-bold text-text-primary uppercase tracking-tighter">Settlement Accounts</h2>
                  </div>
-                 <button onClick={handleOrgSave} disabled={savingOrg} className="btn-primary py-1.5 px-4 text-[11px] flex items-center gap-2">
+                 <button onClick={handleOrgSave} disabled={savingOrg} className="btn-primary py-1.5 px-4 text-[14px] flex items-center gap-2">
                     {savingOrg ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Update Bank Details
                  </button>
               </div>
 
               <div className="grid grid-cols-2 gap-6">
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Bank Name</label>
-                    <input type="text" value={org.bankName || ''} onChange={e => setOrg({...org, bankName: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-bold text-text-primary outline-none" />
+                    <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">Bank Name</label>
+                    <input type="text" value={org.bankName || ''} onChange={e => setOrg({...org, bankName: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] font-bold text-text-primary outline-none" />
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">UPI ID for Invoices</label>
-                    <input type="text" value={org.upiId || ''} onChange={e => setOrg({...org, upiId: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-bold text-text-primary outline-none" placeholder="example@upi" />
+                    <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">UPI ID for Invoices</label>
+                    <input type="text" value={org.upiId || ''} onChange={e => setOrg({...org, upiId: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] font-bold text-text-primary outline-none" placeholder="example@upi" />
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Account Number</label>
-                    <input type="text" value={org.accountNumber || ''} onChange={e => setOrg({...org, accountNumber: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-mono font-bold text-text-primary outline-none" />
+                    <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">Account Number</label>
+                    <input type="text" value={org.accountNumber || ''} onChange={e => setOrg({...org, accountNumber: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] font-mono font-bold text-text-primary outline-none" />
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Routing / IFSC Code</label>
-                    <input type="text" value={org.ifscCode || ''} onChange={e => setOrg({...org, ifscCode: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] font-mono font-bold text-text-primary outline-none" />
+                    <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">Routing / IFSC Code</label>
+                    <input type="text" value={org.ifscCode || ''} onChange={e => setOrg({...org, ifscCode: e.target.value})} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] font-mono font-bold text-text-primary outline-none" />
                  </div>
               </div>
             </div>
@@ -303,42 +303,42 @@ const Settings: React.FC = () => {
                   </div>
                   <div>
                     <h2 className="text-lg font-bold text-text-primary uppercase tracking-tighter">Change Password</h2>
-                    <p className="text-[10px] text-text-muted uppercase font-bold tracking-widest">Enter your current password to set a new one</p>
+                    <p className="text-[13px] text-text-muted uppercase font-bold tracking-widest">Enter your current password to set a new one</p>
                   </div>
                 </div>
 
                 <form onSubmit={handleChangePassword} className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Current Password</label>
+                    <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">Current Password</label>
                     <input 
                       type="password" 
                       required
                       value={passwordForm.currentPassword}
                       onChange={e => setPasswordForm({...passwordForm, currentPassword: e.target.value})}
                       placeholder="Enter current password"
-                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-blue transition-all" 
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[16px] font-bold text-text-primary outline-none focus:border-accent-blue transition-all" 
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">New Password</label>
+                    <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">New Password</label>
                     <input 
                       type="password" 
                       required
                       value={passwordForm.newPassword}
                       onChange={e => setPasswordForm({...passwordForm, newPassword: e.target.value})}
                       placeholder="At least 6 characters"
-                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-blue transition-all" 
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[16px] font-bold text-text-primary outline-none focus:border-accent-blue transition-all" 
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Confirm New Password</label>
+                    <label className="text-[13px] font-black text-text-muted uppercase tracking-widest ml-1">Confirm New Password</label>
                     <input 
                       type="password" 
                       required
                       value={passwordForm.confirmPassword}
                       onChange={e => setPasswordForm({...passwordForm, confirmPassword: e.target.value})}
                       placeholder="Repeat new password"
-                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[13px] font-bold text-text-primary outline-none focus:border-accent-blue transition-all" 
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-[16px] font-bold text-text-primary outline-none focus:border-accent-blue transition-all" 
                     />
                   </div>
                   <div className="col-span-2 pt-2">
@@ -362,12 +362,12 @@ const Settings: React.FC = () => {
                     ) : userList.map(user => (
                       <div key={user.id} className="flex items-center justify-between p-4 bg-bg-surface-2 border border-border rounded-xl">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-bg-surface border border-border rounded-lg flex items-center justify-center text-text-muted font-bold text-[10px]">
+                          <div className="w-8 h-8 bg-bg-surface border border-border rounded-lg flex items-center justify-center text-text-muted font-bold text-[13px]">
                             {user.fullName?.split(' ').map((n: any) => n[0]).join('')}
                           </div>
                           <div>
-                            <p className="text-[13px] font-bold text-text-primary">{user.fullName}</p>
-                            <p className="text-[11px] text-text-muted">{user.email}</p>
+                            <p className="text-[16px] font-bold text-text-primary">{user.fullName}</p>
+                            <p className="text-[14px] text-text-muted">{user.email}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-4">
@@ -380,10 +380,10 @@ const Settings: React.FC = () => {
                             <RefreshCw size={14} />
                           </button>
                           )}
-                          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${user.role === 'admin' ? 'bg-accent-purple text-white' : 'bg-accent-blue text-white'}`}>
+                          <span className={`text-[12px] font-black uppercase px-2 py-0.5 rounded-full ${user.role === 'admin' ? 'bg-accent-purple text-white' : 'bg-accent-blue text-white'}`}>
                             {user.role}
                           </span>
-                          <p className="text-[10px] text-text-muted font-bold uppercase">{new Date(user.createdAt).toLocaleDateString()}</p>
+                          <p className="text-[13px] text-text-muted font-bold uppercase">{new Date(user.createdAt).toLocaleDateString()}</p>
                         </div>
                       </div>
                     ))}
@@ -400,11 +400,11 @@ const Settings: React.FC = () => {
                      <Bell className="text-accent-purple" />
                      <h2 className="text-lg font-bold">Alerts History</h2>
                   </div>
-                 <button onClick={clearAll} className="text-[10px] font-black text-danger hover:underline uppercase tracking-widest flex items-center gap-1"><Trash2 size={12} /> Clear History</button>
+                 <button onClick={clearAll} className="text-[13px] font-black text-danger hover:underline uppercase tracking-widest flex items-center gap-1"><Trash2 size={12} /> Clear History</button>
               </div>
               <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                 {notifications.length === 0 ? (
-                  <div className="p-12 text-center text-text-muted italic text-[13px]">No active notifications in history.</div>
+                  <div className="p-12 text-center text-text-muted italic text-[16px]">No active notifications in history.</div>
                 ) : (
                   notifications.map(n => (
                     <div key={n.id} className="p-4 bg-bg-surface-2 rounded-xl border border-border flex gap-4 items-start group">
@@ -414,8 +414,8 @@ const Settings: React.FC = () => {
                           {n.type === 'PAYMENT_RECEIVED' && <CheckCircle2 size={18} className="text-success" />}
                        </div>
                        <div className="flex-1">
-                          <p className="text-[13px] font-bold text-text-primary">{n.message}</p>
-                          <p className="text-[11px] text-text-muted mt-1 uppercase font-bold">{new Date(n.date).toLocaleString()}</p>
+                          <p className="text-[16px] font-bold text-text-primary">{n.message}</p>
+                          <p className="text-[14px] text-text-muted mt-1 uppercase font-bold">{new Date(n.date).toLocaleString()}</p>
                        </div>
                     </div>
                   ))
@@ -435,9 +435,9 @@ const Settings: React.FC = () => {
                       <div className="w-16 h-16 bg-success/10 text-success rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"><FileSpreadsheet size={32} /></div>
                       <div>
                          <h3 className="text-sm font-bold uppercase tracking-tight">Excel Spreadsheet Export</h3>
-                         <p className="text-[11px] text-text-muted mt-1 uppercase font-bold">Full data extraction in .xlsx format</p>
+                         <p className="text-[14px] text-text-muted mt-1 uppercase font-bold">Full data extraction in .xlsx format</p>
                       </div>
-                      <button className="btn-outline w-full py-2 text-[11px] font-black uppercase">Generate Excel</button>
+                      <button className="btn-outline w-full py-2 text-[14px] font-black uppercase">Generate Excel</button>
                    </div>
                 </div>
              </div>
@@ -455,7 +455,7 @@ const Settings: React.FC = () => {
                  <button 
                    onClick={checkHealth} 
                    disabled={checkingHealth}
-                   className="btn-outline flex items-center gap-2 px-4 py-1.5 text-[11px] font-black uppercase tracking-widest"
+                   className="btn-outline flex items-center gap-2 px-4 py-1.5 text-[14px] font-black uppercase tracking-widest"
                  >
                    <RefreshCw size={14} className={checkingHealth ? 'animate-spin' : ''} />
                    {checkingHealth ? 'Verifying...' : 'Verify Integrity'}
@@ -468,7 +468,7 @@ const Settings: React.FC = () => {
                      <div className="p-2 bg-accent-blue/10 text-accent-blue rounded-lg">
                            <Globe size={20} />
                         </div>
-                       <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                       <span className={`text-[12px] font-black uppercase px-2.5 py-0.5 rounded-full ${
                          healthStatus?.api === 'live' ? 'bg-success text-white' : 'bg-text-muted text-white'
                        }`}>
                           {healthStatus?.api || 'UNKNOWN'}
@@ -476,7 +476,7 @@ const Settings: React.FC = () => {
                     </div>
                     <div>
                        <h3 className="text-sm font-bold text-text-primary uppercase tracking-tight">Core API</h3>
-                       <p className="text-[10px] text-text-muted mt-1 uppercase font-bold">Service Gateway</p>
+                       <p className="text-[13px] text-text-muted mt-1 uppercase font-bold">Service Gateway</p>
                     </div>
                  </div>
 
@@ -486,7 +486,7 @@ const Settings: React.FC = () => {
                           <Database size={20} />
                        </div>
                        <div className="flex flex-col items-end gap-1">
-                          <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                          <span className={`text-[12px] font-black uppercase px-2.5 py-0.5 rounded-full ${
                             healthStatus?.database?.startsWith('connected') ? 'bg-success text-white' : 
                             healthStatus?.database?.startsWith('disconnected') ? 'bg-danger text-white' : 'bg-text-muted text-white'
                           }`}>
@@ -496,7 +496,7 @@ const Settings: React.FC = () => {
                     </div>
                     <div>
                        <h3 className="text-sm font-bold text-text-primary uppercase tracking-tight">Database</h3>
-                       <p className="text-[10px] text-text-muted mt-1 uppercase font-bold">Primary Storage</p>
+                       <p className="text-[13px] text-text-muted mt-1 uppercase font-bold">Primary Storage</p>
                     </div>
                  </div>
 
@@ -506,7 +506,7 @@ const Settings: React.FC = () => {
                           <Cloud size={20} />
                        </div>
                        <div className="flex flex-col items-end gap-1">
-                          <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                          <span className={`text-[12px] font-black uppercase px-2.5 py-0.5 rounded-full ${
                             healthStatus?.storage?.startsWith('connected') ? 'bg-success text-white' : 
                             healthStatus?.storage?.startsWith('disconnected') ? 'bg-danger text-white' : 'bg-text-muted text-white'
                           }`}>
@@ -516,7 +516,7 @@ const Settings: React.FC = () => {
                     </div>
                     <div>
                        <h3 className="text-sm font-bold text-text-primary uppercase tracking-tight">Cloud Storage</h3>
-                       <p className="text-[10px] text-text-muted mt-1 uppercase font-bold">File Persistence</p>
+                       <p className="text-[13px] text-text-muted mt-1 uppercase font-bold">File Persistence</p>
                     </div>
                  </div>
               </div>

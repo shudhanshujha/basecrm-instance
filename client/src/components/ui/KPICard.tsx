@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { TrendingUp, TrendingDown, Zap, BarChart3, Activity, Target } from 'lucide-react';
 
 interface KPICardProps {
@@ -35,7 +35,7 @@ const KPICard: React.FC<KPICardProps> = ({ label, value, trend, trendType }) => 
           {getIcon()}
         </div>
         {trend && (
-          <div className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-tighter flex items-center gap-1 ${
+          <div className={`text-[12px] px-2 py-0.5 rounded-full font-black uppercase tracking-tighter flex items-center gap-1 ${
             trendType === 'up' ? 'bg-success/10 text-success glow-green' : 'bg-danger/10 text-danger glow-red'
           }`}>
             {trendType === 'up' ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
@@ -45,10 +45,10 @@ const KPICard: React.FC<KPICardProps> = ({ label, value, trend, trendType }) => 
       </div>
 
       <div>
-        <div className="text-[10px] text-text-muted uppercase font-black tracking-[2px] mb-1 opacity-70 group-hover:text-text-primary transition-colors">{label}</div>
+        <div className="text-[13px] text-text-muted uppercase font-black tracking-[2px] mb-1 opacity-70 group-hover:text-text-primary transition-colors">{label}</div>
         <div className="text-2xl font-black text-text-primary tracking-tight group-hover:translate-x-1 transition-transform duration-300">{value}</div>
         {trend && (
-           <div className="text-[8px] text-text-muted mt-2 font-bold uppercase tracking-widest opacity-50 group-hover:opacity-100 transition-opacity">
+           <div className="text-[11px] text-text-muted mt-2 font-bold uppercase tracking-widest opacity-50 group-hover:opacity-100 transition-opacity">
              {trend.split(' ').slice(1).join(' ')}
            </div>
         )}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
   ResponsiveContainer, AreaChart, Area,
@@ -12,7 +12,7 @@ import ExportButton from '../components/ui/ExportButton';
 const COLORS = ['#f97316', '#3b82f6', '#22c55e', '#a78bfa', '#ec4899', '#6b7280'];
 
 const EmptyChart: React.FC<{ message?: string }> = ({ message = 'No data yet for this period' }) => (
-  <div className="h-full flex items-center justify-center text-text-muted text-[11px] italic">{message}</div>
+  <div className="h-full flex items-center justify-center text-text-muted text-[14px] italic">{message}</div>
 );
 
 const Analytics: React.FC = () => {
@@ -59,7 +59,7 @@ const Analytics: React.FC = () => {
     { name: 'Indirect Expenses', value: plReport.expenses?.indirect || 0, color: '#3b82f6' },
   ].filter(e => e.value > 0) : [];
 
-  const tooltip = { contentStyle: { backgroundColor: '#181c27', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', fontSize: '10px' } };
+  const tooltip = { contentStyle: { backgroundColor: '#181c27', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', fontSize: '13px' } };
 
   return (
     <div className="space-y-8 pb-12">
@@ -67,7 +67,7 @@ const Analytics: React.FC = () => {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold text-text-primary uppercase tracking-tight">Intelligence Dashboard</h1>
-          <p className="text-[12px] text-text-muted mt-1 uppercase tracking-widest font-black">
+          <p className="text-[15px] text-text-muted mt-1 uppercase tracking-widest font-black">
             Live Performance Analytics · {period === '3m' ? 'Last 3 Months' : period === '6m' ? 'Last 6 Months' : 'Last 12 Months'}
           </p>
         </div>
@@ -78,7 +78,7 @@ const Analytics: React.FC = () => {
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`px-4 py-1.5 rounded-lg text-[11px] font-semibold uppercase transition-all ${period === p ? 'bg-accent-blue text-white shadow-[0_0_15px_rgba(88,166,255,0.3)]' : 'text-text-muted hover:text-text-primary'}`}
+                className={`px-4 py-1.5 rounded-lg text-[14px] font-semibold uppercase transition-all ${period === p ? 'bg-accent-blue text-white shadow-[0_0_15px_rgba(88,166,255,0.3)]' : 'text-text-muted hover:text-text-primary'}`}
               >{p}</button>
             ))}
           </div>
@@ -88,26 +88,26 @@ const Analytics: React.FC = () => {
       {/* KPI Row */}
       <div className="grid grid-cols-4 gap-4">
         <div className="card border-border/40">
-          <div className="text-[10px] text-text-muted font-black uppercase tracking-tighter">Gross Margin</div>
+          <div className="text-[13px] text-text-muted font-black uppercase tracking-tighter">Gross Margin</div>
           <div className="text-2xl font-black text-text-primary mt-2">{loading ? '—' : `${marginPct}%`}</div>
-          <div className="flex items-center gap-1 text-[10px] text-success font-bold mt-2"><TrendingUp size={12} /> Revenue / Expenses</div>
+          <div className="flex items-center gap-1 text-[13px] text-success font-bold mt-2"><TrendingUp size={12} /> Revenue / Expenses</div>
         </div>
         <div className="card border-border/40">
-          <div className="text-[10px] text-text-muted font-black uppercase tracking-tighter">Total Revenue ({period})</div>
+          <div className="text-[13px] text-text-muted font-black uppercase tracking-tighter">Total Revenue ({period})</div>
           <div className="text-2xl font-black text-text-primary mt-2">{loading ? '—' : `₹${totalRev.toFixed(2)}L`}</div>
-          <div className="text-[10px] text-text-muted font-bold mt-2 uppercase">Invoiced in period</div>
+          <div className="text-[13px] text-text-muted font-bold mt-2 uppercase">Invoiced in period</div>
         </div>
         <div className="card border-border/40">
-          <div className="text-[10px] text-text-muted font-black uppercase tracking-tighter">Avg Monthly Revenue</div>
+          <div className="text-[13px] text-text-muted font-black uppercase tracking-tighter">Avg Monthly Revenue</div>
           <div className="text-2xl font-black text-accent-blue mt-2">{loading ? '—' : `₹${avgYield}L`}</div>
-          <div className="text-[10px] text-accent-blue/60 font-bold mt-2 uppercase">Per Month</div>
+          <div className="text-[13px] text-accent-blue/60 font-bold mt-2 uppercase">Per Month</div>
         </div>
         <div className="card bg-accent-purple/5 border-accent-purple/20">
-          <div className="text-[10px] text-accent-purple font-semibold uppercase tracking-tighter">Net Profit ({period})</div>
+          <div className="text-[13px] text-accent-purple font-semibold uppercase tracking-tighter">Net Profit ({period})</div>
           <div className={`text-2xl font-bold mt-2 ${totalProfit >= 0 ? 'text-success' : 'text-danger'}`}>
             {loading ? '—' : `₹${totalProfit.toFixed(2)}L`}
           </div>
-          <div className="flex items-center gap-1 text-[10px] mt-2">
+          <div className="flex items-center gap-1 text-[13px] mt-2">
             {totalProfit >= 0
               ? <><TrendingUp size={12} className="text-success" /><span className="text-success font-bold">Profitable</span></>
               : <><TrendingDown size={12} className="text-danger" /><span className="text-danger font-bold">Loss</span></>}
@@ -120,10 +120,10 @@ const Analytics: React.FC = () => {
         <div className="col-span-2 card h-[400px] flex flex-col border-border/40 shadow-xl">
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h3 className="text-[14px] font-bold text-text-primary uppercase tracking-tighter">Revenue vs Expenses ({period})</h3>
-              <p className="text-[10px] text-text-muted italic">Monthly breakdown in Lakhs (₹L)</p>
+              <h3 className="text-[17px] font-bold text-text-primary uppercase tracking-tighter">Revenue vs Expenses ({period})</h3>
+              <p className="text-[13px] text-text-muted italic">Monthly breakdown in Lakhs (₹L)</p>
             </div>
-            <div className="flex gap-4 text-[9px] font-black uppercase tracking-widest">
+            <div className="flex gap-4 text-[12px] font-black uppercase tracking-widest">
               <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-accent-blue rounded-full shadow-[0_0_8px_#58a6ff]"></div> Revenue</div>
               <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-accent-blue rounded-full shadow-[0_0_8px_#3b82f6]"></div> Expenses</div>
             </div>
@@ -148,8 +148,8 @@ const Analytics: React.FC = () => {
 
         <div className="card h-[400px] flex flex-col border-border/40 shadow-xl">
           <div className="mb-8">
-            <h3 className="text-[14px] font-bold text-text-primary uppercase tracking-tighter">Expense Distribution</h3>
-            <p className="text-[10px] text-text-muted italic">Vendor payouts vs indirect costs</p>
+            <h3 className="text-[17px] font-bold text-text-primary uppercase tracking-tighter">Expense Distribution</h3>
+            <p className="text-[13px] text-text-muted italic">Vendor payouts vs indirect costs</p>
           </div>
           <div className="flex-1 relative">
             {loading && <div className="absolute inset-0 flex items-center justify-center bg-bg-surface/60 z-10 rounded-xl"><Loader2 size={20} className="animate-spin text-accent-blue" /></div>}
@@ -160,7 +160,7 @@ const Analytics: React.FC = () => {
                     {expBreakdown.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} stroke="transparent" />)}
                   </Pie>
                   <Tooltip {...tooltip} formatter={(v: any) => `₹${Number(v).toLocaleString('en-IN')}`} />
-                  <Legend verticalAlign="bottom" iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '20px' }} />
+                  <Legend verticalAlign="bottom" iconType="circle" wrapperStyle={{ fontSize: '13px', paddingTop: '20px' }} />
                 </PieChart>
               </ResponsiveContainer>
             )}
@@ -171,7 +171,7 @@ const Analytics: React.FC = () => {
       {/* Charts Row 2 */}
       <div className="grid grid-cols-2 gap-6">
         <div className="card h-[360px] flex flex-col border-border/40 shadow-xl">
-          <div className="mb-8 font-black uppercase tracking-widest text-[11px] text-text-muted">
+          <div className="mb-8 font-black uppercase tracking-widest text-[14px] text-text-muted">
             Top Client Revenue ({period})
           </div>
           <div className="flex-1 relative">
@@ -196,7 +196,7 @@ const Analytics: React.FC = () => {
 
         <div className="card h-[360px] flex flex-col border-border/40 overflow-hidden relative shadow-xl">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-blue to-accent-purple"></div>
-          <div className="mb-8 font-black uppercase tracking-widest text-[11px] text-text-muted">
+          <div className="mb-8 font-black uppercase tracking-widest text-[14px] text-text-muted">
             GST Collected vs Paid (All-time)
           </div>
           <div className="flex-1 relative">
@@ -216,7 +216,7 @@ const Analytics: React.FC = () => {
                     <Tooltip {...tooltip} formatter={(v: any) => `₹${Number(v).toLocaleString('en-IN')}`} />
                     <Bar dataKey="collected" fill="#22c55e" radius={[4,4,0,0]} barSize={28} name="Collected" />
                     <Bar dataKey="paid" fill="#f97316" radius={[4,4,0,0]} barSize={28} name="Input Credit" opacity={0.7} />
-                    <Legend wrapperStyle={{ fontSize: '10px' }} />
+                    <Legend wrapperStyle={{ fontSize: '13px' }} />
                   </BarChart>
                 </ResponsiveContainer>
               );
@@ -228,8 +228,8 @@ const Analytics: React.FC = () => {
       {/* Revenue Area Chart */}
       <div className="card h-[300px] flex flex-col border-border/40 shadow-xl">
         <div className="mb-6">
-          <h3 className="text-[14px] font-bold text-text-primary uppercase tracking-tighter">Profit Trend ({period})</h3>
-          <p className="text-[10px] text-text-muted italic">Net profit per month in Lakhs</p>
+          <h3 className="text-[17px] font-bold text-text-primary uppercase tracking-tighter">Profit Trend ({period})</h3>
+          <p className="text-[13px] text-text-muted italic">Net profit per month in Lakhs</p>
         </div>
         <div className="flex-1 relative">
           {loading && <div className="absolute inset-0 flex items-center justify-center bg-bg-surface/60 z-10 rounded-xl"><Loader2 size={20} className="animate-spin text-accent-orange" /></div>}

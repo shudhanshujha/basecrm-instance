@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   FileText, Briefcase, CreditCard, 
@@ -59,15 +59,15 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
             <div className="flex justify-between items-start">
                <div>
                   <div className="flex items-center gap-2">
-                     <span className="text-[9px] font-black uppercase tracking-[2px] opacity-40">{activity.type}</span>
-                     <span className="text-[9px] font-black uppercase tracking-[2px] opacity-40">·</span>
-                     <span className="text-[9px] font-black uppercase tracking-[2px] opacity-40">{format(new Date(activity.date), 'dd MMM yyyy')}</span>
+                     <span className="text-[12px] font-black uppercase tracking-[2px] opacity-40">{activity.type}</span>
+                     <span className="text-[12px] font-black uppercase tracking-[2px] opacity-40">·</span>
+                     <span className="text-[12px] font-black uppercase tracking-[2px] opacity-40">{format(new Date(activity.date), 'dd MMM yyyy')}</span>
                   </div>
-                   <h4 className="text-[14px] font-bold text-text-primary mt-1 tracking-tight">{activity.title}</h4>
+                   <h4 className="text-[17px] font-bold text-text-primary mt-1 tracking-tight">{activity.title}</h4>
                 </div>
                 <div className="text-right">
-                   <div className="text-[14px] font-black text-text-primary">₹{activity.value.toLocaleString()}</div>
-                  <div className={`text-[8px] font-black uppercase px-2 py-0.5 rounded mt-2 inline-block ${
+                   <div className="text-[17px] font-black text-text-primary">₹{activity.value.toLocaleString()}</div>
+                  <div className={`text-[11px] font-black uppercase px-2 py-0.5 rounded mt-2 inline-block ${
                     activity.status === 'PAID' || activity.status === 'WON' || activity.status === 'COMPLETED'
                       ? 'bg-success/10 text-success border border-success/20'
                       : 'bg-warning/10 text-warning border border-warning/20'
@@ -78,7 +78,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
             </div>
             
             <div className="mt-4 flex justify-end">
-               <button className="text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-text-primary flex items-center gap-2 transition-all">
+               <button className="text-[13px] font-black uppercase tracking-widest text-text-muted hover:text-text-primary flex items-center gap-2 transition-all">
                   Inspect Node <ArrowRight size={12} />
                </button>
             </div>
@@ -87,7 +87,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
       ))}
 
       {activities.length === 0 && (
-        <div className="py-10 text-center text-text-muted italic text-[12px]">
+        <div className="py-10 text-center text-text-muted italic text-[15px]">
           No activity logs found for this system entity.
         </div>
       )}

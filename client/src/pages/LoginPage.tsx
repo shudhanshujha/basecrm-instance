@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Eye, EyeOff, Loader2, ShieldCheck, Zap, Lock, Terminal, Globe, Building, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -137,7 +137,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 <>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center px-1">
-                      <label className="text-[9px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
+                      <label className="text-[12px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
                         <Building size={10} /> Organization
                       </label>
                     </div>
@@ -146,14 +146,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                       value={companyName}
                       onChange={e => setCompanyName(e.target.value)}
                       placeholder="YOUR COMPANY OR FREELANCE NAME"
-                      className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-5 py-4 text-[13px] text-white outline-none focus:border-accent-blue/50 focus:ring-4 focus:ring-accent-blue/5 transition-all placeholder:text-white/10 uppercase font-bold"
+                      className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-5 py-4 text-[16px] text-white outline-none focus:border-accent-blue/50 focus:ring-4 focus:ring-accent-blue/5 transition-all placeholder:text-white/10 uppercase font-bold"
                       disabled={loading}
                       required
                     />
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center px-1">
-                      <label className="text-[9px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
+                      <label className="text-[12px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
                         <User size={10} /> Full Name
                       </label>
                     </div>
@@ -162,7 +162,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                       value={fullName}
                       onChange={e => setFullName(e.target.value)}
                       placeholder="YOUR NAME"
-                      className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-5 py-4 text-[13px] text-white outline-none focus:border-accent-blue/50 focus:ring-4 focus:ring-accent-blue/5 transition-all placeholder:text-white/10 uppercase font-bold"
+                      className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-5 py-4 text-[16px] text-white outline-none focus:border-accent-blue/50 focus:ring-4 focus:ring-accent-blue/5 transition-all placeholder:text-white/10 uppercase font-bold"
                       disabled={loading}
                       required
                     />
@@ -171,7 +171,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               )}
               <div className="space-y-2">
                 <div className="flex justify-between items-center px-1">
-                   <label className="text-[9px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
+                   <label className="text-[12px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
                       <Globe size={10} /> Username
                    </label>
                 </div>
@@ -182,7 +182,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                       placeholder="username@company.com"
-                      className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-5 py-4 text-[13px] text-white outline-none focus:border-accent-blue/50 focus:ring-4 focus:ring-accent-blue/5 transition-all placeholder:text-white/10 font-bold"
+                      className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-5 py-4 text-[16px] text-white outline-none focus:border-accent-blue/50 focus:ring-4 focus:ring-accent-blue/5 transition-all placeholder:text-white/10 font-bold"
                       disabled={loading}
                       required
                     />
@@ -191,7 +191,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center px-1">
-                   <label className="text-[9px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
+                   <label className="text-[12px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
                       <Lock size={10} /> Password
                    </label>
                 </div>
@@ -201,7 +201,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-5 py-4 text-[13px] text-white outline-none focus:border-accent-blue/50 focus:ring-4 focus:ring-accent-blue/5 transition-all placeholder:text-white/10 font-bold"
+                    className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-5 py-4 text-[16px] text-white outline-none focus:border-accent-blue/50 focus:ring-4 focus:ring-accent-blue/5 transition-all placeholder:text-white/10 font-bold"
                     disabled={loading}
                     required
                   />
@@ -222,7 +222,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="px-4 py-3 bg-danger/10 border border-danger/20 rounded-xl text-[10px] text-danger font-black uppercase tracking-wider flex items-center gap-2"
+                    className="px-4 py-3 bg-danger/10 border border-danger/20 rounded-xl text-[13px] text-danger font-black uppercase tracking-wider flex items-center gap-2"
                   >
                     <div className="w-1 h-1 bg-danger rounded-full animate-ping" />
                     {error}
@@ -236,7 +236,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 className="relative w-full group overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-accent-blue to-accent-purple group-hover:scale-105 transition-transform duration-500 rounded-2xl" />
-                <div className="relative flex items-center justify-center gap-3 py-4 text-[11px] font-black text-white uppercase tracking-[4px] bg-transparent">
+                <div className="relative flex items-center justify-center gap-3 py-4 text-[14px] font-black text-white uppercase tracking-[4px] bg-transparent">
                   {loading ? (
                     <>
                       <Loader2 size={16} className="animate-spin" />
@@ -255,7 +255,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 <button
                   type="button"
                   onClick={() => { setIsSignup(!isSignup); setError(''); }}
-                  className="text-[10px] text-text-muted hover:text-accent-blue uppercase tracking-wider font-bold transition-colors"
+                  className="text-[13px] text-text-muted hover:text-accent-blue uppercase tracking-wider font-bold transition-colors"
                 >
                   {isSignup ? 'Already have an account? Login' : 'New organization? Create account'}
                 </button>
@@ -271,11 +271,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           transition={{ delay: 0.5 }}
           className="mt-12 text-center"
         >
-           <p className="text-[9px] text-accent-blue uppercase font-black tracking-[2px] mb-2 flex items-center justify-center gap-2">
+           <p className="text-[12px] text-accent-blue uppercase font-black tracking-[2px] mb-2 flex items-center justify-center gap-2">
               <span className="w-1.5 h-1.5 bg-success rounded-full animate-pulse" />
               Mainframe Connection Established
            </p>
-           <p className="text-[8px] text-text-muted font-bold opacity-40">
+           <p className="text-[11px] text-text-muted font-bold opacity-40">
               V1.0.4-PROD // ENCRYPTION: AES-256-GCM // NODE: SH-BASE-01
            </p>
         </motion.div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import { FileDown, FileSpreadsheet, FileText, ChevronDown, File, Calendar } from 'lucide-react';
 import { exportToCSV, exportToExcel, exportToPDF } from '../../lib/export';
 import { format, subDays, isAfter, startOfYear } from 'date-fns';
@@ -251,7 +251,7 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="btn-outline text-[12px] py-1.5 flex items-center gap-2 hover:border-accent-orange transition-colors"
+        className="btn-outline text-[15px] py-1.5 flex items-center gap-2 hover:border-accent-orange transition-colors"
       >
         <FileDown size={14} /> Export Data <ChevronDown size={12} />
       </button>
@@ -259,7 +259,7 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-64 bg-bg-surface border border-border rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
           <div className="p-3 border-b border-border bg-bg-surface-2">
-            <div className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-2 flex items-center gap-1">
+            <div className="text-[13px] font-black text-text-muted uppercase tracking-widest mb-2 flex items-center gap-1">
               <Calendar size={10} /> Select Report Duration
             </div>
             <div className="grid grid-cols-2 gap-1">
@@ -273,7 +273,7 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
                 <button
                   key={range.id}
                   onClick={() => setTimeRange(range.id as TimeRange)}
-                  className={`text-[9px] font-bold px-2 py-1 rounded transition-colors ${timeRange === range.id ? 'bg-accent-orange text-white' : 'hover:bg-bg-surface text-text-muted border border-transparent hover:border-border'}`}
+                  className={`text-[12px] font-bold px-2 py-1 rounded transition-colors ${timeRange === range.id ? 'bg-accent-orange text-white' : 'hover:bg-bg-surface text-text-muted border border-transparent hover:border-border'}`}
                 >
                   {range.label}
                 </button>
@@ -284,19 +284,19 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
           <div className="p-1">
             <button 
               onClick={() => handleExport('csv')}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-[11px] text-text-primary hover:bg-bg-surface-2 transition-colors rounded-lg"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-[14px] text-text-primary hover:bg-bg-surface-2 transition-colors rounded-lg"
             >
               <FileText size={14} className="text-accent-blue" /> Export as CSV
             </button>
             <button 
               onClick={() => handleExport('excel')}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-[11px] text-text-primary hover:bg-bg-surface-2 transition-colors rounded-lg"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-[14px] text-text-primary hover:bg-bg-surface-2 transition-colors rounded-lg"
             >
               <FileSpreadsheet size={14} className="text-success" /> Export as Excel
             </button>
             <button 
               onClick={() => handleExport('pdf')}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-[11px] text-text-primary hover:bg-bg-surface-2 transition-colors rounded-lg"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-[14px] text-text-primary hover:bg-bg-surface-2 transition-colors rounded-lg"
             >
               <File size={14} className="text-danger" /> Export as Professional PDF
             </button>

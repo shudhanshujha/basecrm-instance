@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, Command, FileText, Users, 
@@ -69,17 +69,17 @@ const CommandPalette: React.FC = () => {
                   autoFocus
                   type="text" 
                   placeholder="Type a command or search..."
-                  className="bg-transparent border-none outline-none text-white text-[16px] font-bold flex-1"
+                  className="bg-transparent border-none outline-none text-white text-[19px] font-bold flex-1"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
                 <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-lg border border-white/5">
-                   <span className="text-[10px] font-black text-text-muted">ESC</span>
+                   <span className="text-[13px] font-black text-text-muted">ESC</span>
                 </div>
               </div>
 
               <div className="p-4 max-h-[400px] overflow-y-auto custom-scrollbar">
-                <div className="text-[9px] font-black uppercase tracking-[3px] text-text-muted px-4 mb-4">Quick Commands</div>
+                <div className="text-[12px] font-black uppercase tracking-[3px] text-text-muted px-4 mb-4">Quick Commands</div>
                 <div className="space-y-1">
                   {filteredCommands.map((cmd) => (
                     <button
@@ -91,7 +91,7 @@ const CommandPalette: React.FC = () => {
                         <div className={`p-2 bg-white/5 rounded-xl group-hover:bg-accent-blue/10 group-hover:text-accent-blue transition-all ${cmd.color || 'text-white'}`}>
                           {cmd.icon}
                         </div>
-                        <span className="text-[14px] font-bold text-white tracking-tight">{cmd.label}</span>
+                        <span className="text-[17px] font-bold text-white tracking-tight">{cmd.label}</span>
                       </div>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                          <Zap size={14} className="text-accent-blue" />
@@ -99,7 +99,7 @@ const CommandPalette: React.FC = () => {
                     </button>
                   ))}
                   {filteredCommands.length === 0 && (
-                    <div className="py-10 text-center text-text-muted italic text-[12px]">
+                    <div className="py-10 text-center text-text-muted italic text-[15px]">
                        No commands matching "{search}"
                     </div>
                   )}
@@ -109,15 +109,15 @@ const CommandPalette: React.FC = () => {
               <div className="p-4 bg-white/5 border-t border-white/5 flex justify-between items-center px-8">
                  <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
-                       <kbd className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] text-text-muted font-black">↑↓</kbd>
-                       <span className="text-[9px] text-text-muted font-black uppercase">Navigate</span>
+                       <kbd className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[12px] text-text-muted font-black">↑↓</kbd>
+                       <span className="text-[12px] text-text-muted font-black uppercase">Navigate</span>
                     </div>
                     <div className="flex items-center gap-2">
-                       <kbd className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] text-text-muted font-black">↵</kbd>
-                       <span className="text-[9px] text-text-muted font-black uppercase">Select</span>
+                       <kbd className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[12px] text-text-muted font-black">↵</kbd>
+                       <span className="text-[12px] text-text-muted font-black uppercase">Select</span>
                     </div>
                  </div>
-                 <div className="text-[9px] text-text-muted font-black uppercase tracking-widest">BaseCRM System OS v1.0</div>
+                 <div className="text-[12px] text-text-muted font-black uppercase tracking-widest">BaseCRM System OS v1.0</div>
               </div>
             </motion.div>
           </div>

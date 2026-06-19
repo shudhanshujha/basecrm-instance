@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { 
   ShieldCheck, ArrowUpRight, ArrowDownRight, 
   Search, Filter, CheckCircle2, Download,
@@ -43,7 +43,7 @@ const GSTBalance: React.FC = () => {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-xl font-bold text-text-primary uppercase tracking-tight">GST Balance Sheet</h1>
-          <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">Fiscal Compliance · Input Tax Credit Ledger</p>
+          <p className="text-[14px] text-text-muted mt-1 uppercase tracking-widest font-black">Fiscal Compliance · Input Tax Credit Ledger</p>
         </div>
         <div className="flex gap-2">
           <ExportButton data={[...outputDetails, ...inputDetails]} filename={`basecrm_gst_ledger_all_time`} />
@@ -52,38 +52,38 @@ const GSTBalance: React.FC = () => {
 
       <div className="grid grid-cols-4 gap-4">
          <div className="card border-border/40">
-            <div className="text-[9px] text-text-muted uppercase font-black tracking-widest">Output GST (Total)</div>
+            <div className="text-[12px] text-text-muted uppercase font-black tracking-widest">Output GST (Total)</div>
             <div className="text-xl font-black text-text-primary mt-2">₹{((collected.cgst || 0) + (collected.sgst || 0) + (collected.igst || 0))?.toLocaleString() || 0}</div>
-            <p className="text-[9px] text-success font-bold mt-2 uppercase tracking-tighter">Tax from Sales</p>
+            <p className="text-[12px] text-success font-bold mt-2 uppercase tracking-tighter">Tax from Sales</p>
          </div>
          <div className="card border-border/40">
-            <div className="text-[9px] text-text-muted uppercase font-black tracking-widest">Available ITC</div>
+            <div className="text-[12px] text-text-muted uppercase font-black tracking-widest">Available ITC</div>
             <div className="text-xl font-black text-text-primary mt-2">₹{((paid.cgst || 0) + (paid.sgst || 0) + (paid.igst || 0))?.toLocaleString() || 0}</div>
-            <p className="text-[9px] text-accent-blue font-bold mt-2 uppercase tracking-tighter">Tax on Purchases</p>
+            <p className="text-[12px] text-accent-blue font-bold mt-2 uppercase tracking-tighter">Tax on Purchases</p>
          </div>
           <div className="card bg-gradient-to-r from-accent-orange to-accent-purple border border-accent-orange/30 shadow-lg shadow-accent-orange/20">
-             <div className="text-[9px] text-white/80 uppercase font-semibold tracking-widest">Net Payable</div>
+             <div className="text-[12px] text-white/80 uppercase font-semibold tracking-widest">Net Payable</div>
              <div className="text-xl font-bold text-white mt-2">₹{((balance.cgst || 0) + (balance.sgst || 0) + (balance.igst || 0))?.toLocaleString() || 0}</div>
-             <p className="text-[9px] text-white/60 mt-2 font-semibold italic uppercase tracking-tighter">Final Liability</p>
+             <p className="text-[12px] text-white/60 mt-2 font-semibold italic uppercase tracking-tighter">Final Liability</p>
           </div>
          <div className="card border-border/40 bg-bg-surface-2/50">
-            <div className="text-[9px] text-text-muted uppercase font-black tracking-widest">Filing Readiness</div>
+            <div className="text-[12px] text-text-muted uppercase font-black tracking-widest">Filing Readiness</div>
             <div className="text-xl font-black text-warning mt-2">Verified</div>
-            <p className="text-[9px] text-text-muted font-bold mt-2 uppercase tracking-tighter">Audit Ready</p>
+            <p className="text-[12px] text-text-muted font-bold mt-2 uppercase tracking-tighter">Audit Ready</p>
          </div>
       </div>
 
-      <div className="space-y-6 text-[13px]">
+      <div className="space-y-6 text-[16px]">
          {/* Output GST Table */}
          <div className="card p-0 overflow-hidden border-border/50 shadow-xl">
             <div className="p-4 border-b border-border bg-bg-surface-2 flex items-center gap-2">
                <ArrowUpRight size={16} className="text-success" />
-               <h3 className="text-[11px] font-black text-text-primary uppercase tracking-widest">Output Tax Ledger (Sales)</h3>
+               <h3 className="text-[14px] font-black text-text-primary uppercase tracking-widest">Output Tax Ledger (Sales)</h3>
             </div>
             <div className="overflow-x-auto">
                <table className="w-full text-left">
                   <thead>
-                     <tr className="bg-bg-surface-2/30 border-b border-border text-[9px] text-text-muted uppercase font-black">
+                     <tr className="bg-bg-surface-2/30 border-b border-border text-[12px] text-text-muted uppercase font-black">
                         <th className="px-6 py-3">Client Identification</th>
                         <th className="px-6 py-3 text-right">Taxable Val</th>
                         <th className="px-6 py-3 text-right">CGST</th>
@@ -98,8 +98,8 @@ const GSTBalance: React.FC = () => {
                      ) : outputDetails.map((row: any) => (
                         <tr key={row.id} className="hover:bg-bg-surface-2 transition-colors">
                            <td className="px-6 py-4">
-                              <div className="text-[13px] font-bold text-text-primary">{row.client?.name}</div>
-                              <div className="text-[10px] text-text-muted font-mono mt-0.5 tracking-tighter">Inv: {row.invoiceNumber}</div>
+                              <div className="text-[16px] font-bold text-text-primary">{row.client?.name}</div>
+                              <div className="text-[13px] text-text-muted font-mono mt-0.5 tracking-tighter">Inv: {row.invoiceNumber}</div>
                            </td>
                            <td className="px-6 py-4 text-right font-medium text-text-muted">₹{row.taxableAmount?.toLocaleString()}</td>
                            <td className="px-6 py-4 text-right font-black text-text-primary">₹{row.cgstAmount?.toLocaleString()}</td>
@@ -117,12 +117,12 @@ const GSTBalance: React.FC = () => {
          <div className="card p-0 overflow-hidden border-border/50 shadow-xl">
             <div className="p-4 border-b border-border bg-bg-surface-2 flex items-center gap-2">
                <ArrowDownRight size={16} className="text-accent-blue" />
-               <h3 className="text-[11px] font-black text-text-primary uppercase tracking-widest">Input Credit Ledger (Procurement)</h3>
+               <h3 className="text-[14px] font-black text-text-primary uppercase tracking-widest">Input Credit Ledger (Procurement)</h3>
             </div>
             <div className="overflow-x-auto">
                <table className="w-full text-left">
                   <thead>
-                     <tr className="bg-bg-surface-2/30 border-b border-border text-[9px] text-text-muted uppercase font-black">
+                     <tr className="bg-bg-surface-2/30 border-b border-border text-[12px] text-text-muted uppercase font-black">
                         <th className="px-6 py-3">Vendor Identification</th>
                         <th className="px-6 py-3 text-right">Procurement Val</th>
                         <th className="px-6 py-3 text-right">CGST</th>
@@ -137,8 +137,8 @@ const GSTBalance: React.FC = () => {
                      ) : inputDetails.map((row: any) => (
                         <tr key={row.id} className="hover:bg-bg-surface-2 transition-colors">
                            <td className="px-6 py-4">
-                              <div className="text-[13px] font-bold text-text-primary">{row.description}</div>
-                              <div className="text-[10px] text-text-muted font-mono mt-0.5 tracking-tighter">{row.category}</div>
+                              <div className="text-[16px] font-bold text-text-primary">{row.description}</div>
+                              <div className="text-[13px] text-text-muted font-mono mt-0.5 tracking-tighter">{row.category}</div>
                            </td>
                            <td className="px-6 py-4 text-right font-medium text-text-muted">₹{row.taxableAmount?.toLocaleString() || row.amount?.toLocaleString()}</td>
                            <td className="px-6 py-4 text-right font-black text-text-primary">₹{row.cgstAmount?.toLocaleString() || 0}</td>

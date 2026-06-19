@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useNotificationStore } from '../../store/useNotificationStore';
 import { Bell, CheckCircle2, AlertCircle, LogOut, Orbit } from 'lucide-react';
 
@@ -29,7 +29,8 @@ const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 5 * 60 * 1000); // refresh every 5 mins
     return () => clearInterval(interval);
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchNotifications]);
 
   return (
     <div className="app-topbar h-[60px] bg-bg-surface/30 border-b border-border flex items-center justify-between px-6 shrink-0 relative z-50 backdrop-blur-md">
@@ -38,8 +39,8 @@ const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
           <Orbit size={22} className="animate-spin-slow" />
         </div>
         <div>
-          <div className="text-[14px] font-black text-white uppercase tracking-[2px] bg-gradient-to-r from-white to-text-muted bg-clip-text text-transparent">Business CRM</div>
-          <div className="text-[8px] text-accent-blue font-black uppercase tracking-[4px] leading-none mt-1 animate-neon">System Active</div>
+          <div className="text-[17px] font-black text-white uppercase tracking-[2px] bg-gradient-to-r from-white to-text-muted bg-clip-text text-transparent">Business CRM</div>
+          <div className="text-[11px] text-accent-blue font-black uppercase tracking-[4px] leading-none mt-1 animate-neon">System Active</div>
         </div>
       </div>
 
@@ -52,7 +53,7 @@ const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
             <Bell size={18} className={unreadCount > 0 ? 'animate-bounce' : ''} />
           </div>
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-[10px] font-black rounded-full border-2 border-bg-surface flex items-center justify-center shadow-lg animate-pulse">
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-[13px] font-black rounded-full border-2 border-bg-surface flex items-center justify-center shadow-lg animate-pulse">
               {unreadCount}
             </span>
           )}
@@ -60,12 +61,12 @@ const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
           {showNotifications && (
             <div className="absolute top-[50px] right-0 w-80 bg-bg-surface/90 border border-border rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in slide-in-from-top-4 backdrop-blur-2xl">
               <div className="p-4 border-b border-border/50 flex justify-between items-center bg-white/5">
-                <span className="text-[11px] font-black text-white uppercase tracking-widest">System Alerts</span>
-                <button onClick={clearAll} className="text-[10px] font-bold text-accent-blue hover:underline uppercase">Mute All</button>
+                <span className="text-[14px] font-black text-white uppercase tracking-widest">System Alerts</span>
+                <button onClick={clearAll} className="text-[13px] font-bold text-accent-blue hover:underline uppercase">Mute All</button>
               </div>
               <div className="max-h-96 overflow-y-auto custom-scrollbar">
                 {notifications.length === 0 ? (
-                  <div className="p-10 text-center text-text-muted text-[11px] uppercase font-bold tracking-widest italic opacity-50">Secure: No Issues Found</div>
+                  <div className="p-10 text-center text-text-muted text-[14px] uppercase font-bold tracking-widest italic opacity-50">Secure: No Issues Found</div>
                 ) : (
                   notifications.map(n => (
                     <div 
@@ -80,8 +81,8 @@ const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
                         {n.type === 'SYSTEM' && <Bell size={16} className="text-accent-blue glow-cyan" />}
                       </div>
                       <div className="flex-1">
-                        <p className="text-[12px] text-text-primary leading-snug font-bold">{n.message}</p>
-                        <p className="text-[9px] text-text-muted mt-2 font-black uppercase tracking-tighter opacity-70">{new Date(n.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} · Trace ID: {n.id.split('-')[0]}</p>
+                        <p className="text-[15px] text-text-primary leading-snug font-bold">{n.message}</p>
+                        <p className="text-[12px] text-text-muted mt-2 font-black uppercase tracking-tighter opacity-70">{new Date(n.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} · Trace ID: {n.id.split('-')[0]}</p>
                       </div>
                       {!n.isRead && <div className="w-2 h-2 bg-accent-blue rounded-full mt-2 shadow-[0_0_8px_#00f2ff]" />}
                     </div>

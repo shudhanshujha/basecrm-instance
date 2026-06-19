@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import { ArrowLeft, Loader2, Download, Printer, Pencil } from 'lucide-react';
@@ -125,7 +125,7 @@ const InvoiceDetails: React.FC = () => {
           </button>
           <div>
             <h1 className="text-xl font-bold text-text-primary">Invoice {invoice.invoiceNumber}</h1>
-            <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">
+            <p className="text-[14px] text-text-muted mt-1 uppercase tracking-widest font-black">
               {invoice.client?.name} · {invoice.status}
             </p>
           </div>
@@ -133,7 +133,7 @@ const InvoiceDetails: React.FC = () => {
         <div className="flex gap-2">
            <button 
              onClick={() => navigate(`/invoices/edit/${id}`)}
-             className="bg-bg-surface-2 border border-border text-text-primary px-4 py-1.5 rounded-lg font-black text-[12px] uppercase tracking-widest hover:border-accent-orange transition-all flex items-center gap-2"
+             className="bg-bg-surface-2 border border-border text-text-primary px-4 py-1.5 rounded-lg font-black text-[15px] uppercase tracking-widest hover:border-accent-orange transition-all flex items-center gap-2"
            >
              <Pencil size={16} />
              Edit Invoice
@@ -144,7 +144,7 @@ const InvoiceDetails: React.FC = () => {
            >
              {/* @ts-ignore */}
              {({ loading }) => (
-               <button disabled={loading} className="btn-primary text-[12px] py-1.5 flex items-center gap-2">
+               <button disabled={loading} className="btn-primary text-[15px] py-1.5 flex items-center gap-2">
                  {loading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
                  {loading ? 'Generating...' : 'Download PDF'}
                </button>

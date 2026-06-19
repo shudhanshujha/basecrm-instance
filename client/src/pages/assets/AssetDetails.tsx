@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Tag, Box, Info,
@@ -93,7 +93,7 @@ const AssetDetails: React.FC = () => {
                     onChange={(e) => setAsset({...asset, name: e.target.value})}
                   />
                   <select 
-                    className="bg-bg-surface-2 border border-border rounded-lg px-2 py-1 text-[10px] font-black uppercase outline-none"
+                    className="bg-bg-surface-2 border border-border rounded-lg px-2 py-1 text-[13px] font-black uppercase outline-none"
                     value={asset.status}
                     onChange={(e) => setAsset({...asset, status: e.target.value})}
                   >
@@ -105,13 +105,13 @@ const AssetDetails: React.FC = () => {
               ) : (
                 <>
                   <h1 className="text-2xl font-bold text-text-primary uppercase tracking-tight">{asset.name}</h1>
-                  <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white shadow-sm ${bgMap[asset.status] || 'bg-text-muted'}`}>
+                  <span className={`text-[12px] font-black uppercase px-2.5 py-0.5 rounded-full text-white shadow-sm ${bgMap[asset.status] || 'bg-text-muted'}`}>
                     {asset.status}
                   </span>
                 </>
               )}
             </div>
-            <p className="text-[11px] text-text-muted uppercase tracking-widest font-black mt-1">
+            <p className="text-[14px] text-text-muted uppercase tracking-widest font-black mt-1">
               {asset.category || 'General Asset'} · ID: {id?.toUpperCase()}
             </p>
           </div>
@@ -119,13 +119,13 @@ const AssetDetails: React.FC = () => {
         <div className="flex gap-2">
            {isEditing ? (
              <>
-               <button onClick={() => setIsEditing(false)} className="btn-outline px-4 py-1.5 flex items-center gap-2 text-[12px]"><X size={14} /> Cancel</button>
-               <button onClick={handleSave} className="btn-primary px-6 py-1.5 flex items-center gap-2 text-[12px]"><Check size={14} /> Save Changes</button>
+               <button onClick={() => setIsEditing(false)} className="btn-outline px-4 py-1.5 flex items-center gap-2 text-[15px]"><X size={14} /> Cancel</button>
+               <button onClick={handleSave} className="btn-primary px-6 py-1.5 flex items-center gap-2 text-[15px]"><Check size={14} /> Save Changes</button>
              </>
            ) : (
              <>
                <button onClick={handleDelete} className="p-2.5 text-text-muted hover:text-danger hover:bg-danger/10 border border-border rounded-xl transition-all"><Trash2 size={18} /></button>
-               <button onClick={() => setIsEditing(true)} className="btn-outline px-4 py-1.5 flex items-center gap-2 text-[12px] hover:text-accent-orange"><Edit3 size={14} /> Edit Asset Info</button>
+               <button onClick={() => setIsEditing(true)} className="btn-outline px-4 py-1.5 flex items-center gap-2 text-[15px] hover:text-accent-orange"><Edit3 size={14} /> Edit Asset Info</button>
              </>
            )}
         </div>
@@ -135,9 +135,9 @@ const AssetDetails: React.FC = () => {
          <div className="space-y-6">
             <div className="grid grid-cols-1 gap-4">
                <div className="card bg-bg-surface border-border/40">
-                  <h3 className="text-[11px] font-black text-text-muted uppercase tracking-widest mb-4 border-b border-border pb-2">Asset Information</h3>
+                  <h3 className="text-[14px] font-black text-text-muted uppercase tracking-widest mb-4 border-b border-border pb-2">Asset Information</h3>
                   <div className="space-y-4">
-                     <div className="flex justify-between items-center text-[12px]">
+                     <div className="flex justify-between items-center text-[15px]">
                         <span className="flex items-center gap-2 text-text-muted"><Tag size={14} /> Category</span>
                         {isEditing ? (
                           <input 
@@ -150,16 +150,16 @@ const AssetDetails: React.FC = () => {
                         )}
                      </div>
                      <div className="space-y-2">
-                        <span className="flex items-center gap-2 text-[12px] text-text-muted"><Info size={14} /> Description</span>
+                        <span className="flex items-center gap-2 text-[15px] text-text-muted"><Info size={14} /> Description</span>
                         {isEditing ? (
                           <textarea 
-                            className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none resize-none focus:border-accent-orange"
+                            className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] outline-none resize-none focus:border-accent-orange"
                             rows={4}
                             value={asset.description || ''}
                             onChange={(e) => setAsset({...asset, description: e.target.value})}
                           />
                         ) : (
-                          <p className="text-[13px] text-text-primary bg-bg-surface-2 p-4 rounded-xl border border-border">
+                          <p className="text-[16px] text-text-primary bg-bg-surface-2 p-4 rounded-xl border border-border">
                             {asset.description || 'No description provided for this asset.'}
                           </p>
                         )}
@@ -171,26 +171,26 @@ const AssetDetails: React.FC = () => {
 
          <div className="space-y-6">
             <div className="card">
-               <h3 className="text-[14px] font-bold text-text-primary mb-6 uppercase tracking-tight">Recent Activity</h3>
+               <h3 className="text-[17px] font-bold text-text-primary mb-6 uppercase tracking-tight">Recent Activity</h3>
                <div className="space-y-4">
                   {asset.activityLogs && asset.activityLogs.length > 0 ? (
                     asset.activityLogs.map((log: any, i: number) => (
                        <div key={i} className="flex gap-3 items-start border-l-2 border-border pl-4 pb-4">
                           <div className="flex-1">
-                             <p className="text-[12px] font-bold text-text-primary">{log.activityType}</p>
-                             <p className="text-[10px] text-text-muted mt-0.5">{log.description}</p>
-                             <p className="text-[9px] text-text-muted mt-1 italic">{new Date(log.timestamp).toLocaleDateString()}</p>
+                             <p className="text-[15px] font-bold text-text-primary">{log.activityType}</p>
+                             <p className="text-[13px] text-text-muted mt-0.5">{log.description}</p>
+                             <p className="text-[12px] text-text-muted mt-1 italic">{new Date(log.timestamp).toLocaleDateString()}</p>
                           </div>
                           <ArrowRight size={14} className="text-text-muted" />
                        </div>
                     ))
                   ) : (
-                    <div className="text-[11px] text-text-muted italic">No activity recorded yet.</div>
+                    <div className="text-[14px] text-text-muted italic">No activity recorded yet.</div>
                   )}
                </div>
                <button 
                  onClick={() => navigate('/analytics')}
-                 className="w-full mt-4 py-2 text-[11px] font-bold text-accent-blue hover:underline"
+                 className="w-full mt-4 py-2 text-[14px] font-bold text-accent-blue hover:underline"
                >
                  View Full Analytics
                </button>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
@@ -86,7 +86,7 @@ function App() {
     return (
       <>
         <Toaster position="bottom-right" toastOptions={{
-          style: { background: '#181c27', color: '#e8eaf0', border: '1px solid rgba(255,255,255,0.08)', fontSize: '12px' }
+          style: { background: '#181c27', color: '#e8eaf0', border: '1px solid rgba(255,255,255,0.08)', fontSize: '15px' }
         }} />
         <LoginPage onLogin={handleLogin} />
       </>
@@ -96,7 +96,7 @@ function App() {
   return (
     <BrowserRouter>
       <Toaster position="bottom-right" toastOptions={{
-        style: { background: '#181c27', color: '#e8eaf0', border: '1px solid rgba(255,255,255,0.08)', fontSize: '12px' }
+        style: { background: '#181c27', color: '#e8eaf0', border: '1px solid rgba(255,255,255,0.08)', fontSize: '15px' }
       }} />
       <Layout onLogout={handleLogout}>
         <Routes>

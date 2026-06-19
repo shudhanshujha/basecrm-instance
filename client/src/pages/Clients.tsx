@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Plus, Search, Mail, Phone, ExternalLink, MapPin, X, Building, User, Loader2, Trash2, Briefcase } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ExportButton from '../components/ui/ExportButton';
@@ -79,11 +79,11 @@ const Clients: React.FC = () => {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-xl font-bold text-text-primary uppercase tracking-tight">Client Database</h1>
-          <p className="text-[11px] text-text-muted mt-1 uppercase tracking-widest font-black">Account Management · Business Network</p>
+          <p className="text-[14px] text-text-muted mt-1 uppercase tracking-widest font-black">Account Management · Business Network</p>
         </div>
         <div className="flex gap-2">
           <ExportButton data={clients} filename="business_clients" />
-          <button onClick={() => setShowAddModal(true)} className="btn-primary text-[12px] py-1.5 flex items-center gap-2 shadow-lg shadow-accent-purple/30">
+          <button onClick={() => setShowAddModal(true)} className="btn-primary text-[15px] py-1.5 flex items-center gap-2 shadow-lg shadow-accent-purple/30">
             <Plus size={16} /> Add Client
           </button>
         </div>
@@ -95,7 +95,7 @@ const Clients: React.FC = () => {
            <input 
              type="text" 
              placeholder="Search by client name, ID, or city..." 
-              className="w-full bg-bg-surface-2 border border-border rounded-lg pl-9 pr-3 py-2 text-[12px] focus:outline-none focus:border-accent-blue transition-colors"
+              className="w-full bg-bg-surface-2 border border-border rounded-lg pl-9 pr-3 py-2 text-[15px] focus:outline-none focus:border-accent-blue transition-colors"
              value={searchTerm}
              onChange={(e) => setSearchTerm(e.target.value)}
            />
@@ -108,19 +108,19 @@ const Clients: React.FC = () => {
         ) : filteredClients.map((client) => (
           <div key={client.id} onClick={() => navigate(`/clients/${client.id}`)} className="card hover:border-accent-blue transition-all cursor-pointer group flex items-center justify-between bg-bg-surface border-border/50">
             <div className="flex items-center gap-4">
-               <div className="w-12 h-12 bg-bg-surface-2 rounded-xl border border-border flex items-center justify-center font-bold text-accent-blue text-[16px] shadow-sm group-hover:scale-105 transition-transform">
+               <div className="w-12 h-12 bg-bg-surface-2 rounded-xl border border-border flex items-center justify-center font-bold text-accent-blue text-[19px] shadow-sm group-hover:scale-105 transition-transform">
                   {client.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                </div>
                <div>
                   <div className="flex items-center gap-2">
-                     <h3 className="text-[14px] font-bold text-text-primary group-hover:text-accent-blue transition-colors">{client.name}</h3>
-                    <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full text-white shadow-sm ${client.clientType === 'PREMIUM' ? 'bg-success' : 'bg-text-muted'}`}>
+                     <h3 className="text-[17px] font-bold text-text-primary group-hover:text-accent-blue transition-colors">{client.name}</h3>
+                    <span className={`text-[12px] font-black uppercase px-2.5 py-0.5 rounded-full text-white shadow-sm ${client.clientType === 'PREMIUM' ? 'bg-success' : 'bg-text-muted'}`}>
                       {client.clientType}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 mt-1">
-                     <div className="text-[10px] text-text-muted font-mono uppercase tracking-tighter bg-bg-surface-2 px-1.5 rounded">ID: {client.id.slice(0, 8)}</div>
-                     <div className="flex items-center gap-1 text-[10px] text-text-muted font-bold">
+                     <div className="text-[13px] text-text-muted font-mono uppercase tracking-tighter bg-bg-surface-2 px-1.5 rounded">ID: {client.id.slice(0, 8)}</div>
+                     <div className="flex items-center gap-1 text-[13px] text-text-muted font-bold">
                         <MapPin size={10} className="text-accent-blue" /> {client.city || 'Primary Location'}
                      </div>
                   </div>
@@ -129,8 +129,8 @@ const Clients: React.FC = () => {
 
             <div className="flex items-center gap-10 text-right pr-2">
                <div>
-                  <div className="text-[14px] font-black text-text-primary">{client.deals?.length || 0}</div>
-                  <div className="text-[9px] text-text-muted uppercase font-bold tracking-tighter">Deals</div>
+                  <div className="text-[17px] font-black text-text-primary">{client.deals?.length || 0}</div>
+                  <div className="text-[12px] text-text-muted uppercase font-bold tracking-tighter">Deals</div>
                </div>
                <div className="flex items-center gap-2 pl-4">
                   <button 
@@ -148,7 +148,7 @@ const Clients: React.FC = () => {
           </div>
         ))}
         {!isLoading && filteredClients.length === 0 && (
-          <div className="card text-center py-20 text-text-muted italic text-[12px]">No clients found matching your search.</div>
+          <div className="card text-center py-20 text-text-muted italic text-[15px]">No clients found matching your search.</div>
         )}
       </div>
 
@@ -166,38 +166,38 @@ const Clients: React.FC = () => {
                 <div className="p-8 space-y-6">
                    <div className="grid grid-cols-2 gap-6">
                       <div className="col-span-2 space-y-2">
-                         <label className="text-[10px] font-black text-text-muted uppercase ml-1">Client / Company Name</label>
-                          <input type="text" required className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[13px] outline-none focus:border-accent-blue transition-colors font-bold" placeholder="e.g. Apex Dynamics" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                         <label className="text-[13px] font-black text-text-muted uppercase ml-1">Client / Company Name</label>
+                          <input type="text" required className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[16px] outline-none focus:border-accent-blue transition-colors font-bold" placeholder="e.g. Apex Dynamics" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
                       </div>
                       <div className="space-y-2">
-                         <label className="text-[10px] font-black text-text-muted uppercase ml-1">Contact Person</label>
-                         <input type="text" required className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none" placeholder="Full Name" value={formData.contactPerson} onChange={e => setFormData({...formData, contactPerson: e.target.value})} />
+                         <label className="text-[13px] font-black text-text-muted uppercase ml-1">Contact Person</label>
+                         <input type="text" required className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] outline-none" placeholder="Full Name" value={formData.contactPerson} onChange={e => setFormData({...formData, contactPerson: e.target.value})} />
                       </div>
                       <div className="space-y-2">
-                         <label className="text-[10px] font-black text-text-muted uppercase ml-1">Phone Number</label>
-                         <input type="text" required className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none" placeholder="Contact number" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+                         <label className="text-[13px] font-black text-text-muted uppercase ml-1">Phone Number</label>
+                         <input type="text" required className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] outline-none" placeholder="Contact number" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
                       </div>
                       <div className="space-y-2">
-                         <label className="text-[10px] font-black text-text-muted uppercase ml-1">Tax ID / GSTIN</label>
-                         <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none font-mono" placeholder="Tax Registration No" value={formData.gstin} onChange={e => setFormData({...formData, gstin: e.target.value})} />
+                         <label className="text-[13px] font-black text-text-muted uppercase ml-1">Tax ID / GSTIN</label>
+                         <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] outline-none font-mono" placeholder="Tax Registration No" value={formData.gstin} onChange={e => setFormData({...formData, gstin: e.target.value})} />
                       </div>
                       <div className="space-y-2">
-                         <label className="text-[10px] font-black text-text-muted uppercase ml-1">Client Category</label>
-                         <select className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none font-bold" value={formData.clientType} onChange={e => setFormData({...formData, clientType: e.target.value})}>
+                         <label className="text-[13px] font-black text-text-muted uppercase ml-1">Client Category</label>
+                         <select className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] outline-none font-bold" value={formData.clientType} onChange={e => setFormData({...formData, clientType: e.target.value})}>
                             <option value="REGULAR">Regular</option>
                             <option value="PREMIUM">Premium</option>
                             <option value="ONE_TIME">One-time</option>
                          </select>
                       </div>
                       <div className="col-span-2 space-y-2">
-                         <label className="text-[10px] font-black text-text-muted uppercase ml-1">Office Address</label>
-                         <textarea className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3 text-[13px] outline-none" rows={2} placeholder="Full correspondence address" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
+                         <label className="text-[13px] font-black text-text-muted uppercase ml-1">Office Address</label>
+                         <textarea className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3 text-[16px] outline-none" rows={2} placeholder="Full correspondence address" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
                       </div>
                    </div>
                 </div>
                 <div className="p-6 border-t border-border flex justify-end gap-3 bg-bg-surface-2 rounded-b-2xl">
-                   <button type="button" onClick={() => setShowAddModal(false)} className="btn-outline px-8 py-2.5 text-[12px]">Discard</button>
-                    <button type="submit" className="btn-primary px-10 py-2.5 text-[12px] font-bold uppercase tracking-wider shadow-xl shadow-accent-purple/20 hover:scale-[1.02] transition-transform">Save Client</button>
+                   <button type="button" onClick={() => setShowAddModal(false)} className="btn-outline px-8 py-2.5 text-[15px]">Discard</button>
+                    <button type="submit" className="btn-primary px-10 py-2.5 text-[15px] font-bold uppercase tracking-wider shadow-xl shadow-accent-purple/20 hover:scale-[1.02] transition-transform">Save Client</button>
                 </div>
               </form>
            </div>

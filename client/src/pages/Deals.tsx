@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+﻿import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Plus, Search, Filter, Calendar, Box, 
   ChevronRight, ArrowRight, Download, ArrowUp, ArrowDown,
@@ -81,7 +81,7 @@ const Deals: React.FC = () => {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-black text-text-primary uppercase tracking-tight">Deal Pipeline</h1>
-          <p className="text-[10px] text-text-muted mt-2 uppercase font-bold tracking-[3px] flex items-center gap-2">
+          <p className="text-[13px] text-text-muted mt-2 uppercase font-bold tracking-[3px] flex items-center gap-2">
              <div className="w-1.5 h-1.5 bg-accent-blue rounded-full animate-pulse" />
              {deals.filter(d => d.status === 'ACTIVE').length} ACTIVE NODES · SYSTEM OPERATIONAL
           </p>
@@ -102,7 +102,7 @@ const Deals: React.FC = () => {
               </button>
            </div>
           <ExportButton data={deals} filename="deals_list" />
-          <button onClick={() => navigate('/deals/new')} className="btn-primary text-[11px] px-6 flex items-center gap-2 shadow-xl shadow-accent-purple/20">
+          <button onClick={() => navigate('/deals/new')} className="btn-primary text-[14px] px-6 flex items-center gap-2 shadow-xl shadow-accent-purple/20">
             <Plus size={16} /> New Deal
           </button>
         </div>
@@ -116,7 +116,7 @@ const Deals: React.FC = () => {
            { label: 'Lead Generation', val: deals.filter(d => d.status === 'LEAD').length, color: 'text-success' }
          ].map((stat, i) => (
            <div key={i} className="card border-white/5 bg-bg-surface/30">
-              <span className="text-[9px] text-text-muted uppercase font-black tracking-[2px]">{stat.label}</span>
+              <span className="text-[12px] text-text-muted uppercase font-black tracking-[2px]">{stat.label}</span>
               <span className={`text-2xl font-black mt-2 block ${stat.color}`}>{stat.val}</span>
            </div>
          ))}
@@ -128,7 +128,7 @@ const Deals: React.FC = () => {
             <input 
               type="text" 
               placeholder="Filter deals or clients..." 
-              className="w-full bg-bg-surface border border-white/5 rounded-2xl pl-12 pr-4 py-3 text-[13px] text-text-primary focus:outline-none focus:border-accent-blue/50 transition-all"
+              className="w-full bg-bg-surface border border-white/5 rounded-2xl pl-12 pr-4 py-3 text-[16px] text-text-primary focus:outline-none focus:border-accent-blue/50 transition-all"
               value={searchTerm}
               onChange={(e) => setSearchState(e.target.value)}
             />
@@ -139,7 +139,7 @@ const Deals: React.FC = () => {
                 <button 
                   key={s} 
                   onClick={() => setStatusFilter(s)}
-                  className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${statusFilter === s ? 'bg-accent-blue text-white shadow-lg shadow-accent-blue/20' : 'bg-white/5 text-text-muted border border-white/5 hover:text-text-primary'}`}
+                  className={`px-4 py-2 rounded-xl text-[13px] font-bold uppercase tracking-widest transition-all ${statusFilter === s ? 'bg-accent-blue text-white shadow-lg shadow-accent-blue/20' : 'bg-white/5 text-text-muted border border-white/5 hover:text-text-primary'}`}
                 >
                   {s}
                 </button>
@@ -148,7 +148,7 @@ const Deals: React.FC = () => {
          )}
          <button 
            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')} 
-           className="px-4 py-2 bg-white/5 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-text-muted flex items-center gap-3 hover:text-text-primary transition-all"
+           className="px-4 py-2 bg-white/5 border border-white/5 rounded-xl text-[13px] font-black uppercase tracking-widest text-text-muted flex items-center gap-3 hover:text-text-primary transition-all"
          >
             <motion.div animate={{ rotate: sortOrder === 'asc' ? 0 : 180 }}>
               {sortOrder === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
@@ -167,7 +167,7 @@ const Deals: React.FC = () => {
             className="py-40 text-center"
           >
             <Loader2 className="animate-spin mx-auto text-accent-blue" size={40} />
-            <p className="text-[10px] font-black uppercase tracking-[3px] text-text-muted mt-4">Syncing Pipeline Data...</p>
+            <p className="text-[13px] font-black uppercase tracking-[3px] text-text-muted mt-4">Syncing Pipeline Data...</p>
           </motion.div>
         ) : viewMode === 'kanban' ? (
           <motion.div
@@ -199,35 +199,35 @@ const Deals: React.FC = () => {
                 <div className="flex justify-between items-start">
                   <div className="space-y-2">
                      <div className="flex items-center gap-3">
-                          <h3 className="text-[15px] font-bold text-text-primary group-hover:text-accent-blue transition-colors">{deal.title}</h3>
-                        <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded shadow-inner text-white ${getStatusBg(deal.status)}`}>
+                          <h3 className="text-[18px] font-bold text-text-primary group-hover:text-accent-blue transition-colors">{deal.title}</h3>
+                        <span className={`text-[11px] font-black uppercase px-2 py-0.5 rounded shadow-inner text-white ${getStatusBg(deal.status)}`}>
                           {deal.status}
                         </span>
                      </div>
-                     <p className="text-[12px] font-medium text-text-muted flex items-center gap-2">
+                     <p className="text-[15px] font-medium text-text-muted flex items-center gap-2">
                         <User size={12} className="text-accent-blue" />
                         {deal.client?.name || 'Manual Entity'}
                      </p>
                   </div>
                   <div className="text-right">
-                     <div className="text-[16px] font-black text-text-primary">₹{((deal.value || 0) / 100000).toFixed(2)}L</div>
-                     <div className="text-[9px] text-text-muted uppercase font-black tracking-widest mt-1">Contract Value</div>
+                     <div className="text-[19px] font-black text-text-primary">₹{((deal.value || 0) / 100000).toFixed(2)}L</div>
+                     <div className="text-[12px] text-text-muted uppercase font-black tracking-widest mt-1">Contract Value</div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-8 mt-8 pt-5 border-t border-white/5">
                    <div className="flex items-center gap-3 text-text-muted">
                       <div className="p-1.5 bg-accent-orange/10 rounded-lg text-accent-orange"><Box size={14} /></div>
-                      <span className="text-[11px] font-black uppercase tracking-tight">{deal.activityLogs?.length || 0} Assets Deployed</span>
+                      <span className="text-[14px] font-black uppercase tracking-tight">{deal.activityLogs?.length || 0} Assets Deployed</span>
                    </div>
                    <div className="flex items-center gap-3 text-text-muted">
                       <div className="p-1.5 bg-accent-blue/10 rounded-lg text-accent-blue"><Calendar size={14} /></div>
-                      <span className="text-[11px] font-black uppercase tracking-tight">
+                      <span className="text-[14px] font-black uppercase tracking-tight">
                         {deal.startDate ? format(new Date(deal.startDate), 'dd MMM yy') : '-'} — {deal.endDate ? format(new Date(deal.endDate), 'dd MMM yy') : '-'}
                       </span>
                    </div>
                    <div className="flex justify-end">
-                      <button onClick={() => navigate(`/deals/${deal.id}`)} className="text-[10px] font-black text-accent-orange uppercase tracking-widest flex items-center gap-2 hover:gap-4 transition-all group-hover:bg-accent-orange/10 px-4 py-2 rounded-xl">
+                      <button onClick={() => navigate(`/deals/${deal.id}`)} className="text-[13px] font-black text-accent-orange uppercase tracking-widest flex items-center gap-2 hover:gap-4 transition-all group-hover:bg-accent-orange/10 px-4 py-2 rounded-xl">
                         View Node <ArrowRight size={14} />
                       </button>
                    </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { 
   Search, Filter, Plus, Database, 
   Table, Download, Upload, Info, ExternalLink,
@@ -101,10 +101,10 @@ const Assets: React.FC = () => {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-xl font-bold text-text-primary uppercase tracking-tight">Business Assets</h1>
-          <p className="text-[11px] text-text-muted mt-1 uppercase font-black tracking-widest">Asset Inventory · Resource Management</p>
+          <p className="text-[14px] text-text-muted mt-1 uppercase font-black tracking-widest">Asset Inventory · Resource Management</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setShowAddModal(true)} className="btn-primary text-[12px] py-1.5 flex items-center gap-2 shadow-lg shadow-accent-orange/30">
+          <button onClick={() => setShowAddModal(true)} className="btn-primary text-[15px] py-1.5 flex items-center gap-2 shadow-lg shadow-accent-orange/30">
             <Plus size={16} /> Add New Asset
           </button>
         </div>
@@ -117,7 +117,7 @@ const Assets: React.FC = () => {
               <button 
                 key={t}
                 onClick={() => setFilterStatus(t)}
-                className={`text-[11px] font-bold px-4 py-1.5 rounded-lg border transition-all ${filterStatus === t ? 'bg-accent-orange text-white border-accent-orange shadow-lg' : 'bg-bg-surface-2 text-text-muted border-border hover:text-text-primary'}`}
+                className={`text-[14px] font-bold px-4 py-1.5 rounded-lg border transition-all ${filterStatus === t ? 'bg-accent-orange text-white border-accent-orange shadow-lg' : 'bg-bg-surface-2 text-text-muted border-border hover:text-text-primary'}`}
               >
                 {t}
               </button>
@@ -135,7 +135,7 @@ const Assets: React.FC = () => {
             <input 
               type="text" 
               placeholder="Search by name or category..." 
-              className="w-full bg-bg-surface-2 border border-border rounded-xl pl-9 pr-3 py-2.5 text-[12px] focus:outline-none focus:border-accent-orange transition-colors"
+              className="w-full bg-bg-surface-2 border border-border rounded-xl pl-9 pr-3 py-2.5 text-[15px] focus:outline-none focus:border-accent-orange transition-colors"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -148,7 +148,7 @@ const Assets: React.FC = () => {
         <div className="card p-0 border-border/50 shadow-xl">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-bg-surface-2 border-b border-border text-[10px] font-black text-text-muted uppercase tracking-widest">
+              <tr className="bg-bg-surface-2 border-b border-border text-[13px] font-black text-text-muted uppercase tracking-widest">
                 <th className="px-4 py-3 rounded-tl-xl">Asset Details</th>
                 <th className="px-4 py-3">Category</th>
                 <th className="px-4 py-3">Description</th>
@@ -161,26 +161,26 @@ const Assets: React.FC = () => {
               ) : filteredAssets.map((asset) => (
                 <tr key={asset.id} onClick={() => navigate(`/assets/${asset.id}`)} className="hover:bg-bg-surface-2 transition-colors cursor-pointer group">
                   <td className="px-4 py-4">
-                    <div className="text-[13px] font-bold text-text-primary group-hover:text-accent-orange transition-colors">{asset.name}</div>
-                    <div className="text-[10px] text-text-muted mt-0.5 font-bold uppercase tracking-tighter">ID: {asset.id.split('-')[0]}</div>
+                    <div className="text-[16px] font-bold text-text-primary group-hover:text-accent-orange transition-colors">{asset.name}</div>
+                    <div className="text-[13px] text-text-muted mt-0.5 font-bold uppercase tracking-tighter">ID: {asset.id.split('-')[0]}</div>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="flex items-center gap-2 text-[11px] font-bold text-text-primary uppercase">
+                    <div className="flex items-center gap-2 text-[14px] font-bold text-text-primary uppercase">
                        <Tag size={12} className="text-accent-blue" /> {asset.category || 'General'}
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="text-[11px] text-text-muted line-clamp-1">{asset.description || 'No description'}</div>
+                    <div className="text-[14px] text-text-muted line-clamp-1">{asset.description || 'No description'}</div>
                   </td>
                   <td className="px-4 py-4 text-right">
                      <div className="flex items-center justify-end gap-2">
                         <div className="relative group/status inline-block text-left" onClick={(e) => e.stopPropagation()}>
-                           <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(asset.status)}`} style={{ fontSize: '8px', lineHeight: '12px' }}>
+                           <span className={`text-[11px] font-black uppercase px-2 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(asset.status)}`} style={{ fontSize: '11px', lineHeight: '12px' }}>
                              {asset.status}
                            </span>
                            <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-[100] top-full right-0 mt-1 min-w-[120px]">
                               {['ACTIVE', 'INACTIVE', 'RESERVED'].map(s => (
-                                 <button key={s} onClick={() => updateStatus(asset.id, s)} className="text-[9px] text-left hover:text-accent-orange text-text-primary font-bold py-1.5 uppercase transition-colors" style={{ fontSize: '9px' }}>{s}</button>
+                                 <button key={s} onClick={() => updateStatus(asset.id, s)} className="text-[12px] text-left hover:text-accent-orange text-text-primary font-bold py-1.5 uppercase transition-colors" style={{ fontSize: '12px' }}>{s}</button>
                               ))}
                            </div>
                         </div>
@@ -203,23 +203,23 @@ const Assets: React.FC = () => {
           {filteredAssets.map(asset => (
             <div key={asset.id} onClick={() => navigate(`/assets/${asset.id}`)} className="card bg-bg-surface hover:border-accent-orange transition-all cursor-pointer group flex flex-col p-4 relative shadow-lg border-border/50">
                <div className="flex justify-between items-start">
-                  <h3 className="text-[14px] font-bold text-text-primary group-hover:text-accent-orange transition-colors line-clamp-1 uppercase">{asset.name}</h3>
+                  <h3 className="text-[17px] font-bold text-text-primary group-hover:text-accent-orange transition-colors line-clamp-1 uppercase">{asset.name}</h3>
                   <div className={`w-2 h-2 rounded-full ${asset.status === 'RESERVED' ? 'bg-warning shadow-[0_0_8px_#eab308]' : asset.status === 'ACTIVE' ? 'bg-success shadow-[0_0_8px_#22c55e]' : 'bg-danger shadow-[0_0_8px_#ef4444]'}`}></div>
                </div>
-               <div className="flex items-center gap-1.5 text-[10px] text-text-muted mt-1 uppercase font-bold tracking-widest">
+               <div className="flex items-center gap-1.5 text-[13px] text-text-muted mt-1 uppercase font-bold tracking-widest">
                   <Tag size={10} /> {asset.category || 'General'}
                </div>
                <div className="mt-2 relative group/status inline-block" onClick={(e) => e.stopPropagation()}>
-                  <span className={`text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(asset.status)}`} style={{ fontSize: '7px', lineHeight: '10px' }}>
+                  <span className={`text-[10px] font-black uppercase px-1.5 py-0.5 rounded-full text-white cursor-pointer ${getStatusBg(asset.status)}`} style={{ fontSize: '10px', lineHeight: '10px' }}>
                     {asset.status}
                   </span>
                   <div className="absolute hidden group-hover/status:flex flex-col gap-1 bg-bg-surface border border-border p-2 rounded-lg shadow-2xl z-[100] top-full left-0 mt-1 min-w-[120px]">
                      {['ACTIVE', 'INACTIVE', 'RESERVED'].map(s => (
-                        <button key={s} onClick={() => updateStatus(asset.id, s)} className="text-[9px] text-left hover:text-accent-orange text-text-primary font-bold py-1.5 uppercase transition-colors" style={{ fontSize: '9px' }}>{s}</button>
+                        <button key={s} onClick={() => updateStatus(asset.id, s)} className="text-[12px] text-left hover:text-accent-orange text-text-primary font-bold py-1.5 uppercase transition-colors" style={{ fontSize: '12px' }}>{s}</button>
                      ))}
                   </div>
                </div>
-               <div className="mt-3 text-[11px] text-text-muted line-clamp-2 min-h-[32px]">
+               <div className="mt-3 text-[14px] text-text-muted line-clamp-2 min-h-[32px]">
                   {asset.description || 'No description provided for this asset.'}
                </div>
                <div className="flex justify-between items-center mt-4 pt-4 border-t border-border">
@@ -252,21 +252,21 @@ const Assets: React.FC = () => {
               <form onSubmit={handleSaveAsset}>
               <div className="p-8 space-y-6">
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase ml-1">Asset Name</label>
-                    <input name="name" type="text" required className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[13px] outline-none font-bold focus:border-accent-orange" placeholder="e.g. Premium Package, Dedicated Server, etc." />
+                    <label className="text-[13px] font-black text-text-muted uppercase ml-1">Asset Name</label>
+                    <input name="name" type="text" required className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[16px] outline-none font-bold focus:border-accent-orange" placeholder="e.g. Premium Package, Dedicated Server, etc." />
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase ml-1">Category</label>
-                    <input name="category" type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none" placeholder="e.g. Service, Hardware, Software" />
+                    <label className="text-[13px] font-black text-text-muted uppercase ml-1">Category</label>
+                    <input name="category" type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] outline-none" placeholder="e.g. Service, Hardware, Software" />
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase ml-1">Description</label>
-                    <textarea name="description" rows={3} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none resize-none" placeholder="Enter asset details..."></textarea>
+                    <label className="text-[13px] font-black text-text-muted uppercase ml-1">Description</label>
+                    <textarea name="description" rows={3} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] outline-none resize-none" placeholder="Enter asset details..."></textarea>
                  </div>
               </div>
               <div className="p-6 border-t border-border flex justify-end gap-3 bg-bg-surface-2 rounded-b-2xl">
-                 <button type="button" onClick={() => setShowAddModal(false)} className="btn-outline px-8 py-2.5 text-[12px]">Discard</button>
-                 <button type="submit" className="px-10 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-widest text-white shadow-xl bg-accent-orange shadow-accent-orange/20 transition-all">Save Asset</button>
+                 <button type="button" onClick={() => setShowAddModal(false)} className="btn-outline px-8 py-2.5 text-[15px]">Discard</button>
+                 <button type="submit" className="px-10 py-2.5 rounded-xl text-[15px] font-black uppercase tracking-widest text-white shadow-xl bg-accent-orange shadow-accent-orange/20 transition-all">Save Asset</button>
               </div>
               </form>
            </div>

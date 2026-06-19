@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import api from '../lib/axios';
 import { 
   Plus, Search, Filter, Calendar, CreditCard, 
@@ -74,11 +74,11 @@ const Expenses = () => {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-xl font-bold text-text-primary uppercase tracking-tight">Expense Ledger</h1>
-          <p className="text-[11px] text-text-muted mt-1 uppercase font-black tracking-widest">Operational Outflow · Cash Management</p>
+          <p className="text-[14px] text-text-muted mt-1 uppercase font-black tracking-widest">Operational Outflow · Cash Management</p>
         </div>
         <div className="flex gap-2">
           <ExportButton data={expenses} filename="business_expenses" />
-          <button onClick={() => setShowModal(true)} className="btn-primary text-[12px] py-1.5 flex items-center gap-2 shadow-lg shadow-accent-orange/30">
+          <button onClick={() => setShowModal(true)} className="btn-primary text-[15px] py-1.5 flex items-center gap-2 shadow-lg shadow-accent-orange/30">
             <Plus size={16} /> Record Expense
           </button>
         </div>
@@ -87,16 +87,16 @@ const Expenses = () => {
       <div className="grid grid-cols-3 gap-4">
          <div className="card border-danger/20 bg-danger/5 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><TrendingDown size={48} /></div>
-            <div className="text-[9px] text-danger uppercase font-black tracking-widest">Total Expenses (MTD)</div>
+            <div className="text-[12px] text-danger uppercase font-black tracking-widest">Total Expenses (MTD)</div>
             <div className="text-2xl font-black text-text-primary mt-2">₹{expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString()}</div>
-            <div className="text-[10px] text-text-muted mt-1 font-bold">Updated just now</div>
+            <div className="text-[13px] text-text-muted mt-1 font-bold">Updated just now</div>
          </div>
          <div className="card border-accent-blue/20 bg-accent-blue/5">
-            <div className="text-[9px] text-accent-blue uppercase font-black tracking-widest">Office Overheads</div>
+            <div className="text-[12px] text-accent-blue uppercase font-black tracking-widest">Office Overheads</div>
             <div className="text-2xl font-black text-text-primary mt-2">₹{expenses.filter(e => e.category === 'OFFICE').reduce((sum, e) => sum + e.amount, 0).toLocaleString()}</div>
          </div>
          <div className="card border-success/20 bg-success/5">
-            <div className="text-[9px] text-success uppercase font-black tracking-widest">Tax Input (GST)</div>
+            <div className="text-[12px] text-success uppercase font-black tracking-widest">Tax Input (GST)</div>
             <div className="text-2xl font-black text-text-primary mt-2">₹0.00</div>
          </div>
       </div>
@@ -108,19 +108,19 @@ const Expenses = () => {
             <input 
               type="text" 
               placeholder="Search expenses..." 
-              className="w-full bg-bg-surface-2 border border-border rounded-xl pl-9 pr-3 py-2.5 text-[12px] focus:outline-none focus:border-accent-orange transition-colors"
+              className="w-full bg-bg-surface-2 border border-border rounded-xl pl-9 pr-3 py-2.5 text-[15px] focus:outline-none focus:border-accent-orange transition-colors"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button className="btn-outline flex items-center justify-center gap-2 text-[12px]"><Filter size={14} /> Filters</button>
+          <button className="btn-outline flex items-center justify-center gap-2 text-[15px]"><Filter size={14} /> Filters</button>
         </div>
       </div>
 
       <div className="card p-0 overflow-hidden border-border/50 shadow-xl">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-bg-surface-2 border-b border-border text-[10px] font-black text-text-muted uppercase tracking-widest">
+            <tr className="bg-bg-surface-2 border-b border-border text-[13px] font-black text-text-muted uppercase tracking-widest">
               <th className="px-6 py-4">Transaction Date</th>
               <th className="px-6 py-4">Classification</th>
               <th className="px-6 py-4">Reference / Description</th>
@@ -133,28 +133,28 @@ const Expenses = () => {
               <tr><td colSpan={5} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-accent-orange" /></td></tr>
             ) : filteredExpenses.map((exp) => (
               <tr key={exp.id} className="hover:bg-bg-surface-2 transition-colors group cursor-pointer">
-                <td className="px-6 py-4 text-[12px] font-bold text-text-muted">{format(new Date(exp.date), 'dd MMM yyyy')}</td>
+                <td className="px-6 py-4 text-[15px] font-bold text-text-muted">{format(new Date(exp.date), 'dd MMM yyyy')}</td>
                 <td className="px-6 py-4">
-                  <div className="flex items-center gap-2 text-[11px] font-black text-text-primary uppercase tracking-tighter">
+                  <div className="flex items-center gap-2 text-[14px] font-black text-text-primary uppercase tracking-tighter">
                      <span className="p-1.5 bg-bg-surface-2 rounded-lg border border-border">{getCategoryIcon(exp.category)}</span>
                      {exp.category}
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <div className="text-[13px] font-bold text-text-primary line-clamp-1">{exp.description}</div>
-                  <div className="text-[10px] text-text-muted font-bold uppercase mt-0.5 tracking-tighter">ID: {exp.id.slice(0, 8)}</div>
+                  <div className="text-[16px] font-bold text-text-primary line-clamp-1">{exp.description}</div>
+                  <div className="text-[13px] text-text-muted font-bold uppercase mt-0.5 tracking-tighter">ID: {exp.id.slice(0, 8)}</div>
                 </td>
                 <td className="px-6 py-4 text-center">
-                  <span className="text-[10px] font-black uppercase px-2 py-1 bg-bg-surface-2 border border-border rounded-lg">{exp.paymentMode}</span>
+                  <span className="text-[13px] font-black uppercase px-2 py-1 bg-bg-surface-2 border border-border rounded-lg">{exp.paymentMode}</span>
                 </td>
                 <td className="px-6 py-4 text-right">
-                  <div className="text-[14px] font-black text-danger">- ₹{exp.amount.toLocaleString()}</div>
+                  <div className="text-[17px] font-black text-danger">- ₹{exp.amount.toLocaleString()}</div>
                 </td>
               </tr>
             ))}
             {!isLoading && filteredExpenses.length === 0 && (
               <tr>
-                <td colSpan={5} className="py-20 text-center text-text-muted uppercase font-black text-[11px] tracking-widest italic opacity-50">Zero Outflow Recorded</td>
+                <td colSpan={5} className="py-20 text-center text-text-muted uppercase font-black text-[14px] tracking-widest italic opacity-50">Zero Outflow Recorded</td>
               </tr>
             )}
           </tbody>
@@ -175,11 +175,11 @@ const Expenses = () => {
               <div className="p-8 space-y-6">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase ml-1">Classification</label>
+                    <label className="text-[13px] font-black text-text-muted uppercase ml-1">Classification</label>
                     <select 
                       value={formData.category} 
                       onChange={(e) => setFormData({...formData, category: e.target.value})} 
-                      className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[13px] outline-none font-bold"
+                      className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[16px] outline-none font-bold"
                     >
                       <option value="OFFICE">Office Supplies & Rent</option>
                       <option value="TRAVEL">Fuel & Travel</option>
@@ -189,22 +189,22 @@ const Expenses = () => {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase ml-1">Debit Amount (₹)</label>
+                    <label className="text-[13px] font-black text-text-muted uppercase ml-1">Debit Amount (₹)</label>
                     <input 
                       type="number" 
                       required 
                       value={formData.amount} 
                       onChange={(e) => setFormData({...formData, amount: e.target.value})} 
-                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] font-black text-danger outline-none" 
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[19px] font-black text-danger outline-none" 
                       placeholder="0.00" 
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase ml-1">Payment Method</label>
+                    <label className="text-[13px] font-black text-text-muted uppercase ml-1">Payment Method</label>
                     <select 
                       value={formData.paymentMode} 
                       onChange={(e) => setFormData({...formData, paymentMode: e.target.value})} 
-                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[13px] outline-none font-bold"
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] outline-none font-bold"
                     >
                       <option value="CASH">Cash Ledger</option>
                       <option value="UPI">UPI / QR Scan</option>
@@ -213,21 +213,21 @@ const Expenses = () => {
                     </select>
                   </div>
                   <div className="col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase ml-1">Reference / Details</label>
+                    <label className="text-[13px] font-black text-text-muted uppercase ml-1">Reference / Details</label>
                     <input 
                       type="text" 
                       required
                       value={formData.description} 
                       onChange={(e) => setFormData({...formData, description: e.target.value})} 
-                      className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[13px] outline-none font-bold" 
+                      className="w-full bg-bg-surface-2 border border-border rounded-2xl px-4 py-3.5 text-[16px] outline-none font-bold" 
                       placeholder="e.g. Office electricity bill May 2026" 
                     />
                   </div>
                 </div>
               </div>
               <div className="p-6 border-t border-border flex justify-end gap-3 bg-bg-surface-2 rounded-b-2xl">
-                <button type="button" onClick={() => setShowModal(false)} className="btn-outline px-8 py-2.5 text-[12px]">Discard</button>
-                <button type="submit" className="px-10 py-2.5 bg-danger text-white rounded-xl text-[12px] font-black uppercase tracking-widest shadow-xl shadow-danger/20">Confirm Debit</button>
+                <button type="button" onClick={() => setShowModal(false)} className="btn-outline px-8 py-2.5 text-[15px]">Discard</button>
+                <button type="submit" className="px-10 py-2.5 bg-danger text-white rounded-xl text-[15px] font-black uppercase tracking-widest shadow-xl shadow-danger/20">Confirm Debit</button>
               </div>
             </form>
           </div>
