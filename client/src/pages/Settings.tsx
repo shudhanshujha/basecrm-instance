@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Settings as SettingsIcon, Building, CreditCard, 
   ShieldCheck, Globe, Bell, Save, 
@@ -197,13 +197,14 @@ const Settings: React.FC = () => {
             <button
               key={item.id}
               onClick={() => setActiveSection(item.id as any)}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold uppercase tracking-wider transition-all ${
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-[13px] font-semibold uppercase tracking-wider transition-all whitespace-nowrap overflow-hidden ${
                 activeSection === item.id 
                   ? 'bg-accent-blue/10 text-accent-blue shadow-lg shadow-accent-blue/10 border border-accent-blue/20' 
                   : 'text-text-muted hover:bg-bg-surface-2 hover:text-text-primary'
               }`}
             >
-              {item.icon} {item.label}
+              <span className="shrink-0">{item.icon}</span>
+              <span className="truncate">{item.label}</span>
             </button>
           ))}
         </div>
