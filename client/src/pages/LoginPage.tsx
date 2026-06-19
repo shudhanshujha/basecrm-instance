@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Eye, EyeOff, Loader2, ShieldCheck, Zap, Lock, Terminal, Globe, Building, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -257,28 +257,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   onClick={() => { setIsSignup(!isSignup); setError(''); }}
                   className="text-[13px] text-text-muted hover:text-accent-blue uppercase tracking-wider font-bold transition-colors"
                 >
-                  {isSignup ? 'Already have an account? Login' : 'New organization? Create account'}
+                  {isSignup ? 'Already have an account? Login' : 'Create account'}
                 </button>
               </div>
             </form>
           </div>
         </motion.div>
 
-        {/* Footer Terminal Log */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.4 }}
-          transition={{ delay: 0.5 }}
-          className="mt-12 text-center"
-        >
-           <p className="text-[12px] text-accent-blue uppercase font-black tracking-[2px] mb-2 flex items-center justify-center gap-2">
-              <span className="w-1.5 h-1.5 bg-success rounded-full animate-pulse" />
-              Mainframe Connection Established
-           </p>
-           <p className="text-[11px] text-text-muted font-bold opacity-40">
-              V1.0.4-PROD // ENCRYPTION: AES-256-GCM // NODE: SH-BASE-01
-           </p>
-        </motion.div>
+
       </div>
     </div>
   );
