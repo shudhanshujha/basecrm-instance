@@ -4,7 +4,7 @@ import {
   ShieldCheck, Globe, Bell, Save, 
   User, Check, X, Smartphone, Mail,
   Download, FileSpreadsheet, FileText, Trash2, AlertCircle, CheckCircle2,
-  Database, Cloud, RefreshCw, Server, Users, Loader2, Landmark
+  Database, Cloud, RefreshCw, Server, Users, Loader2, Landmark, Palette
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNotificationStore } from '../store/useNotificationStore';
@@ -13,7 +13,7 @@ import { exportToExcel } from '../lib/export';
 import api from '../lib/axios';
 
 const Settings: React.FC = () => {
-  const [activeSection, setActiveSection] = useState<'profile' | 'banking' | 'users' | 'notifications' | 'backup' | 'infra'>('profile');
+  const [activeSection, setActiveSection] = useState<'profile' | 'banking' | 'users' | 'notifications' | 'backup' | 'infra' | 'templates'>('profile');
   const { notifications, clearAll, markAsRead } = useNotificationStore();
   const [healthStatus, setHealthStatus] = useState<any>(null);
   const [checkingHealth, setCheckingHealth] = useState(false);
@@ -193,6 +193,7 @@ const Settings: React.FC = () => {
             { id: 'users', label: 'User Management', icon: <Users size={16} /> },
             { id: 'notifications', label: 'Notification Center', icon: <Bell size={16} /> },
             { id: 'backup', label: 'Data &amp; Backup', icon: <Download size={16} /> },
+            { id: 'templates', label: 'Invoice Templates', icon: <FileText size={16} /> },
             { id: 'infra', label: 'System Architecture', icon: <Server size={16} /> },
           ].map((item) => (
             <button
@@ -390,9 +391,105 @@ const Settings: React.FC = () => {
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
             </div>
+           )}
+            {(activeSection as string) === 'templates' && (
+             <div className="card space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+               <div className="flex items-center gap-3 border-b border-border pb-4">
+                 <Palette className="text-accent-purple" size={20} />
+                 <h2 className="text-lg font-bold uppercase tracking-tight">Invoice Templates</h2>
+               </div>
+
+               <div className="space-y-6">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   {[
+                     { id: 'gst-standard', name: 'GST Standard', desc: 'Indian GST-compliant invoice with tax breakdown and bank details', badge: 'India/GST' },
+                     { id: 'digital-services', name: 'Digital Services', desc: 'Clean modern layout for agencies, SaaS, and consulting businesses', badge: 'Services' },
+                     { id: 'product-company', name: 'Product / E-Commerce', desc: 'Itemized format for physical goods and product companies', badge: 'Products' },
+                     { id: 'freelancer', name: 'Freelancer / Consultant', desc: 'Simple professional layout for independent contractors', badge: 'Freelance' },
+                     { id: 'modern-minimal', name: 'Modern Minimal', desc: 'Sleek borderless design for modern brands and startups', badge: 'Modern' },
+                   ].map((t) => (
+                     <div key={t.id} className="p-5 bg-bg-surface-2 border border-border rounded-2xl hover:border-accent-purple/30 transition-all">
+                       <div className="flex items-start justify-between mb-3">
+                         <FileText size={24} className="text-accent-purple" />
+                         <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-accent-purple/10 text-accent-purple rounded-full">{t.badge}</span>
+                       </div>
+                       <h3 className="text-sm font-bold text-text-primary uppercase tracking-tight mb-1">{t.name}</h3>
+                       <p className="text-[13px] text-text-muted">{t.desc}</p>
+                     </div>
+                   ))}
+                 </div>
+
+                 <div className="p-5 bg-bg-surface-2 border border-border rounded-2xl space-y-4">
+                   <h3 className="text-sm font-bold text-text-primary uppercase tracking-tight flex items-center gap-2">
+                     <Palette size={16} className="text-accent-orange" />
+                     Organization Branding
+                   </h3>
+                   <div className="grid grid-cols-2 gap-6">
+                     <div className="space-y-2">
+                       <label className="text-[12px] font-black text-text-muted uppercase">Company Logo</label>
+                       <div className="flex items-center gap-4">
+                         <div className="w-20 h-20 rounded-xl border-2 border-border bg-bg-surface flex items-center justify-center overflow-hidden">
+                           {org.logoUrl ? (
+                             <img src={org.logoUrl} alt="Logo" className="w-full h-full object-contain" />
+                           ) : (
+                             <Building size={28} className="text-text-muted" />
+                           )}
+                         </div>
+                         <button
+                           onClick={async () => {
+                             const url = prompt('Enter logo image URL:');
+                             if (url) {
+                               try {
+                                 await api.put(`/organizations/${org.id}`, { logoUrl: url });
+                                 setOrg({...org, logoUrl: url});
+                                 toast.success('Logo updated');
+                               } catch { toast.error('Failed to update logo'); }
+                             }
+                           }}
+                           className="px-4 py-2 bg-accent-blue/10 text-accent-blue rounded-lg text-[12px] font-bold uppercase tracking-wider hover:bg-accent-blue/20 transition-all"
+                         >Upload Logo</button>
+                       </div>
+                     </div>
+                     <div className="space-y-2">
+                       <label className="text-[12px] font-black text-text-muted uppercase">Accent Color</label>
+                       <div className="flex items-center gap-4">
+                         <div className="w-10 h-10 rounded-xl border-2 border-border" style={{ backgroundColor: org.accentColor || '#6366F1' }} />
+                         <input
+                           type="color"
+                           value={org.accentColor || '#6366F1'}
+                           onChange={async (e) => {
+                             const color = e.target.value;
+                             try {
+                               await api.put(`/organizations/${org.id}`, { accentColor: color });
+                               setOrg({...org, accentColor: color});
+                               toast.success('Accent color updated');
+                             } catch { toast.error('Failed to update color'); }
+                           }}
+                           className="w-20 h-10 rounded-xl border border-border cursor-pointer bg-transparent"
+                         />
+                         <span className="text-[12px] text-text-muted font-mono">{org.accentColor || '#6366F1'}</span>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+
+                 <div className="p-5 bg-bg-surface-2 border border-border rounded-2xl space-y-4">
+                   <h3 className="text-sm font-bold text-text-primary uppercase tracking-tight flex items-center gap-2">
+                     <ShieldCheck size={16} className="text-success" />
+                     Tips for Professional Invoices
+                   </h3>
+                   <ul className="space-y-2 text-[13px] text-text-muted">
+                     <li className="flex items-start gap-2"><CheckCircle2 size={14} className="text-success shrink-0 mt-0.5" /> Upload a high-resolution company logo (PNG/JPG with transparent background works best)</li>
+                     <li className="flex items-start gap-2"><CheckCircle2 size={14} className="text-success shrink-0 mt-0.5" /> Choose a template that matches your industry — Digital Services for SaaS/agencies, Product Company for e-commerce</li>
+                     <li className="flex items-start gap-2"><CheckCircle2 size={14} className="text-success shrink-0 mt-0.5" /> Set your accent color to match your brand identity — this affects header bars, borders, and highlights</li>
+                     <li className="flex items-start gap-2"><CheckCircle2 size={14} className="text-success shrink-0 mt-0.5" /> Preview each template in the invoice generator before sending to clients</li>
+                   </ul>
+                 </div>
+               </div>
+             </div>
+           )}
+         </div>
           )}
 
           {activeSection === 'notifications' && (

@@ -25,6 +25,7 @@ model Organization {
   ifscCode       String?         @map("ifsc_code")
   upiId          String?         @map("upi_id")
   msmeRegNo      String?         @map("msme_reg_no")
+  accentColor    String?         @default("#6366F1") @map("accent_color")
   createdAt      DateTime        @default(now()) @map("created_at")
   updatedAt      DateTime        @updatedAt @map("updated_at")
   activityLogs   ActivityLog[]
@@ -38,6 +39,7 @@ model Organization {
   profiles       Profile[]
   quotations     Quotation[]
   assets         Asset[]
+  invoiceTemplates InvoiceTemplate[]
   vendorPayments VendorPayment[]
   vendors        Vendor[]
   vendorContracts VendorContract[]
@@ -108,7 +110,7 @@ model Vendor {
   updatedAt       DateTime         @updatedAt @map("updated_at")
   vendorPayments  VendorPayment[]
   vendorContracts VendorContract[]
-  organization    Organization     @relation(fields: [orgId], references: [id])
+  organization Organization @relation(fields: [orgId], references: [id])
 
   @@map("vendors")
 }
@@ -216,6 +218,7 @@ model Invoice {
   showUpiQr            Boolean?      @default(true) @map("show_upi_qr")
   showDigitalSignature Boolean?      @default(false) @map("show_digital_signature")
   signatureUrl         String?       @map("signature_url")
+  templateId           String?       @map("template_id")
   createdAt            DateTime      @default(now()) @map("created_at")
   updatedAt            DateTime      @updatedAt @map("updated_at")
   files                File[]
@@ -224,6 +227,7 @@ model Invoice {
   client               Client        @relation(fields: [clientId], references: [id])
   organization         Organization  @relation(fields: [orgId], references: [id])
   payments             Payment[]
+  template             InvoiceTemplate? @relation(fields: [templateId], references: [id])
 
   @@unique([orgId, invoiceNumber])
   @@map("invoices")
@@ -340,6 +344,21 @@ model Expense {
   files           File[]
 
   @@map("expenses")
+}
+
+model InvoiceTemplate {
+  id          String       @id @default(uuid())
+  orgId       String       @map("org_id")
+  name        String
+  type        String       @default("CUSTOM")
+  config      Json         @default("{}")
+  isDefault   Boolean      @default(false) @map("is_default")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  organization Organization @relation(fields: [orgId], references: [id])
+  invoices     Invoice[]
+
+  @@map("invoice_templates")
 }
 
 model File {

@@ -62,7 +62,8 @@ router.post('/', async (req: any, res) => {
       invoiceNumber, clientId, dealId, invoiceDate, dueDate, 
       subtotal, taxableAmount, cgstAmount, sgstAmount, igstAmount, 
       totalAmount, lineItems, notes, bankDetails,
-      reverseCharge, upiId, showUpiQr, showDigitalSignature, signatureUrl
+      reverseCharge, upiId, showUpiQr, showDigitalSignature, signatureUrl,
+      templateId
     } = req.body;
 
     // Parse items
@@ -90,7 +91,8 @@ router.post('/', async (req: any, res) => {
           upiId: upiId || '',
           showUpiQr: showUpiQr !== undefined ? showUpiQr : true,
           showDigitalSignature: showDigitalSignature !== undefined ? showDigitalSignature : false,
-          signatureUrl: signatureUrl || ''
+          signatureUrl: signatureUrl || '',
+          templateId: templateId || null
         }
       });
 
@@ -138,7 +140,8 @@ router.put('/:id', async (req: any, res) => {
       invoiceNumber, clientId, dealId, invoiceDate, dueDate, 
       subtotal, taxableAmount, cgstAmount, sgstAmount, igstAmount, 
       totalAmount, lineItems, notes, bankDetails,
-      reverseCharge, upiId, showUpiQr, showDigitalSignature, signatureUrl
+      reverseCharge, upiId, showUpiQr, showDigitalSignature, signatureUrl,
+      templateId
     } = req.body;
 
     const items = lineItems ? (typeof lineItems === 'string' ? JSON.parse(lineItems) : lineItems) : null;
@@ -165,7 +168,8 @@ router.put('/:id', async (req: any, res) => {
           upiId,
           showUpiQr: showUpiQr !== undefined ? showUpiQr : undefined,
           showDigitalSignature: showDigitalSignature !== undefined ? showDigitalSignature : undefined,
-          signatureUrl
+          signatureUrl,
+          templateId: templateId || undefined
         }
       });
 

@@ -1,11 +1,12 @@
-﻿import React, { useState, useEffect, useMemo, useCallback } from 'react';
+﻿import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
-  ArrowLeft, Plus, Trash2, Loader2, Database, Printer, RefreshCw, Eye, EyeOff
+  ArrowLeft, Plus, Trash2, Loader2, Database, Printer, RefreshCw, Eye, EyeOff, Upload, Palette, FileText
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 import FiscalInvoice from '../../components/invoices/FiscalInvoice';
+import { TEMPLATES, TemplateId } from '../../components/invoices/templates';
 import api from '../../lib/axios';
 
 const InvoiceGenerator: React.FC = () => {
@@ -29,6 +30,7 @@ const InvoiceGenerator: React.FC = () => {
     dateOfSupply: new Date().toISOString().split('T')[0],
     placeOfSupply: "LOCAL",
     descriptionHeader: "Service/Product Delivery Details",
+    templateId: 'gst-standard' as TemplateId,
     seller: {
       name: "Your Company",
       address: "",
@@ -36,6 +38,8 @@ const InvoiceGenerator: React.FC = () => {
       email: "",
       gstin: "",
       msmeRegNo: "",
+      logoUrl: "",
+      accentColor: "#6366F1",
       state: "LOCAL",
       stateCode: "01",
       bank: { name: "", branch: "", accountNo: "", ifsc: "" },
@@ -95,6 +99,8 @@ const InvoiceGenerator: React.FC = () => {
         email: org.email || "",
         gstin: org.gstin || "",
         msmeRegNo: org.msmeRegNo || "",
+        logoUrl: org.logoUrl || "",
+        accentColor: org.accentColor || "#6366F1",
         state: "LOCAL",
         stateCode: "01",
         bank: {
@@ -135,6 +141,7 @@ const InvoiceGenerator: React.FC = () => {
             dateOfSupply: inv.dateOfSupply ? new Date(inv.dateOfSupply).toISOString().split('T')[0] : new Date(inv.invoiceDate).toISOString().split('T')[0],
             placeOfSupply: inv.placeOfSupply || 'LOCAL',
             descriptionHeader: inv.notes || 'Service Delivery',
+            templateId: inv.templateId || 'gst-standard',
             seller: {
               name: inv.organization?.name || dynamicSeller.name,
               address: inv.organization?.address || dynamicSeller.address,
@@ -142,6 +149,8 @@ const InvoiceGenerator: React.FC = () => {
               email: inv.organization?.email || dynamicSeller.email,
               gstin: inv.organization?.gstin || dynamicSeller.gstin,
               msmeRegNo: inv.organization?.msmeRegNo || dynamicSeller.msmeRegNo,
+              logoUrl: inv.organization?.logoUrl || dynamicSeller.logoUrl,
+              accentColor: inv.organization?.accentColor || dynamicSeller.accentColor,
               state: 'LOCAL',
               stateCode: '01',
               bank: inv.bankDetails ? (typeof inv.bankDetails === 'string' ? JSON.parse(inv.bankDetails) : inv.bankDetails) : dynamicSeller.bank,
@@ -252,7 +261,8 @@ const InvoiceGenerator: React.FC = () => {
     cgstTotal: totals.cgstTotal,
     sgstTotal: totals.sgstTotal,
     igstTotal: totals.igstTotal,
-    grandTotal: totals.grandTotal
+    grandTotal: totals.grandTotal,
+    templateId: formData.templateId
   }), [formData, totals]);
 
   const handleClientSelect = (clientId: string) => {
@@ -329,7 +339,8 @@ const InvoiceGenerator: React.FC = () => {
         upiId: formData.upiId,
         showUpiQr: formData.showUpiQr,
         showDigitalSignature: formData.showDigitalSignature,
-        signatureUrl: formData.signatureUrl
+        signatureUrl: formData.signatureUrl,
+        templateId: formData.templateId
       };
 
       if (id) {
@@ -430,7 +441,71 @@ const InvoiceGenerator: React.FC = () => {
             </div>
 
             <div className="card space-y-6">
-              <h2 className="text-[15px] font-black text-accent-blue uppercase tracking-[2px] border-b border-border pb-3">02. Recipient Information</h2>
+              <h2 className="text-[15px] font-black text-accent-purple uppercase tracking-[2px] border-b border-border pb-3">02. Template & Branding</h2>
+              
+              <div className="space-y-4">
+                <label className="text-[14px] font-black text-text-muted uppercase">Invoice Template</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {(Object.entries(TEMPLATES) as [TemplateId, typeof TEMPLATES[TemplateId]][]).map(([id, tmpl]) => (
+                    <button
+                      key={id}
+                      onClick={() => setFormData({...formData, templateId: id})}
+                      className={`p-3 rounded-xl border-2 text-left transition-all ${
+                        formData.templateId === id
+                          ? 'border-accent-purple bg-accent-purple/5 shadow-lg shadow-accent-purple/10'
+                          : 'border-border bg-bg-surface-2 hover:border-accent-purple/40'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <FileText size={14} className={formData.templateId === id ? 'text-accent-purple' : 'text-text-muted'} />
+                        <span className={`text-[12px] font-black uppercase tracking-wider ${formData.templateId === id ? 'text-accent-purple' : 'text-text-primary'}`}>
+                          {tmpl.name}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-text-muted leading-tight">{tmpl.description}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
+                <div className="space-y-1.5">
+                  <label className="text-[14px] font-black text-text-muted uppercase">Company Logo</label>
+                  <div className="flex items-center gap-3">
+                    <div className="w-16 h-16 rounded-xl border-2 border-border bg-bg-surface-2 flex items-center justify-center overflow-hidden">
+                      {formData.seller.logoUrl ? (
+                        <img src={formData.seller.logoUrl} alt="Logo" className="w-full h-full object-contain" />
+                      ) : (
+                        <Upload size={20} className="text-text-muted" />
+                      )}
+                    </div>
+                    <button
+                      onClick={() => {
+                        const url = prompt('Enter logo image URL:');
+                        if (url) setFormData({...formData, seller: {...formData.seller, logoUrl: url}});
+                      }}
+                      className="px-3 py-2 bg-bg-surface-2 border border-border rounded-lg text-[12px] font-bold uppercase tracking-wider text-text-muted hover:text-accent-blue transition-all"
+                    >Set Logo URL</button>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[14px] font-black text-text-muted uppercase">Accent Color</label>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl border-2 border-border" style={{ backgroundColor: formData.seller.accentColor || '#6366F1' }} />
+                    <input
+                      type="color"
+                      value={formData.seller.accentColor || '#6366F1'}
+                      onChange={e => setFormData({...formData, seller: {...formData.seller, accentColor: e.target.value}})}
+                      className="w-20 h-10 rounded-xl border border-border cursor-pointer bg-transparent"
+                    />
+                    <span className="text-[11px] text-text-muted font-mono">{formData.seller.accentColor}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="card space-y-6">
+              <h2 className="text-[15px] font-black text-accent-blue uppercase tracking-[2px] border-b border-border pb-3">03. Recipient Information</h2>
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[14px] font-black text-text-muted uppercase">Select Client</label>
@@ -459,7 +534,7 @@ const InvoiceGenerator: React.FC = () => {
 
             <div className="card space-y-6">
               <div className="flex justify-between items-center border-b border-border pb-3">
-                <h2 className="text-[14px] font-black text-success uppercase tracking-[2px]">03. Line Items</h2>
+                <h2 className="text-[14px] font-black text-success uppercase tracking-[2px]">04. Line Items</h2>
                 <button onClick={addItem} className="text-xs font-bold text-accent-orange flex items-center gap-1 hover:underline">
                   <Plus size={14} /> Add Item
                 </button>
@@ -502,7 +577,7 @@ const InvoiceGenerator: React.FC = () => {
             </div>
 
             <div className="card space-y-6">
-              <h2 className="text-[15px] font-black text-accent-orange uppercase tracking-[2px] border-b border-border pb-3">04. Payment & UPI QR</h2>
+              <h2 className="text-[15px] font-black text-accent-orange uppercase tracking-[2px] border-b border-border pb-3">05. Payment & UPI QR</h2>
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[14px] font-black text-text-muted uppercase">UPI ID (for QR)</label>

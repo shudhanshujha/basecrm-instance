@@ -186,7 +186,10 @@ router.put('/organization/:id', authMiddleware, async (req: any, res) => {
         bankBranch: req.body.bankBranch,
         accountNumber: req.body.accountNumber,
         ifscCode: req.body.ifscCode,
-        upiId: req.body.upiId
+        upiId: req.body.upiId,
+        msmeRegNo: req.body.msmeRegNo,
+        logoUrl: req.body.logoUrl,
+        accentColor: req.body.accentColor
       }
     });
 
