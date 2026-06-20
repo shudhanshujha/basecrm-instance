@@ -392,9 +392,11 @@ const Settings: React.FC = () => {
                     ))}
                   </div>
             </div>
+            )}
+          </div>
            )}
-            {(activeSection as string) === 'templates' && (
-             <div className="card space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+           {(activeSection as string) === 'templates' && (
+            <div className="card space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
                <div className="flex items-center gap-3 border-b border-border pb-4">
                  <Palette className="text-accent-purple" size={20} />
                  <h2 className="text-lg font-bold uppercase tracking-tight">Invoice Templates</h2>
@@ -441,7 +443,7 @@ const Settings: React.FC = () => {
                              const url = prompt('Enter logo image URL:');
                              if (url) {
                                try {
-                                 await api.put(`/organizations/${org.id}`, { logoUrl: url });
+                                  await api.put(`/auth/organization/${org.id}`, { logoUrl: url });
                                  setOrg({...org, logoUrl: url});
                                  toast.success('Logo updated');
                                } catch { toast.error('Failed to update logo'); }
@@ -461,7 +463,7 @@ const Settings: React.FC = () => {
                            onChange={async (e) => {
                              const color = e.target.value;
                              try {
-                               await api.put(`/organizations/${org.id}`, { accentColor: color });
+                                await api.put(`/auth/organization/${org.id}`, { accentColor: color });
                                setOrg({...org, accentColor: color});
                                toast.success('Accent color updated');
                              } catch { toast.error('Failed to update color'); }
@@ -488,11 +490,9 @@ const Settings: React.FC = () => {
                  </div>
                </div>
              </div>
-           )}
-         </div>
-          )}
+            )}
 
-          {activeSection === 'notifications' && (
+           {activeSection === 'notifications' && (
             <div className="card space-y-6 animate-in fade-in slide-in-from-right-4">
               <div className="flex justify-between items-center border-b border-border pb-4">
                   <div className="flex items-center gap-3">
