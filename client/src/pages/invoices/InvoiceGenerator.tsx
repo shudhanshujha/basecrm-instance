@@ -6,7 +6,8 @@ import {
 import toast from 'react-hot-toast';
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 import FiscalInvoice from '../../components/invoices/FiscalInvoice';
-import { TEMPLATES, TemplateId } from '../../components/invoices/templates';
+import { TEMPLATES } from '../../components/invoices/templates/index.js';
+import type { TemplateId } from '../../components/invoices/templates/index.js';
 import api from '../../lib/axios';
 
 const InvoiceGenerator: React.FC = () => {

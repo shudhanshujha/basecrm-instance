@@ -1,5 +1,5 @@
 import React from 'react';
-import { getTemplateComponent } from './templates';
+import { getTemplateComponent } from './templates/index.js';
 
 interface FiscalInvoiceProps {
   invoiceData: any;

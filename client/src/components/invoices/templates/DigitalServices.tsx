@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
-import { TemplateProps } from './types';
+import type { TemplateProps } from './types.js';
 
 const accentColor = '#6366F1';
 const lightBg = '#F8F8FF';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
-import { numberToWords } from '../../../lib/numberToWords';
-import { TemplateProps } from './types';
+import { numberToWords } from '../../../lib/numberToWords.js';
+import type { TemplateProps } from './types.js';
 
 const COLORS = {
   headerBg: '#BDD7EE',
