@@ -63,8 +63,16 @@ router.post('/', async (req: any, res) => {
       subtotal, taxableAmount, cgstAmount, sgstAmount, igstAmount, 
       totalAmount, lineItems, notes, bankDetails,
       reverseCharge, upiId, showUpiQr, showDigitalSignature, signatureUrl,
-      templateId
+      templateId, currency, projectName, servicePeriod, billingType, projectScope
     } = req.body;
+
+    const templateData = {
+      currency: currency || '₹',
+      projectName: projectName || '',
+      servicePeriod: servicePeriod || '',
+      billingType: billingType || 'Fixed',
+      projectScope: projectScope || '',
+    };
 
     // Parse items
     const items = typeof lineItems === 'string' ? JSON.parse(lineItems) : lineItems;
@@ -92,7 +100,8 @@ router.post('/', async (req: any, res) => {
           showUpiQr: showUpiQr !== undefined ? showUpiQr : true,
           showDigitalSignature: showDigitalSignature !== undefined ? showDigitalSignature : false,
           signatureUrl: signatureUrl || '',
-          templateId: templateId || null
+          templateId: templateId || null,
+          templateData
         }
       });
 
@@ -141,8 +150,16 @@ router.put('/:id', async (req: any, res) => {
       subtotal, taxableAmount, cgstAmount, sgstAmount, igstAmount, 
       totalAmount, lineItems, notes, bankDetails,
       reverseCharge, upiId, showUpiQr, showDigitalSignature, signatureUrl,
-      templateId
+      templateId, currency, projectName, servicePeriod, billingType, projectScope
     } = req.body;
+
+    const templateData = {
+      currency: currency || '₹',
+      projectName: projectName || '',
+      servicePeriod: servicePeriod || '',
+      billingType: billingType || 'Fixed',
+      projectScope: projectScope || '',
+    };
 
     const items = lineItems ? (typeof lineItems === 'string' ? JSON.parse(lineItems) : lineItems) : null;
 
@@ -169,7 +186,8 @@ router.put('/:id', async (req: any, res) => {
           showUpiQr: showUpiQr !== undefined ? showUpiQr : undefined,
           showDigitalSignature: showDigitalSignature !== undefined ? showDigitalSignature : undefined,
           signatureUrl,
-          templateId: templateId || undefined
+          templateId: templateId || undefined,
+          templateData
         }
       });
 

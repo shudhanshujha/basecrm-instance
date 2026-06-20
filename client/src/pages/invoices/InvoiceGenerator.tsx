@@ -32,6 +32,11 @@ const InvoiceGenerator: React.FC = () => {
     placeOfSupply: "LOCAL",
     descriptionHeader: "Service/Product Delivery Details",
     templateId: 'gst-standard' as TemplateId,
+    currency: '₹',
+    projectName: '',
+    servicePeriod: '',
+    billingType: 'Fixed',
+    projectScope: '',
     seller: {
       name: "Your Company",
       address: "",
@@ -143,6 +148,11 @@ const InvoiceGenerator: React.FC = () => {
             placeOfSupply: inv.placeOfSupply || 'LOCAL',
             descriptionHeader: inv.notes || 'Service Delivery',
             templateId: inv.templateId || 'gst-standard',
+            currency: inv.templateData?.currency || inv.currency || '₹',
+            projectName: inv.templateData?.projectName || '',
+            servicePeriod: inv.templateData?.servicePeriod || '',
+            billingType: inv.templateData?.billingType || 'Fixed',
+            projectScope: inv.templateData?.projectScope || '',
             seller: {
               name: inv.organization?.name || dynamicSeller.name,
               address: inv.organization?.address || dynamicSeller.address,
@@ -341,7 +351,12 @@ const InvoiceGenerator: React.FC = () => {
         showUpiQr: formData.showUpiQr,
         showDigitalSignature: formData.showDigitalSignature,
         signatureUrl: formData.signatureUrl,
-        templateId: formData.templateId
+        templateId: formData.templateId,
+        currency: formData.currency,
+        projectName: formData.projectName,
+        servicePeriod: formData.servicePeriod,
+        billingType: formData.billingType,
+        projectScope: formData.projectScope
       };
 
       if (id) {
@@ -570,8 +585,67 @@ const InvoiceGenerator: React.FC = () => {
                           newItems[index].rate = parseFloat(e.target.value) || 0;
                           setFormData({...formData, items: newItems});
                         }} />
-                      </div>
-                    </div>
+              </div>
+            </div>
+
+            <div className="card space-y-6">
+              <h2 className="text-[15px] font-black text-accent-purple uppercase tracking-[2px] border-b border-border pb-3">02-B. Invoice Settings</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[14px] font-black text-text-muted uppercase">Currency</label>
+                  <select
+                    value={formData.currency}
+                    onChange={e => setFormData({...formData, currency: e.target.value})}
+                    className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[16px] outline-none font-bold"
+                  >
+                    <option value="₹">INR (₹) - Indian Rupee</option>
+                    <option value="$">USD ($) - US Dollar</option>
+                    <option value="€">EUR (€) - Euro</option>
+                    <option value="£">GBP (£) - British Pound</option>
+                    <option value="¥">JPY (¥) - Japanese Yen</option>
+                    <option value="A$">AUD (A$) - Australian Dollar</option>
+                    <option value="C$">CAD (C$) - Canadian Dollar</option>
+                    <option value="S$">SGD (S$) - Singapore Dollar</option>
+                    <option value="AED">AED - UAE Dirham</option>
+                  </select>
+                </div>
+              </div>
+
+              {formData.templateId === 'digital-services' && (
+                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
+                  <div className="space-y-1.5">
+                    <label className="text-[14px] font-black text-text-muted uppercase">Project / Service Name</label>
+                    <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[16px] outline-none" value={formData.projectName} onChange={e => setFormData({...formData, projectName: e.target.value})} placeholder="Website Redesign" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[14px] font-black text-text-muted uppercase">Service Period</label>
+                    <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[16px] outline-none" value={formData.servicePeriod} onChange={e => setFormData({...formData, servicePeriod: e.target.value})} placeholder="Jan 2026 - Mar 2026" />
+                  </div>
+                </div>
+              )}
+
+              {formData.templateId === 'freelancer' && (
+                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
+                  <div className="space-y-1.5">
+                    <label className="text-[14px] font-black text-text-muted uppercase">Billing Type</label>
+                    <select
+                      value={formData.billingType}
+                      onChange={e => setFormData({...formData, billingType: e.target.value})}
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[16px] outline-none font-bold"
+                    >
+                      <option value="Hourly">Hourly</option>
+                      <option value="Fixed">Fixed Price</option>
+                      <option value="Retainer">Retainer</option>
+                      <option value="Milestone">Milestone Based</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[14px] font-black text-text-muted uppercase">Project Scope</label>
+                    <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[16px] outline-none" value={formData.projectScope} onChange={e => setFormData({...formData, projectScope: e.target.value})} placeholder="Consulting & Strategy" />
+                  </div>
+                </div>
+              )}
+            </div>
                   </div>
                 ))}
               </div>
