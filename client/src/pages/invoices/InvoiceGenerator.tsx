@@ -59,7 +59,7 @@ const InvoiceGenerator: React.FC = () => {
       stateCode: ""
     },
     items: [
-      { id: Date.now(), description: "", hsn: "", qty: 1, rate: 0, discount: 0, cgstRate: 9, sgstRate: 9, igstRate: 0 }
+      { id: Date.now(), name: "", description: "", hsn: "", qty: 1, rate: 0, discount: 0, cgstRate: 9, sgstRate: 9, igstRate: 0 }
     ],
     terms: "1. Payment should be made within 15 days.\n2. Interest may be charged on delayed payments.",
     showDigitalSignature: false,
@@ -176,6 +176,7 @@ const InvoiceGenerator: React.FC = () => {
             },
             items: inv.invoiceItems && inv.invoiceItems.length > 0 ? inv.invoiceItems.map((item: any, idx: number) => ({
               id: item.id || Date.now() + idx,
+              name: item.name || '',
               description: item.description || '',
               hsn: item.hsn || '',
               qty: item.quantity || 1,
@@ -185,7 +186,7 @@ const InvoiceGenerator: React.FC = () => {
               sgstRate: item.sgstRate || 0,
               igstRate: item.igstRate || 0
             })) : [
-              { id: Date.now(), description: "", hsn: "", qty: 1, rate: 0, discount: 0, cgstRate: 9, sgstRate: 9, igstRate: 0 }
+              { id: Date.now(), name: "", description: "", hsn: "", qty: 1, rate: 0, discount: 0, cgstRate: 9, sgstRate: 9, igstRate: 0 }
             ],
             terms: inv.paymentTerms || "1. Payment should be made within 15 days.",
             showDigitalSignature: inv.showDigitalSignature ?? false,
@@ -297,6 +298,7 @@ const InvoiceGenerator: React.FC = () => {
     if (deal) {
       const dealItems = deal.activityLogs?.map((log: any) => ({
         id: Date.now() + Math.random(),
+        name: "",
         description: log.asset?.name || "Service Item",
         hsn: "9900",
         qty: 1,
@@ -318,7 +320,7 @@ const InvoiceGenerator: React.FC = () => {
   const addItem = () => {
     setFormData({
       ...formData,
-      items: [...formData.items, { id: Date.now(), description: "", hsn: "", qty: 1, rate: 0, discount: 0, cgstRate: 9, sgstRate: 9, igstRate: 0 }]
+      items: [...formData.items, { id: Date.now(), name: "", description: "", hsn: "", qty: 1, rate: 0, discount: 0, cgstRate: 9, sgstRate: 9, igstRate: 0 }]
     });
   };
 
@@ -562,7 +564,15 @@ const InvoiceGenerator: React.FC = () => {
                       <Trash2 size={12} />
                     </button>
                     <div className="grid grid-cols-6 gap-4">
-                      <div className="col-span-4 space-y-1.5">
+                      <div className="col-span-2 space-y-1.5">
+                        <label className="text-[12px] font-black text-text-muted uppercase">Item Name</label>
+                        <input type="text" className="w-full bg-bg-surface border border-border rounded-lg px-2 py-1.5 text-[15px] outline-none font-bold" value={item.name} onChange={e => {
+                          const newItems = [...formData.items];
+                          newItems[index].name = e.target.value;
+                          setFormData({...formData, items: newItems});
+                        }} />
+                      </div>
+                      <div className="col-span-2 space-y-1.5">
                         <label className="text-[12px] font-black text-text-muted uppercase">Description</label>
                         <input type="text" className="w-full bg-bg-surface border border-border rounded-lg px-2 py-1.5 text-[15px] outline-none" value={item.description} onChange={e => {
                           const newItems = [...formData.items];

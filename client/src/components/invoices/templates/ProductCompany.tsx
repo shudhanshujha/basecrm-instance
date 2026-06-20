@@ -157,7 +157,10 @@ const ProductCompany: React.FC<TemplateProps> = ({ invoiceData }) => {
 
             {invoiceData.items.map((item: any, i: number) => (
               <View key={i} style={baseStyles.tableRow}>
-                <Text style={[baseStyles.tableCellBold, { width: col.desc }]}>{item.description}</Text>
+                <View style={{ width: col.desc, flexDirection: 'column' }}>
+                  <Text style={[baseStyles.tableCellBold, { marginBottom: 1 }]}>{item.name || item.description}</Text>
+                  {item.name && item.description && <Text style={baseStyles.tableCell}>{item.description}</Text>}
+                </View>
                 <Text style={[baseStyles.tableCell, { width: col.hsn, textAlign: 'center' }]}>{item.hsn || '-'}</Text>
                 <Text style={[baseStyles.tableCell, { width: col.qty, textAlign: 'center' }]}>{item.qty}</Text>
                 <Text style={[baseStyles.tableCell, { width: col.rate, textAlign: 'right' }]}>{formatCur(item.rate)}</Text>

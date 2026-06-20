@@ -153,7 +153,10 @@ const DigitalServices: React.FC<TemplateProps> = ({ invoiceData }) => {
 
             {invoiceData.items.map((item: any, i: number) => (
               <View key={i} style={[baseStyles.tableRow, i % 2 === 1 ? baseStyles.tableRowAlt : {}]}>
-                <Text style={[baseStyles.tableCellBold, { width: '38%' }]}>{item.description}</Text>
+                <View style={{ width: '38%', flexDirection: 'column' }}>
+                  <Text style={[baseStyles.tableCellBold, { marginBottom: 1 }]}>{item.name || item.description}</Text>
+                  {item.name && item.description && <Text style={baseStyles.tableCell}>{item.description}</Text>}
+                </View>
                 <Text style={[baseStyles.tableCell, { width: '10%', textAlign: 'center' }]}>{item.qty}</Text>
                 <Text style={[baseStyles.tableCell, { width: '15%', textAlign: 'right' }]}>{formatCur(item.rate)}</Text>
                 <Text style={[baseStyles.tableCell, { width: '15%', textAlign: 'right' }]}>{formatCur(item.amount)}</Text>

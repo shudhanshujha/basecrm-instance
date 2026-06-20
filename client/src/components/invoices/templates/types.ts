@@ -44,6 +44,7 @@ export interface TemplateProps {
       stateCode: string;
     };
     items: Array<{
+      name: string;
       description: string;
       hsn: string;
       qty: number;

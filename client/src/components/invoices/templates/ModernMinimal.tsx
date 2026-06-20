@@ -142,7 +142,10 @@ const ModernMinimal: React.FC<TemplateProps> = ({ invoiceData }) => {
 
             {invoiceData.items.map((item: any, i: number) => (
               <View key={i} style={[baseStyles.tableRow, i % 2 === 1 ? baseStyles.tableRowAlt : {}]}>
-                <Text style={[baseStyles.tableCellBold, { width: colW.desc }]}>{item.description}</Text>
+                <View style={{ width: colW.desc, flexDirection: 'column' }}>
+                  <Text style={[baseStyles.tableCellBold, { marginBottom: 1 }]}>{item.name || item.description}</Text>
+                  {item.name && item.description && <Text style={baseStyles.tableCell}>{item.description}</Text>}
+                </View>
                 <Text style={[baseStyles.tableCell, { width: colW.qty, textAlign: 'center' }]}>{item.qty}</Text>
                 <Text style={[baseStyles.tableCellRight, { width: colW.rate }]}>{formatCur(item.rate)}</Text>
                 <Text style={[baseStyles.tableCellRight, { width: colW.amount }]}>{formatCur(item.amount)}</Text>

@@ -185,7 +185,10 @@ const GstStandard: React.FC<TemplateProps> = ({ invoiceData }) => {
 
             {invoiceData.items.map((item: any, i: number) => (
               <View key={i} style={baseStyles.tableRow}>
-                <Text style={baseStyles.col1}>{i + 1}</Text><Text style={[baseStyles.col2, baseStyles.bold]}>{item.description}</Text><Text style={baseStyles.col3}>{item.hsn}</Text><Text style={baseStyles.col4}>{item.qty}</Text><Text style={baseStyles.col5}>{formatCur(item.rate)}</Text><Text style={baseStyles.col6}>{formatCur(item.amount)}</Text><Text style={baseStyles.col7}>{formatCur(item.discount)}</Text><Text style={baseStyles.col8}>{formatCur(item.taxableValue)}</Text>
+                <Text style={baseStyles.col1}>{i + 1}</Text>                <View style={[baseStyles.col2, { flexDirection: 'column', height: '100%', justifyContent: 'center', paddingLeft: 3 }]}>
+                  <Text style={{ fontSize: 7.5, fontWeight: 'bold' }}>{item.name || item.description}</Text>
+                  {item.name && item.description && <Text style={{ fontSize: 6, color: '#4B5563' }}>{item.description}</Text>}
+                </View><Text style={baseStyles.col3}>{item.hsn}</Text><Text style={baseStyles.col4}>{item.qty}</Text><Text style={baseStyles.col5}>{formatCur(item.rate)}</Text><Text style={baseStyles.col6}>{formatCur(item.amount)}</Text><Text style={baseStyles.col7}>{formatCur(item.discount)}</Text><Text style={baseStyles.col8}>{formatCur(item.taxableValue)}</Text>
                 {isIntraState && <><View style={[baseStyles.colGstGrp, { flexDirection: 'row', height: '100%' }]}><Text style={baseStyles.colGstRate}>{item.cgstRate}%</Text><Text style={baseStyles.colGstAmt}>{formatCur(item.cgstAmount)}</Text></View><View style={[baseStyles.colGstGrp, { flexDirection: 'row', height: '100%' }]}><Text style={baseStyles.colGstRate}>{item.sgstRate}%</Text><Text style={baseStyles.colGstAmt}>{formatCur(item.sgstAmount)}</Text></View></>}
                 {isInterState && <View style={[baseStyles.colGstGrp, { flexDirection: 'row', height: '100%', width: '24%' }]}><Text style={baseStyles.colGstRate}>{item.igstRate}%</Text><Text style={baseStyles.colGstAmt}>{formatCur(item.igstAmount)}</Text></View>}
                 <Text style={[baseStyles.col11, { textAlign: 'right' }]}>{formatCur(item.total)}</Text>

@@ -331,7 +331,8 @@ model Expense {
   date            DateTime     @default(now())
   category        String
   amount          Float
-  description     String?
+  name         String?     @map("name")
+  description  String?
   paymentMode     String?      @map("payment_mode")
   referenceNumber String?      @map("reference_number")
   gstin           String?
