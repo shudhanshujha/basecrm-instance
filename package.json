@@ -8,8 +8,8 @@
   },
   "scripts": {
     "prisma:generate": "prisma generate",
-    "build": "prisma generate && cd client && npm install && npm run build",
-    "vercel-build": "prisma generate && cd client && npm install && npm run build",
+    "build": "prisma generate && prisma db push --skip-generate && cd client && npm install && npm run build",
+    "vercel-build": "prisma generate && prisma db push --skip-generate && cd client && npm install && npm run build",
     "server": "tsx watch backend/server.ts",
     "lint": "eslint"
   },
