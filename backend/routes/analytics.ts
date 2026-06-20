@@ -267,17 +267,17 @@ router.get('/dashboard', async (req: any, res) => {
     let performanceMix: any[] = [];
     if (breakdown === 'asset') {
       const assets = await getPrisma().asset.findMany({ where: { orgId } });
-      const items = await getPrisma().invoice.findMany({ where: { orgId }, select: { lineItems: true } });
+      const invoiceItems = await getPrisma().invoiceItem.findMany({
+        where: { orgId },
+        select: { assetName: true, total: true }
+      });
       const assetMap: any = {};
       assets.forEach(a => assetMap[a.name] = 0);
       
-      items.forEach(inv => {
-        try {
-          const lines = JSON.parse(inv.lineItems as string);
-          lines.forEach((l: any) => {
-            if (assetMap[l.description] !== undefined) assetMap[l.description] += (l.total || 0);
-          });
-        } catch(e) {}
+      invoiceItems.forEach(item => {
+        if (item.assetName && assetMap[item.assetName] !== undefined) {
+          assetMap[item.assetName] += (item.total || 0);
+        }
       });
       performanceMix = Object.entries(assetMap)
         .map(([name, value]) => ({ name, value }))
