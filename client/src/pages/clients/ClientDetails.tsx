@@ -10,17 +10,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import KPICard from '../../components/ui/KPICard';
 import ActivityTimeline from '../../components/common/ActivityTimeline';
+import FileUpload from '../../components/common/FileUpload';
+import FileList from '../../components/common/FileList';
 import toast from 'react-hot-toast';
 import api from '../../lib/axios';
 
 const ClientDetails: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'timeline' | 'deals' | 'invoices' | 'payments'>('timeline');
+  const [activeTab, setActiveTab] = useState<'timeline' | 'deals' | 'invoices' | 'payments' | 'files'>('timeline');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [timeline, setTimeline] = useState<any[]>([]);
 
+  const [fileRefreshTrigger, setFileRefreshTrigger] = useState(0);
   const [client, setClient] = useState<any>({
     name: '',
     gstin: '',
@@ -173,8 +176,8 @@ const ClientDetails: React.FC = () => {
       </div>
 
       <div className="card p-0 overflow-hidden bg-bg-surface/30 border-white/5 shadow-2xl">
-         <div className="flex border-b border-white/5 bg-white/5">
-            {['timeline', 'deals', 'invoices', 'payments'].map((tab: any) => (
+          <div className="flex border-b border-white/5 bg-white/5">
+             {['timeline', 'deals', 'invoices', 'payments', 'files'].map((tab: any) => (
               <button 
                 key={tab}
                 onClick={() => setActiveTab(tab as any)}
@@ -253,7 +256,14 @@ const ClientDetails: React.FC = () => {
                   </motion.div>
                )}
 
-               {activeTab === 'payments' && (
+                {activeTab === 'files' && (
+                   <motion.div key="files" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
+                      <FileUpload entityType="client" entityId={id!} onUploadComplete={() => setFileRefreshTrigger(v => v + 1)} />
+                      <FileList entityType="client" entityId={id!} refreshTrigger={fileRefreshTrigger} />
+                   </motion.div>
+                )}
+
+                {activeTab === 'payments' && (
                   <motion.div key="payments" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-3">
                      {client.payments?.length > 0 ? client.payments.map((p: any) => (
                         <div key={p.id} className="p-4 bg-white/5 border border-white/5 rounded-2xl flex justify-between items-center">

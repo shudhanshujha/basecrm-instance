@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getPrisma } from '../prismaClient.js';
-import { r2 } from '../../lib/r2.js';
+import { storage } from '../../lib/storage.js';
 import { HeadBucketCommand } from '@aws-sdk/client-s3';
 
 const router = Router();
@@ -40,7 +40,7 @@ router.get('/', async (req, res) => {
     
     const start = Date.now();
     const command = new HeadBucketCommand({ Bucket: bucketName });
-    await r2.send(command);
+    await storage.send(command);
     status.storage = 'connected';
     status.storage_latency = `${Date.now() - start}ms`;
   } catch (error: any) {

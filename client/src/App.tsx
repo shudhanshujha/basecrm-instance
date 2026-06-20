@@ -22,6 +22,7 @@ import Settings from './pages/Settings';
 import Invoices from './pages/Invoices';
 import InvoiceGenerator from './pages/invoices/InvoiceGenerator';
 import InvoiceDetails from './pages/invoices/InvoiceDetails';
+import Tasks from './pages/Tasks';
 
 import api from './lib/axios';
 
@@ -119,6 +120,7 @@ function App() {
           <Route path="/pl-report" element={<PLReport />} />
           <Route path="/gst" element={<GSTBalance />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/tasks" element={<Tasks />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </Layout>

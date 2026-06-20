@@ -1,15 +1,13 @@
 import { Router } from 'express';
 import { getPrisma } from '../prismaClient.js';
 import { authMiddleware } from '../middleware/auth.js';
-import { generateUploadUrl, generateDownloadUrl, deleteFile } from '../../lib/r2.js';
+import { generateUploadUrl, generateDownloadUrl, deleteStoredFile } from '../../lib/storage.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 
-// Apply auth middleware
 router.use(authMiddleware);
 
-// Helper to get org_id
 const getOrgId = async (req: any) => {
   if (req.user.id === 'bypass-admin') return 'bypass-org';
   const profile = await getPrisma().profile.findUnique({
@@ -18,7 +16,54 @@ const getOrgId = async (req: any) => {
   return profile?.orgId;
 };
 
-// 1. Get Presigned Upload URL
+function serializeFileRecord(record: any) {
+  return {
+    ...record,
+    fileSize: record.fileSize != null ? Number(record.fileSize) : null,
+  };
+}
+
+// List files for an entity
+router.get('/list', async (req: any, res) => {
+  try {
+    const orgId = await getOrgId(req);
+    if (!orgId) return res.status(403).json({ error: 'No organization linked' });
+
+    const { assetId, dealId, invoiceId, clientId, expenseId, activityLogId } = req.query;
+
+    const where: any = { orgId };
+    if (assetId) where.assetId = assetId;
+    if (dealId) where.dealId = dealId;
+    if (invoiceId) where.invoiceId = invoiceId;
+    if (clientId) where.clientId = clientId;
+    if (expenseId) where.expenseId = expenseId;
+    if (activityLogId) where.activityLogId = activityLogId;
+
+    const files = await getPrisma().file.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Attach presigned download URLs
+    const filesWithUrls = await Promise.all(
+      files.map(async (f) => {
+        try {
+          const downloadUrl = await generateDownloadUrl(f.fileKey);
+          return { ...serializeFileRecord(f), downloadUrl };
+        } catch {
+          return { ...serializeFileRecord(f), downloadUrl: null };
+        }
+      })
+    );
+
+    res.json(filesWithUrls);
+  } catch (error: any) {
+    console.error('[API ERROR] Failed to list files:', error);
+    res.status(500).json({ error: error.message || 'Failed to list files' });
+  }
+});
+
+// Get Presigned Upload URL
 router.post('/upload', async (req: any, res) => {
   try {
     const orgId = await getOrgId(req);
@@ -40,7 +85,6 @@ router.post('/upload', async (req: any, res) => {
       return res.status(400).json({ error: 'Missing file metadata' });
     }
 
-    // 50MB limit
     if (size > 50 * 1024 * 1024) {
       return res.status(400).json({ error: 'File size exceeds 50MB limit' });
     }
@@ -50,10 +94,8 @@ router.post('/upload', async (req: any, res) => {
     const safeFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
     const fileKey = `${orgId}/${entityId}/${fileId}-${safeFileName}`;
 
-    // Generate R2 upload URL
     const uploadUrl = await generateUploadUrl(fileKey, mimeType);
 
-    // Save metadata to DB
     const fileRecord = await getPrisma().file.create({
       data: {
         id: fileId,
@@ -72,28 +114,21 @@ router.post('/upload', async (req: any, res) => {
       }
     });
 
-    // Convert BigInt for JSON serialization
-    const responseRecord = {
-      ...fileRecord,
-      fileSize: (fileRecord.fileSize ?? BigInt(0)).toString()
-    };
-
-    res.status(200).json({ uploadUrl, fileKey, fileRecord: responseRecord });
+    res.status(200).json({ uploadUrl, fileKey, fileRecord: serializeFileRecord(fileRecord) });
   } catch (error: any) {
     console.error('Upload Error:', error);
     res.status(500).json({ error: error.message || 'Internal server error' });
   }
 });
 
-// 2. Get Presigned Download URL
-router.get(/^\/(.+)$/, async (req: any, res) => {
+// Get Presigned Download URL
+router.get('/download/:fileKey(*)', async (req: any, res) => {
   try {
     const orgId = await getOrgId(req);
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
 
-    const fileKey = req.params[0];
+    const fileKey = req.params.fileKey;
 
-    // Verify ownership in DB
     const fileRecord = await getPrisma().file.findFirst({
       where: { fileKey, orgId }
     });
@@ -109,15 +144,14 @@ router.get(/^\/(.+)$/, async (req: any, res) => {
   }
 });
 
-// 3. Delete File
-router.delete(/^\/(.+)$/, async (req: any, res) => {
+// Delete File
+router.delete('/delete/:fileKey(*)', async (req: any, res) => {
   try {
     const orgId = await getOrgId(req);
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
 
-    const fileKey = req.params[0];
+    const fileKey = req.params.fileKey;
 
-    // Verify ownership
     const fileRecord = await getPrisma().file.findFirst({
       where: { fileKey, orgId }
     });
@@ -126,10 +160,7 @@ router.delete(/^\/(.+)$/, async (req: any, res) => {
       return res.status(404).json({ error: 'File not found or unauthorized' });
     }
 
-    // 1. Delete from R2
-    await deleteFile(fileKey);
-    
-    // 2. Delete from DB
+    await deleteStoredFile(fileKey);
     await getPrisma().file.delete({
       where: { id: fileRecord.id }
     });

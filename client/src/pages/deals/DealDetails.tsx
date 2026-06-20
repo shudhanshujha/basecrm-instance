@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import KPICard from '../../components/ui/KPICard';
 import ExportButton from '../../components/ui/ExportButton';
+import FileUpload from '../../components/common/FileUpload';
+import FileList from '../../components/common/FileList';
 import api from '../../lib/axios';
 import { format, differenceInDays } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -224,6 +226,16 @@ const DealDetails: React.FC = () => {
                  <input type="text" placeholder="Task name..." className="flex-1 bg-bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-[14px] outline-none focus:border-accent-blue" value={newMilestone.label} onChange={e => setNewMilestone({...newMilestone, label: e.target.value})} />
                  <input type="date" className="bg-bg-surface-2 border border-border rounded-lg px-2 py-1.5 text-[14px] outline-none w-28" value={newMilestone.date} onChange={e => setNewMilestone({...newMilestone, date: e.target.value})} />
                  <button onClick={addMilestone} className="p-2 bg-accent-blue text-white rounded-lg"><Plus size={14} /></button>
+               </div>
+            </div>
+
+            <div className="card border-white/5 bg-bg-surface/30">
+               <h3 className="text-[14px] font-black text-text-primary uppercase tracking-widest mb-4 border-b border-border pb-3 flex items-center gap-2">
+                  <Box size={14} className="text-accent-orange" /> Files
+               </h3>
+               <FileUpload entityType="deal" entityId={id!} onUploadComplete={() => {}} />
+               <div className="mt-3">
+                  <FileList entityType="deal" entityId={id!} key={id} />
                </div>
             </div>
 

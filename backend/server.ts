@@ -24,6 +24,7 @@ import fileRoutes from './routes/files.js';
 import authRoutes from './routes/auth.js';
 import debugRoutes from './routes/debug.js';
 import pingRoutes from './routes/ping.js';
+import taskRoutes from './routes/tasks.js';
 
 
 const app = express();
@@ -54,6 +55,7 @@ app.use('/api/files', fileRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/debug', debugRoutes);
 app.use('/api/ping', pingRoutes);
+app.use('/api/tasks', taskRoutes);
 
 
 app.get('/api', (req, res) => {

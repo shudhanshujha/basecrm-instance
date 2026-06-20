@@ -48,3 +48,22 @@ export interface AnalyticsData {
   expenses: number;
   profit: number;
 }
+
+export interface Task {
+  id: string;
+  orgId: string;
+  title: string;
+  description?: string;
+  dueDate?: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  category?: string;
+  reminderAt?: string;
+  dealId?: string;
+  clientId?: string;
+  invoiceId?: string;
+  assignedTo?: string;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}

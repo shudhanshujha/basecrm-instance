@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../lib/axios';
+import FileUpload from '../../components/common/FileUpload';
+import FileList from '../../components/common/FileList';
 
 const AssetDetails: React.FC = () => {
   const { id } = useParams();
@@ -169,9 +171,17 @@ const AssetDetails: React.FC = () => {
             </div>
          </div>
 
-         <div className="space-y-6">
-            <div className="card">
-               <h3 className="text-[17px] font-bold text-text-primary mb-6 uppercase tracking-tight">Recent Activity</h3>
+          <div className="space-y-6">
+             <div className="card">
+                <h3 className="text-[17px] font-bold text-text-primary mb-6 uppercase tracking-tight">Files</h3>
+                <FileUpload entityType="asset" entityId={id!} onUploadComplete={() => {}} />
+                <div className="mt-4">
+                   <FileList entityType="asset" entityId={id!} key={id} />
+                </div>
+             </div>
+
+             <div className="card">
+                <h3 className="text-[17px] font-bold text-text-primary mb-6 uppercase tracking-tight">Recent Activity</h3>
                <div className="space-y-4">
                   {asset.activityLogs && asset.activityLogs.length > 0 ? (
                     asset.activityLogs.map((log: any, i: number) => (

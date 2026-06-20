@@ -1,9 +1,11 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
-import { ArrowLeft, Loader2, Download, Printer, Pencil } from 'lucide-react';
+import { ArrowLeft, Loader2, Download, Printer, Pencil, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import FiscalInvoice from '../../components/invoices/FiscalInvoice';
 import api from '../../lib/axios';
+import FileUpload from '../../components/common/FileUpload';
+import FileList from '../../components/common/FileList';
 import toast from 'react-hot-toast';
 
 const InvoiceDetails: React.FC = () => {
@@ -11,6 +13,8 @@ const InvoiceDetails: React.FC = () => {
   const navigate = useNavigate();
   const [invoice, setInvoice] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showFiles, setShowFiles] = useState(false);
+  const [fileRefreshTrigger, setFileRefreshTrigger] = useState(0);
 
   const fetchInvoice = async () => {
     try {
@@ -157,6 +161,25 @@ const InvoiceDetails: React.FC = () => {
         <PDFViewer width="100%" height="100%" showToolbar={false}>
           <FiscalInvoice invoiceData={formattedInvoiceData} />
         </PDFViewer>
+      </div>
+
+      <div className="shrink-0 card border-white/5 bg-bg-surface/30">
+        <button
+          onClick={() => setShowFiles(!showFiles)}
+          className="w-full flex items-center justify-between text-left"
+        >
+          <div className="flex items-center gap-3">
+            <FileText size={16} className="text-accent-blue" />
+            <h3 className="text-[14px] font-black text-text-primary uppercase tracking-widest">Attached Files</h3>
+          </div>
+          {showFiles ? <ChevronUp size={16} className="text-text-muted" /> : <ChevronDown size={16} className="text-text-muted" />}
+        </button>
+        {showFiles && (
+          <div className="mt-4 space-y-4">
+            <FileUpload entityType="invoice" entityId={id!} onUploadComplete={() => setFileRefreshTrigger(v => v + 1)} />
+            <FileList entityType="invoice" entityId={id!} refreshTrigger={fileRefreshTrigger} />
+          </div>
+        )}
       </div>
     </div>
   );

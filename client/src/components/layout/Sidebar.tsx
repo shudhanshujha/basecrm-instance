@@ -15,7 +15,8 @@ import {
   Package,
   Activity,
   Zap,
-  Cpu
+  Cpu,
+  CalendarDays
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -33,6 +34,7 @@ const Sidebar = () => {
             <NavItem to="/clients" icon={<Users size={18} />} label="Clients" />
             <NavItem to="/vendors" icon={<Truck size={18} />} label="Vendors" />
             <NavItem to="/assets" icon={<Package size={18} />} label="Assets" />
+            <NavItem to="/tasks" icon={<CalendarDays size={18} />} label="Tasks" />
           </div>
         </div>
 
