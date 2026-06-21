@@ -9,7 +9,7 @@
   "scripts": {
     "prisma:generate": "prisma generate",
     "build": "prisma generate && cd client && npm install && npm run build",
-    "vercel-build": "prisma generate && cd client && npm install && npm run build",
+    "vercel-build": "prisma generate && npx prisma db push --skip-generate --accept-data-loss && cd client && npm install && npm run build",
     "db:push": "prisma db push",
     "server": "tsx watch backend/server.ts",
     "lint": "eslint"
