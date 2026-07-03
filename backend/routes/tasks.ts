@@ -84,6 +84,35 @@ router.get('/upcoming', async (req, res) => {
   }
 });
 
+// Helper to sanitize task payload data before passing to Prisma
+const sanitizeTaskData = (body: any) => {
+  const data = { ...body };
+
+  const parseDate = (val: any) => {
+    if (val === undefined) return undefined;
+    if (val === null || val === '') return null;
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
+  const parseString = (val: any) => {
+    if (val === undefined) return undefined;
+    if (val === null || val === '') return null;
+    return val;
+  };
+
+  if ('dueDate' in data) data.dueDate = parseDate(data.dueDate);
+  if ('reminderAt' in data) data.reminderAt = parseDate(data.reminderAt);
+  if ('completedAt' in data) data.completedAt = parseDate(data.completedAt);
+
+  if ('dealId' in data) data.dealId = parseString(data.dealId);
+  if ('clientId' in data) data.clientId = parseString(data.clientId);
+  if ('invoiceId' in data) data.invoiceId = parseString(data.invoiceId);
+  if ('assignedTo' in data) data.assignedTo = parseString(data.assignedTo);
+
+  return data;
+};
+
 // Create a task
 router.post('/', async (req, res) => {
   try {
@@ -92,7 +121,7 @@ router.post('/', async (req, res) => {
 
     const task = await getPrisma().task.create({
       data: {
-        ...req.body,
+        ...sanitizeTaskData(req.body),
         orgId,
       },
     });
@@ -115,7 +144,7 @@ router.put('/:id', async (req, res) => {
     if (!existing) return res.status(404).json({ error: 'Task not found' });
 
     // Auto-set completedAt
-    const data = { ...req.body };
+    const data = sanitizeTaskData(req.body);
     if (data.status === 'COMPLETED' && existing.status !== 'COMPLETED') {
       data.completedAt = new Date();
     } else if (data.status !== 'COMPLETED') {
