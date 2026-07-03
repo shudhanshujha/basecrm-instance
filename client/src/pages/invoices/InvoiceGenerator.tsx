@@ -14,6 +14,7 @@ const InvoiceGenerator: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [orgId, setOrgId] = useState<string>('');
   const [clients, setClients] = useState<any[]>([]);
   const [deals, setDeals] = useState<any[]>([]);
   const [catalog, setCatalog] = useState<any[]>([]);
@@ -99,6 +100,7 @@ const InvoiceGenerator: React.FC = () => {
       ]);
       
       const org = meRes.data.organization;
+      if (org?.id) setOrgId(org.id);
       const dynamicSeller = {
         name: org.name,
         address: org.address || "Address not set",
@@ -345,7 +347,7 @@ const InvoiceGenerator: React.FC = () => {
     }
 
     const reader = new FileReader();
-    reader.onload = (uploadEvent) => {
+    reader.onload = async (uploadEvent) => {
       const base64 = uploadEvent.target?.result as string;
       setFormData(prev => ({
         ...prev,
@@ -355,6 +357,15 @@ const InvoiceGenerator: React.FC = () => {
         }
       }));
       toast.success('Logo loaded from device');
+
+      if (orgId) {
+        try {
+          await api.put(`/auth/organization/${orgId}`, { logoUrl: base64 });
+          toast.success('Saved as organization default');
+        } catch (err) {
+          toast.error('Failed to save organization default logo');
+        }
+      }
     };
     reader.readAsDataURL(file);
   };
@@ -541,7 +552,17 @@ const InvoiceGenerator: React.FC = () => {
                       {formData.seller.logoUrl && (
                         <button
                           type="button"
-                          onClick={() => setFormData({...formData, seller: {...formData.seller, logoUrl: ""}})}
+                          onClick={async () => {
+                            setFormData({...formData, seller: {...formData.seller, logoUrl: ""}});
+                            if (orgId) {
+                              try {
+                                await api.put(`/auth/organization/${orgId}`, { logoUrl: "" });
+                                toast.success('Organization default logo cleared');
+                              } catch (err) {
+                                toast.error('Failed to clear organization default logo');
+                              }
+                            }
+                          }}
                           className="text-[10px] text-danger hover:underline uppercase font-bold tracking-widest text-left pl-1"
                         >Remove</button>
                       )}
