@@ -1,0 +1,49 @@
+name: Supabase Keep-Alive Ping
+
+on:
+  schedule:
+    # Run every day at 00:00 UTC (keeps database from auto-pausing)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allow manual triggers
+
+jobs:
+  ping:
+    name: Ping Database and API
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Execute Database Ping Script
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "⚠️ DATABASE_URL secret is missing in GitHub repository settings. Skipping direct DB ping."
+            echo "Please set it up in Settings -> Secrets and variables -> Actions if you want direct database pings."
+          else
+            npx tsx scripts/ping-db.ts
+          fi
+
+      - name: HTTP Ping Live API
+        run: |
+          if [ -z "${{ secrets.BASE_CRM_URL }}" ]; then
+            echo "⚠️ BASE_CRM_URL secret is missing. Skipping HTTP ping."
+            echo "Please set it to your Vercel deployment URL (e.g. https://your-app.vercel.app) to ping the live endpoint."
+          else
+            echo "Calling Vercel health check endpoint..."
+            curl -sSf "${{ secrets.BASE_CRM_URL }}/api/health"
+          fi
