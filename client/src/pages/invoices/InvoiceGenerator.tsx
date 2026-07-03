@@ -280,6 +280,17 @@ const InvoiceGenerator: React.FC = () => {
     templateId: formData.templateId
   }), [formData, totals]);
 
+  // A lightweight key representing the current invoice state to force PDFDownloadLink to re-render and prevent caching bugs
+  const downloadKey = useMemo(() => {
+    if (!pdfData) return '';
+    const { seller, ...rest } = pdfData;
+    const lightSeller = seller ? {
+      ...seller,
+      logoUrl: seller.logoUrl ? seller.logoUrl.substring(0, 100) : '' // Avoid stringifying large base64 strings
+    } : null;
+    return JSON.stringify({ ...rest, seller: lightSeller });
+  }, [pdfData]);
+
   const handleClientSelect = (clientId: string) => {
     const client = clients.find(c => c.id === clientId);
     if (client) {
@@ -435,7 +446,7 @@ const InvoiceGenerator: React.FC = () => {
             Record & Save
           </button>
           
-          <PDFDownloadLink document={<FiscalInvoice invoiceData={pdfData} />} fileName={`${formData.invoiceNumber || 'invoice'}.pdf`}>
+          <PDFDownloadLink key={downloadKey} document={<FiscalInvoice invoiceData={pdfData} />} fileName={`${formData.invoiceNumber || 'invoice'}.pdf`}>
             {({ loading }) => (
               <button disabled={loading} className="bg-accent-orange text-white px-6 py-2 rounded-lg font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-accent-orange/20 hover:bg-accent-orange/90 transition-all disabled:opacity-50">
                 {loading ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
