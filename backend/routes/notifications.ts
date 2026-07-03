@@ -76,6 +76,24 @@ router.get('/', async (req: any, res) => {
       });
     });
 
+    // 4. Task Reminders
+    const taskReminders = await getPrisma().task.findMany({
+      where: {
+        orgId,
+        status: { notIn: ['COMPLETED', 'CANCELLED'] },
+        reminderAt: { lte: now }
+      }
+    });
+    taskReminders.forEach(task => {
+      notifications.push({
+        id: `task-${task.id}`,
+        type: 'TASK_REMINDER',
+        message: `Reminder: "${task.title}" is scheduled`,
+        date: task.reminderAt!.toISOString(),
+        isRead: false
+      });
+    });
+
     // Sort by date desc
     notifications.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 

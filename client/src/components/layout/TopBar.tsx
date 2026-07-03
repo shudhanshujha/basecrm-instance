@@ -1,6 +1,6 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNotificationStore } from '../../store/useNotificationStore';
-import { Bell, CheckCircle2, AlertCircle, LogOut, Orbit } from 'lucide-react';
+import { Bell, CheckCircle2, AlertCircle, LogOut, Orbit, Clock } from 'lucide-react';
 
 const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
   const { notifications, fetchNotifications, markAsRead, clearAll } = useNotificationStore();
@@ -79,6 +79,7 @@ const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
                         {n.type === 'INVOICE_DUE' && <AlertCircle size={16} className="text-danger glow-red" />}
                         {n.type === 'PAYMENT_RECEIVED' && <CheckCircle2 size={16} className="text-success glow-green" />}
                         {n.type === 'SYSTEM' && <Bell size={16} className="text-accent-blue glow-cyan" />}
+                        {n.type === 'TASK_REMINDER' && <Clock size={16} className="text-accent-purple glow-purple" />}
                       </div>
                       <div className="flex-1">
                         <p className="text-[15px] text-text-primary leading-snug font-bold">{n.message}</p>

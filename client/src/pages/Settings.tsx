@@ -4,7 +4,7 @@ import {
   ShieldCheck, Globe, Bell, Save, 
   User, Check, X, Smartphone, Mail,
   Download, FileSpreadsheet, FileText, Trash2, AlertCircle, CheckCircle2,
-  Database, Cloud, RefreshCw, Server, Users, Loader2, Landmark, Palette
+  Database, Cloud, RefreshCw, Server, Users, Loader2, Landmark, Palette, Clock
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNotificationStore } from '../store/useNotificationStore';
@@ -511,6 +511,8 @@ const Settings: React.FC = () => {
                           {n.type === 'DEAL_END' && <AlertCircle size={18} className="text-warning" />}
                           {n.type === 'INVOICE_DUE' && <AlertCircle size={18} className="text-danger" />}
                           {n.type === 'PAYMENT_RECEIVED' && <CheckCircle2 size={18} className="text-success" />}
+                          {n.type === 'TASK_REMINDER' && <Clock size={18} className="text-accent-purple" />}
+                          {n.type === 'SYSTEM' && <Bell size={18} className="text-accent-blue" />}
                        </div>
                        <div className="flex-1">
                           <p className="text-[16px] font-bold text-text-primary">{n.message}</p>
