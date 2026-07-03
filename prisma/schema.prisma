@@ -26,9 +26,11 @@ model Organization {
   ifscCode       String?         @map("ifsc_code")
   upiId          String?         @map("upi_id")
   msmeRegNo      String?         @map("msme_reg_no")
-  accentColor    String?         @default("#6366F1") @map("accent_color")
-  createdAt      DateTime        @default(now()) @map("created_at")
-  updatedAt      DateTime        @updatedAt @map("updated_at")
+  accentColor           String?         @default("#6366F1") @map("accent_color")
+  onboardingCompleted   Boolean         @default(false) @map("onboarding_completed")
+  onboardingStep        Int             @default(0) @map("onboarding_step")
+  createdAt             DateTime        @default(now()) @map("created_at")
+  updatedAt             DateTime        @updatedAt @map("updated_at")
   activityLogs   ActivityLog[]
   deals          Deal[]
   clients        Client[]
@@ -50,16 +52,19 @@ model Organization {
 }
 
 model Profile {
-  id            String       @id @default(uuid()) @map("id")
-  email         String       @unique
-  password      String
-  orgId         String       @map("org_id")
-  fullName      String?      @map("full_name")
-  role          String
-  createdAt     DateTime     @default(now()) @map("created_at")
-  updatedAt     DateTime     @updatedAt @map("updated_at")
-  uploadedFiles File[]       @relation("UploadedBy")
-  organization  Organization @relation(fields: [orgId], references: [id])
+  id                  String       @id @default(uuid()) @map("id")
+  email               String       @unique
+  password            String?
+  orgId               String       @map("org_id")
+  fullName            String?      @map("full_name")
+  role                String
+  supabaseUserId      String?      @unique @map("supabase_user_id")
+  authProvider        String       @default("email") @map("auth_provider")
+  onboardingCompleted Boolean      @default(false) @map("onboarding_completed")
+  createdAt           DateTime     @default(now()) @map("created_at")
+  updatedAt           DateTime     @updatedAt @map("updated_at")
+  uploadedFiles       File[]       @relation("UploadedBy")
+  organization        Organization @relation(fields: [orgId], references: [id])
 
   @@map("profiles")
 }

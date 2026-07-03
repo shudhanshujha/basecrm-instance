@@ -29,6 +29,11 @@ export default async function handler(req: any, res: any) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    // OAuth-only accounts won't have a password
+    if (!profile.password) {
+      return res.status(401).json({ error: 'This account is not configured with a password. Please contact your administrator to set up password-based authentication.' });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, profile.password);
     if (!isPasswordValid) {
       console.log('Invalid password');

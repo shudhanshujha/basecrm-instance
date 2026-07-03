@@ -1,8 +1,9 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import LoginPage from './pages/LoginPage';
+import OnboardingPage from './pages/OnboardingPage';
 import Dashboard from './pages/Dashboard';
 import Assets from './pages/Assets';
 import AssetDetails from './pages/assets/AssetDetails';
@@ -26,64 +27,88 @@ import Tasks from './pages/Tasks';
 
 import api from './lib/axios';
 
+type AppState = 'loading' | 'unauthenticated' | 'onboarding' | 'authenticated';
+
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [appState, setAppState] = useState<AppState>('loading');
 
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('bc_token');
       if (!token) {
-        setIsAuthenticated(false);
+        setAppState('unauthenticated');
         return;
       }
 
-      // Fast-guard locally against expired JWT to avoid layout flicker or redundant API queries
+      // Fast-guard locally against expired JWT to avoid layout flicker
       try {
         const payload = JSON.parse(window.atob(token.split('.')[1]));
         if (payload.exp && payload.exp * 1000 < Date.now()) {
           console.warn('Session expired (local check)');
-          localStorage.removeItem('bc_token');
-          localStorage.removeItem('bc_auth');
-          setIsAuthenticated(false);
+          clearSession();
           return;
         }
-      } catch (e) {
-        // Clear session on malformed token
-        localStorage.removeItem('bc_token');
-        localStorage.removeItem('bc_auth');
-        setIsAuthenticated(false);
+      } catch {
+        clearSession();
         return;
       }
 
       try {
-        await api.get('/auth/me');
-        setIsAuthenticated(true);
+        const { data } = await api.get('/auth/me');
+        // Check onboarding: backend says not complete, OR localStorage flag is set
+        const needsOnboarding =
+          data.onboardingCompleted === false ||
+          localStorage.getItem('bc_needs_onboarding') === 'true';
+
+        if (needsOnboarding) {
+          setAppState('onboarding');
+        } else {
+          setAppState('authenticated');
+        }
       } catch (err) {
         console.error('Session verification failed:', err);
-        localStorage.removeItem('bc_token');
-        localStorage.removeItem('bc_auth');
-        setIsAuthenticated(false);
+        clearSession();
       }
     };
 
     checkAuth();
   }, []);
 
-  const handleLogin = () => setIsAuthenticated(true);
-
-  const handleLogout = async () => {
+  const clearSession = () => {
     localStorage.removeItem('bc_token');
     localStorage.removeItem('bc_auth');
-    setIsAuthenticated(false);
+    localStorage.removeItem('bc_needs_onboarding');
+    setAppState('unauthenticated');
   };
 
-  if (isAuthenticated === null) {
-    return <div className="min-h-screen bg-bg-primary flex items-center justify-center">
-      <div className="w-8 h-8 border-4 border-accent-orange border-t-transparent rounded-full animate-spin"></div>
-    </div>;
+  const handleLogin = () => {
+    // After login, check if onboarding is needed
+    const needsOnboarding = localStorage.getItem('bc_needs_onboarding') === 'true';
+    setAppState(needsOnboarding ? 'onboarding' : 'authenticated');
+  };
+
+  const handleOnboardingComplete = () => {
+    localStorage.removeItem('bc_needs_onboarding');
+    setAppState('authenticated');
+  };
+
+  const handleLogout = async () => {
+    clearSession();
+  };
+
+  // ── Loading spinner ──────────────────────────────────────────────────────
+  if (appState === 'loading') {
+    return (
+      <div className="min-h-screen bg-bg-primary flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-accent-orange border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
 
-  if (!isAuthenticated) {
+
+
+  // ── Not authenticated ────────────────────────────────────────────────────
+  if (appState === 'unauthenticated') {
     return (
       <>
         <Toaster position="bottom-right" toastOptions={{
@@ -94,6 +119,19 @@ function App() {
     );
   }
 
+  // ── Onboarding (authenticated but not yet onboarded) ────────────────────
+  if (appState === 'onboarding') {
+    return (
+      <>
+        <Toaster position="bottom-right" toastOptions={{
+          style: { background: '#181c27', color: '#e8eaf0', border: '1px solid rgba(255,255,255,0.08)', fontSize: '15px' }
+        }} />
+        <OnboardingPage onComplete={handleOnboardingComplete} />
+      </>
+    );
+  }
+
+  // ── Fully authenticated + onboarded ─────────────────────────────────────
   return (
     <BrowserRouter>
       <Toaster position="bottom-right" toastOptions={{

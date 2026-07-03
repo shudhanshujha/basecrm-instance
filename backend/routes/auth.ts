@@ -16,6 +16,29 @@ const getOrgId = async (req: any) => {
   return profile?.orgId;
 };
 
+// Helper to build token payload
+const buildToken = (profile: any) =>
+  jwt.sign(
+    { id: profile.id, email: profile.email, orgId: profile.orgId, role: profile.role },
+    JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+
+// Helper to build user response shape
+const buildUserResponse = (profile: any) => ({
+  id: profile.id,
+  email: profile.email,
+  fullName: profile.fullName,
+  role: profile.role,
+  orgId: profile.orgId,
+  authProvider: profile.authProvider,
+  onboardingCompleted: profile.onboardingCompleted,
+  organization: profile.organization,
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /auth/login  — email + password login
+// ─────────────────────────────────────────────────────────────────────────────
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -25,9 +48,7 @@ router.post('/login', async (req, res) => {
     }
     
     const profile = await getPrisma().profile.findFirst({
-      where: { 
-        email: email.toLowerCase()
-      },
+      where: { email: email.toLowerCase() },
       include: { organization: true }
     });
 
@@ -35,27 +56,22 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    // OAuth-only accounts won't have a password
+    if (!profile.password) {
+      return res.status(401).json({ error: 'This account is not configured with a password. Please contact your administrator to set up password-based authentication.' });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, profile.password);
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign(
-      { id: profile.id, email: profile.email, orgId: profile.orgId, role: profile.role },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    const token = buildToken(profile);
 
     res.status(200).json({
       token,
-      user: {
-        id: profile.id,
-        email: profile.email,
-        fullName: profile.fullName,
-        role: profile.role,
-        orgId: profile.orgId,
-        organization: profile.organization
-      }
+      needsOnboarding: !profile.onboardingCompleted,
+      user: buildUserResponse(profile),
     });
   } catch (error: any) {
     console.error('Login error:', error);
@@ -68,7 +84,9 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Public signup - creates a new organization and admin profile
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /auth/signup  — email + password self-service signup
+// ─────────────────────────────────────────────────────────────────────────────
 router.post('/signup', async (req, res) => {
   try {
     const { email, password, fullName, companyName } = req.body;
@@ -95,6 +113,8 @@ router.post('/signup', async (req, res) => {
         data: {
           name: companyName,
           slug,
+          onboardingCompleted: false,
+          onboardingStep: 0,
         }
       });
 
@@ -105,6 +125,8 @@ router.post('/signup', async (req, res) => {
           fullName,
           role: 'admin',
           orgId: org.id,
+          authProvider: 'email',
+          onboardingCompleted: false,
         },
         include: { organization: true }
       });
@@ -112,22 +134,12 @@ router.post('/signup', async (req, res) => {
       return profile;
     });
 
-    const token = jwt.sign(
-      { id: result.id, email: result.email, orgId: result.orgId, role: result.role },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    const token = buildToken(result);
 
     res.status(201).json({
       token,
-      user: {
-        id: result.id,
-        email: result.email,
-        fullName: result.fullName,
-        role: result.role,
-        orgId: result.orgId,
-        organization: result.organization
-      }
+      needsOnboarding: true,
+      user: buildUserResponse(result),
     });
   } catch (error: any) {
     console.error('Signup error:', error);
@@ -135,7 +147,11 @@ router.post('/signup', async (req, res) => {
   }
 });
 
-// Get current user session
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /auth/me  — get current user session
+// ─────────────────────────────────────────────────────────────────────────────
 router.get('/me', authMiddleware, async (req: any, res) => {
   try {
     const profile = await getPrisma().profile.findUnique({
@@ -147,20 +163,81 @@ router.get('/me', authMiddleware, async (req: any, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json({
-      id: profile.id,
-      email: profile.email,
-      fullName: profile.fullName,
-      role: profile.role,
-      orgId: profile.orgId,
-      organization: profile.organization
-    });
+    res.json(buildUserResponse(profile));
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch session' });
   }
 });
 
-// Update Organization Details
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /auth/onboarding/complete  — mark onboarding done + save org details
+// ─────────────────────────────────────────────────────────────────────────────
+router.post('/onboarding/complete', authMiddleware, async (req: any, res) => {
+  try {
+    const userId = req.user.id;
+    const {
+      orgName,
+      phone,
+      address,
+      gstin,
+      panNumber,
+      taxMode,
+      bankName,
+      accountNumber,
+      ifscCode,
+      upiId,
+    } = req.body;
+
+    const profile = await getPrisma().profile.findUnique({
+      where: { id: userId },
+      include: { organization: true }
+    });
+
+    if (!profile) return res.status(404).json({ error: 'User not found' });
+
+    // Update organization with the onboarding details
+    const updatedOrg = await getPrisma().organization.update({
+      where: { id: profile.orgId },
+      data: {
+        ...(orgName && { name: orgName }),
+        ...(phone && { phone }),
+        ...(address && { address }),
+        ...(gstin && { gstin }),
+        ...(panNumber && { panNumber }),
+        ...(taxMode && { taxMode }),
+        ...(bankName && { bankName }),
+        ...(accountNumber && { accountNumber }),
+        ...(ifscCode && { ifscCode }),
+        ...(upiId && { upiId }),
+        onboardingCompleted: true,
+        onboardingStep: 999,
+      }
+    });
+
+    // Mark the profile as onboarded too
+    const updatedProfile = await getPrisma().profile.update({
+      where: { id: userId },
+      data: { onboardingCompleted: true },
+      include: { organization: true }
+    });
+
+    const token = buildToken(updatedProfile);
+
+    res.json({
+      token,
+      needsOnboarding: false,
+      user: buildUserResponse(updatedProfile),
+      organization: updatedOrg,
+    });
+  } catch (error: any) {
+    console.error('Onboarding complete error:', error);
+    res.status(500).json({ error: 'Failed to complete onboarding', details: error.message });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PUT /auth/organization/:id  — Update Organization Details
+// ─────────────────────────────────────────────────────────────────────────────
 router.put('/organization/:id', authMiddleware, async (req: any, res) => {
   try {
     const { id } = req.params;
@@ -200,7 +277,9 @@ router.put('/organization/:id', authMiddleware, async (req: any, res) => {
   }
 });
 
-// Change own password (requires current password)
+// ─────────────────────────────────────────────────────────────────────────────
+// PATCH /auth/password  — Change own password (requires current password)
+// ─────────────────────────────────────────────────────────────────────────────
 router.patch('/password', authMiddleware, async (req: any, res) => {
   try {
     const userId = req.user.id;
@@ -217,6 +296,10 @@ router.patch('/password', authMiddleware, async (req: any, res) => {
     const profile = await getPrisma().profile.findUnique({ where: { id: userId } });
     if (!profile) {
       return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (!profile.password) {
+      return res.status(400).json({ error: 'OAuth accounts cannot change password here. Use your provider.' });
     }
 
     const isValid = await bcrypt.compare(currentPassword, profile.password);
@@ -236,7 +319,9 @@ router.patch('/password', authMiddleware, async (req: any, res) => {
   }
 });
 
-// Update User Password (Admin only)
+// ─────────────────────────────────────────────────────────────────────────────
+// PATCH /auth/users/:id/password  — Admin: reset any user's password
+// ─────────────────────────────────────────────────────────────────────────────
 router.patch('/users/:id/password', authMiddleware, async (req: any, res) => {
   try {
     const { id } = req.params;
@@ -252,7 +337,6 @@ router.patch('/users/:id/password', authMiddleware, async (req: any, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
-    // Verify target user belongs to same org
     const targetUser = await getPrisma().profile.findUnique({ where: { id } });
     if (!targetUser || targetUser.orgId !== admin.orgId) {
       return res.status(403).json({ error: 'User not found in your organization' });
@@ -270,7 +354,9 @@ router.patch('/users/:id/password', authMiddleware, async (req: any, res) => {
   }
 });
 
-// Delete User (Admin only)
+// ─────────────────────────────────────────────────────────────────────────────
+// DELETE /auth/users/:id  — Admin: delete a user
+// ─────────────────────────────────────────────────────────────────────────────
 router.delete('/users/:id', authMiddleware, async (req: any, res) => {
   try {
     const { id } = req.params;
@@ -285,7 +371,6 @@ router.delete('/users/:id', authMiddleware, async (req: any, res) => {
       return res.status(403).json({ error: 'Only administrators can delete accounts' });
     }
 
-    // Verify target user belongs to same org
     const targetUser = await getPrisma().profile.findUnique({ where: { id } });
     if (!targetUser || targetUser.orgId !== admin.orgId) {
       return res.status(403).json({ error: 'User not found in your organization' });
@@ -298,7 +383,9 @@ router.delete('/users/:id', authMiddleware, async (req: any, res) => {
   }
 });
 
-// Create User (Admin only)
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /auth/register  — Admin: create a team member
+// ─────────────────────────────────────────────────────────────────────────────
 router.post('/register', authMiddleware, async (req: any, res) => {
   try {
     const { email, password, fullName, role } = req.body;
@@ -307,7 +394,6 @@ router.post('/register', authMiddleware, async (req: any, res) => {
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
-    // Check if user already exists
     const existing = await getPrisma().profile.findUnique({ where: { email } });
     if (existing) return res.status(400).json({ error: 'User already exists' });
 
@@ -319,7 +405,9 @@ router.post('/register', authMiddleware, async (req: any, res) => {
         password: hashedPassword,
         fullName,
         role: role || 'member',
-        orgId
+        orgId,
+        authProvider: 'email',
+        onboardingCompleted: true, // team members skip onboarding
       }
     });
 
@@ -332,21 +420,22 @@ router.post('/register', authMiddleware, async (req: any, res) => {
   }
 });
 
-// Get all users for organization (Filtering out super_admins for non-super_admins)
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /auth/users  — List organization users
+// ─────────────────────────────────────────────────────────────────────────────
 router.get('/users', authMiddleware, async (req: any, res) => {
   try {
     const orgId = await getOrgId(req);
-    const userRole = req.user.role; // Now included in JWT
+    const userRole = req.user.role;
 
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
 
     const query: any = { 
       where: { 
         orgId,
-        // Hide super_admins from anyone who isn't a super_admin themselves
         role: userRole === 'super_admin' ? undefined : { not: 'super_admin' }
       },
-      select: { id: true, email: true, fullName: true, role: true, createdAt: true }
+      select: { id: true, email: true, fullName: true, role: true, authProvider: true, createdAt: true }
     };
 
     const users = await getPrisma().profile.findMany(query);

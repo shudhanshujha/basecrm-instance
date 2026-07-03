@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Loader2, ShieldCheck, Zap, Lock, Terminal, Globe, Building, User } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Zap, Lock, Terminal, Globe, Building, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import api from '../lib/axios';
@@ -35,6 +35,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           localStorage.setItem('bc_token', data.token);
           localStorage.setItem('bc_user', JSON.stringify(data.user));
           localStorage.setItem('bc_auth', 'true');
+          if (data.needsOnboarding) {
+            localStorage.setItem('bc_needs_onboarding', 'true');
+          }
           toast.success(`Organization Created. Welcome, ${data.user.fullName || 'Operator'}`);
           onLogin();
         }
@@ -47,6 +50,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           localStorage.setItem('bc_token', data.token);
           localStorage.setItem('bc_user', JSON.stringify(data.user));
           localStorage.setItem('bc_auth', 'true');
+          if (data.needsOnboarding) {
+            localStorage.setItem('bc_needs_onboarding', 'true');
+          } else {
+            localStorage.removeItem('bc_needs_onboarding');
+          }
           toast.success(`Access Granted. Welcome, ${data.user.fullName || 'Operator'}`);
           onLogin();
         }
@@ -61,6 +69,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       setLoading(false);
     }
   };
+
+
 
   return (
     <div className="min-h-screen bg-[#02040a] flex items-center justify-center p-4 relative overflow-hidden font-mono">
@@ -260,6 +270,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   {isSignup ? 'Already have an account? Login' : 'Create account'}
                 </button>
               </div>
+
+
             </form>
           </div>
         </motion.div>
