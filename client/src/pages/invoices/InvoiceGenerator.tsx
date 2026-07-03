@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
   ArrowLeft, Plus, Trash2, Loader2, Database, Printer, RefreshCw, Eye, EyeOff, Upload, Palette, FileText
@@ -13,6 +13,7 @@ import api from '../../lib/axios';
 const InvoiceGenerator: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [clients, setClients] = useState<any[]>([]);
   const [deals, setDeals] = useState<any[]>([]);
   const [catalog, setCatalog] = useState<any[]>([]);
@@ -160,7 +161,7 @@ const InvoiceGenerator: React.FC = () => {
               email: inv.organization?.email || dynamicSeller.email,
               gstin: inv.organization?.gstin || dynamicSeller.gstin,
               msmeRegNo: inv.organization?.msmeRegNo || dynamicSeller.msmeRegNo,
-              logoUrl: inv.organization?.logoUrl || dynamicSeller.logoUrl,
+              logoUrl: inv.templateData?.logoUrl || inv.organization?.logoUrl || dynamicSeller.logoUrl,
               accentColor: inv.organization?.accentColor || dynamicSeller.accentColor,
               state: 'LOCAL',
               stateCode: '01',
@@ -332,6 +333,32 @@ const InvoiceGenerator: React.FC = () => {
     });
   };
 
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Strict type check for PNG
+    if (file.type !== 'image/png' && !file.name.toLowerCase().endsWith('.png')) {
+      toast.error('Only PNG files are allowed');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const base64 = uploadEvent.target?.result as string;
+      setFormData(prev => ({
+        ...prev,
+        seller: {
+          ...prev.seller,
+          logoUrl: base64
+        }
+      }));
+      toast.success('Logo loaded from device');
+    };
+    reader.readAsDataURL(file);
+  };
+
   const saveInvoice = async () => {
     try {
       setIsLoading(true);
@@ -358,7 +385,8 @@ const InvoiceGenerator: React.FC = () => {
         projectName: formData.projectName,
         servicePeriod: formData.servicePeriod,
         billingType: formData.billingType,
-        projectScope: formData.projectScope
+        projectScope: formData.projectScope,
+        logoUrl: formData.seller.logoUrl
       };
 
       if (id) {
@@ -497,13 +525,27 @@ const InvoiceGenerator: React.FC = () => {
                         <Upload size={20} className="text-text-muted" />
                       )}
                     </div>
-                    <button
-                      onClick={() => {
-                        const url = prompt('Enter logo image URL:');
-                        if (url) setFormData({...formData, seller: {...formData.seller, logoUrl: url}});
-                      }}
-                      className="px-3 py-2 bg-bg-surface-2 border border-border rounded-lg text-[12px] font-bold uppercase tracking-wider text-text-muted hover:text-accent-blue transition-all"
-                    >Set Logo URL</button>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      accept="image/png"
+                      className="hidden"
+                      onChange={handleLogoUpload}
+                    />
+                    <div className="flex flex-col gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-3 py-2 bg-bg-surface-2 border border-border rounded-lg text-[12px] font-bold uppercase tracking-wider text-text-muted hover:text-accent-blue transition-all text-left"
+                      >Upload PNG Logo</button>
+                      {formData.seller.logoUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setFormData({...formData, seller: {...formData.seller, logoUrl: ""}})}
+                          className="text-[10px] text-danger hover:underline uppercase font-bold tracking-widest text-left pl-1"
+                        >Remove</button>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="space-y-1.5">

@@ -63,7 +63,8 @@ router.post('/', async (req: any, res) => {
       subtotal, taxableAmount, cgstAmount, sgstAmount, igstAmount, 
       totalAmount, lineItems, notes, bankDetails,
       reverseCharge, upiId, showUpiQr, showDigitalSignature, signatureUrl,
-      templateId, currency, projectName, servicePeriod, billingType, projectScope
+      templateId, currency, projectName, servicePeriod, billingType, projectScope,
+      logoUrl
     } = req.body;
 
     const templateData = {
@@ -72,6 +73,7 @@ router.post('/', async (req: any, res) => {
       servicePeriod: servicePeriod || '',
       billingType: billingType || 'Fixed',
       projectScope: projectScope || '',
+      logoUrl: logoUrl || '',
     };
 
     // Parse items
@@ -151,7 +153,8 @@ router.put('/:id', async (req: any, res) => {
       subtotal, taxableAmount, cgstAmount, sgstAmount, igstAmount, 
       totalAmount, lineItems, notes, bankDetails,
       reverseCharge, upiId, showUpiQr, showDigitalSignature, signatureUrl,
-      templateId, currency, projectName, servicePeriod, billingType, projectScope
+      templateId, currency, projectName, servicePeriod, billingType, projectScope,
+      logoUrl
     } = req.body;
 
     const templateData = {
@@ -160,6 +163,7 @@ router.put('/:id', async (req: any, res) => {
       servicePeriod: servicePeriod || '',
       billingType: billingType || 'Fixed',
       projectScope: projectScope || '',
+      logoUrl: logoUrl || '',
     };
 
     const items = lineItems ? (typeof lineItems === 'string' ? JSON.parse(lineItems) : lineItems) : null;
