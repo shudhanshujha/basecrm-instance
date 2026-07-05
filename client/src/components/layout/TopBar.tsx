@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNotificationStore } from '../../store/useNotificationStore';
-import { Bell, CheckCircle2, AlertCircle, LogOut, Orbit, Clock } from 'lucide-react';
+import { Bell, CheckCircle2, AlertCircle, LogOut, Building2, Clock } from 'lucide-react';
 
 const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
   const { notifications, fetchNotifications, markAsRead, clearAll } = useNotificationStore();
@@ -27,65 +27,65 @@ const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 5 * 60 * 1000); // refresh every 5 mins
+    const interval = setInterval(fetchNotifications, 5 * 60 * 1000);
     return () => clearInterval(interval);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchNotifications]);
 
   return (
-    <div className="app-topbar h-[60px] bg-bg-surface/30 border-b border-border flex items-center justify-between px-6 shrink-0 relative z-50 backdrop-blur-md">
-      <div className="flex items-center gap-4 group cursor-default">
-        <div className="w-10 h-10 bg-gradient-to-br from-accent-purple to-accent-blue rounded-2xl flex items-center justify-center text-white shadow-[0_0_20px_rgba(112,0,255,0.3)] group-hover:rotate-12 transition-transform duration-500">
-          <Orbit size={22} className="animate-spin-slow" />
+    <div className="app-topbar h-[60px] bg-bg-surface border-b border-border flex items-center justify-between px-6 shrink-0 relative z-50">
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 bg-accent-blue rounded-xl flex items-center justify-center text-white shadow-sm">
+          <Building2 size={16} />
         </div>
         <div>
-          <div className="text-[17px] font-black text-white uppercase tracking-[2px] bg-gradient-to-r from-white to-text-muted bg-clip-text text-transparent">Business CRM</div>
-          <div className="text-[11px] text-accent-blue font-black uppercase tracking-[4px] leading-none mt-1 animate-neon">System Active</div>
+          <div className="text-[15px] font-semibold text-text-primary tracking-tight">BaseCRM</div>
+          <div className="text-[11px] text-text-muted font-normal leading-none mt-0.5">Business Management</div>
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <div className="relative" ref={notificationRef}>
           <div 
             onClick={() => setShowNotifications(!showNotifications)}
-            className={`w-9 h-9 rounded-xl border flex items-center justify-center cursor-pointer transition-all duration-300 ${showNotifications ? 'bg-accent-blue/10 border-accent-blue text-accent-blue shadow-lg shadow-accent-blue/20' : 'bg-white/5 border-white/10 text-text-muted hover:text-white hover:border-white/20'}`}
+            className={`w-8 h-8 rounded-lg border flex items-center justify-center cursor-pointer transition-all duration-150 ${showNotifications ? 'bg-accent-blue/10 border-accent-blue/40 text-accent-blue' : 'bg-transparent border-border text-text-muted hover:text-text-primary hover:border-accent-blue/20'}`}
           >
-            <Bell size={18} className={unreadCount > 0 ? 'animate-bounce' : ''} />
+            <Bell size={15} />
           </div>
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-[13px] font-black rounded-full border-2 border-bg-surface flex items-center justify-center shadow-lg animate-pulse">
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-danger text-white text-[10px] font-semibold rounded-full border border-bg-surface flex items-center justify-center">
               {unreadCount}
             </span>
           )}
 
           {showNotifications && (
-            <div className="absolute top-[50px] right-0 w-80 bg-bg-surface/90 border border-border rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in slide-in-from-top-4 backdrop-blur-2xl">
-              <div className="p-4 border-b border-border/50 flex justify-between items-center bg-white/5">
-                <span className="text-[14px] font-black text-white uppercase tracking-widest">System Alerts</span>
-                <button onClick={clearAll} className="text-[13px] font-bold text-accent-blue hover:underline uppercase">Mute All</button>
+            <div className="absolute top-[46px] right-0 w-80 bg-bg-surface border border-border rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden">
+              <div className="px-4 py-3 border-b border-border flex justify-between items-center">
+                <span className="text-[13px] font-semibold text-text-primary">Notifications</span>
+                <button onClick={clearAll} className="text-[12px] text-text-muted hover:text-text-primary transition-colors">Clear all</button>
               </div>
-              <div className="max-h-96 overflow-y-auto custom-scrollbar">
+              <div className="max-h-80 overflow-y-auto">
                 {notifications.length === 0 ? (
-                  <div className="p-10 text-center text-text-muted text-[14px] uppercase font-bold tracking-widest italic opacity-50">Secure: No Issues Found</div>
+                  <div className="p-8 text-center text-text-muted text-[13px]">No notifications</div>
                 ) : (
                   notifications.map(n => (
                     <div 
                       key={n.id} 
                       onClick={() => markAsRead(n.id)}
-                      className={`p-4 border-b border-border/30 hover:bg-white/5 transition-colors cursor-pointer flex gap-4 ${!n.isRead ? 'bg-accent-blue/5' : ''}`}
+                      className={`px-4 py-3 border-b border-border/50 hover:bg-bg-surface-2 transition-colors cursor-pointer flex gap-3 ${!n.isRead ? 'bg-accent-blue/5' : ''}`}
                     >
-                      <div className="shrink-0 mt-1">
-                        {n.type === 'DEAL_END' && <AlertCircle size={16} className="text-warning glow-yellow" />}
-                        {n.type === 'INVOICE_DUE' && <AlertCircle size={16} className="text-danger glow-red" />}
-                        {n.type === 'PAYMENT_RECEIVED' && <CheckCircle2 size={16} className="text-success glow-green" />}
-                        {n.type === 'SYSTEM' && <Bell size={16} className="text-accent-blue glow-cyan" />}
-                        {n.type === 'TASK_REMINDER' && <Clock size={16} className="text-accent-purple glow-purple" />}
+                      <div className="shrink-0 mt-0.5">
+                        {n.type === 'DEAL_END' && <AlertCircle size={14} className="text-warning" />}
+                        {n.type === 'INVOICE_DUE' && <AlertCircle size={14} className="text-danger" />}
+                        {n.type === 'PAYMENT_RECEIVED' && <CheckCircle2 size={14} className="text-success" />}
+                        {n.type === 'SYSTEM' && <Bell size={14} className="text-accent-blue" />}
+                        {n.type === 'TASK_REMINDER' && <Clock size={14} className="text-accent-purple" />}
                       </div>
                       <div className="flex-1">
-                        <p className="text-[15px] text-text-primary leading-snug font-bold">{n.message}</p>
-                        <p className="text-[12px] text-text-muted mt-2 font-black uppercase tracking-tighter opacity-70">{new Date(n.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} · Trace ID: {n.id.split('-')[0]}</p>
+                        <p className="text-[13px] text-text-primary leading-snug">{n.message}</p>
+                        <p className="text-[11px] text-text-muted mt-1">{new Date(n.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
                       </div>
-                      {!n.isRead && <div className="w-2 h-2 bg-accent-blue rounded-full mt-2 shadow-[0_0_8px_#00f2ff]" />}
+                      {!n.isRead && <div className="w-1.5 h-1.5 bg-accent-blue rounded-full mt-1.5 shrink-0" />}
                     </div>
                   ))
                 )}
@@ -97,10 +97,10 @@ const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
         {onLogout && (
           <button
             onClick={onLogout}
-            className="w-9 h-9 rounded-xl bg-danger/5 border border-danger/10 text-text-muted hover:text-danger hover:bg-danger/10 hover:border-danger/30 flex items-center justify-center transition-all duration-300"
-            title="Secure Logout"
+            className="w-8 h-8 rounded-lg bg-transparent border border-border text-text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/5 flex items-center justify-center transition-all duration-150"
+            title="Sign out"
           >
-            <LogOut size={18} />
+            <LogOut size={15} />
           </button>
         )}
       </div>

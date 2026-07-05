@@ -1,63 +1,57 @@
-﻿import React from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
-  Megaphone, 
   Users, 
-  Database, 
   FileText, 
   CreditCard, 
   BarChart3, 
   LineChart, 
   Settings,
   Truck,
-  Repeat,
   Package,
+  CalendarDays,
+  Handshake,
   Activity,
-  Zap,
-  Cpu,
-  CalendarDays
+  Zap
 } from 'lucide-react';
 
 const Sidebar = () => {
   return (
-    <div className="app-sidebar w-[240px] bg-bg-surface/40 border-r border-border h-full flex flex-col backdrop-blur-xl relative">
-      {/* Decorative background element */}
-      <div className="absolute top-[-100px] left-[-100px] w-64 h-64 bg-accent-purple/5 rounded-full blur-[80px] pointer-events-none" />
-      
-      <div className="flex-1 overflow-y-auto px-4 py-8 space-y-8">
+    <div className="app-sidebar w-[220px] bg-bg-surface border-r border-border h-full flex flex-col">
+      <div className="flex-1 overflow-y-auto px-3 py-6 space-y-6">
         <div>
-          <div className="text-[13px] font-black text-accent-blue uppercase tracking-[3px] px-2 mb-6 animate-pulse">Command Center</div>
-          <div className="flex flex-col gap-1.5">
-            <NavItem to="/" icon={<LayoutDashboard size={18} />} label="Dashboard" />
-            <NavItem to="/deals" icon={<Zap size={18} />} label="Deals" />
-            <NavItem to="/clients" icon={<Users size={18} />} label="Clients" />
-            <NavItem to="/vendors" icon={<Truck size={18} />} label="Vendors" />
-            <NavItem to="/assets" icon={<Package size={18} />} label="Assets" />
-            <NavItem to="/tasks" icon={<CalendarDays size={18} />} label="Tasks" />
+          <div className="text-[11px] font-semibold text-text-muted uppercase tracking-[2px] px-3 mb-3">Main</div>
+          <div className="flex flex-col gap-0.5">
+            <NavItem to="/" icon={<LayoutDashboard size={16} />} label="Dashboard" />
+            <NavItem to="/deals" icon={<Handshake size={16} />} label="Deals" />
+            <NavItem to="/clients" icon={<Users size={16} />} label="Clients" />
+            <NavItem to="/vendors" icon={<Truck size={16} />} label="Vendors" />
+            <NavItem to="/assets" icon={<Package size={16} />} label="Assets" />
+            <NavItem to="/tasks" icon={<CalendarDays size={16} />} label="Tasks" />
           </div>
         </div>
 
         <div>
-          <div className="text-[13px] font-black text-accent-purple uppercase tracking-[3px] px-2 mb-6 border-l-2 border-accent-purple/50 pl-3">Treasury</div>
-          <div className="flex flex-col gap-1.5">
-            <NavItem to="/invoices" icon={<FileText size={18} />} label="Invoices" />
-            <NavItem to="/expenses" icon={<Activity size={18} />} label="Expenses" />
-            <NavItem to="/payments" icon={<CreditCard size={18} />} label="Payments" />
-            <NavItem to="/pl-report" icon={<BarChart3 size={18} />} label="P&L Report" />
+          <div className="text-[11px] font-semibold text-text-muted uppercase tracking-[2px] px-3 mb-3">Finance</div>
+          <div className="flex flex-col gap-0.5">
+            <NavItem to="/invoices" icon={<FileText size={16} />} label="Invoices" />
+            <NavItem to="/expenses" icon={<Activity size={16} />} label="Expenses" />
+            <NavItem to="/payments" icon={<CreditCard size={16} />} label="Payments" />
+            <NavItem to="/pl-report" icon={<BarChart3 size={16} />} label="P&L Report" />
           </div>
         </div>
 
         <div>
-          <div className="text-[13px] font-black text-success uppercase tracking-[3px] px-2 mb-6 border-l-2 border-success/50 pl-3">Intelligence</div>
-          <div className="flex flex-col gap-1.5">
-            <NavItem to="/analytics" icon={<LineChart size={18} />} label="Analytics" />
+          <div className="text-[11px] font-semibold text-text-muted uppercase tracking-[2px] px-3 mb-3">Insights</div>
+          <div className="flex flex-col gap-0.5">
+            <NavItem to="/analytics" icon={<LineChart size={16} />} label="Analytics" />
           </div>
         </div>
       </div>
       
-      <div className="px-4 py-4 border-t border-border/40 shrink-0 bg-bg-surface/60">
-        <NavItem to="/settings" icon={<Cpu size={18} />} label="Settings" />
+      <div className="px-3 py-4 border-t border-border shrink-0">
+        <NavItem to="/settings" icon={<Settings size={16} />} label="Settings" />
       </div>
     </div>
   );
@@ -68,21 +62,21 @@ const NavItem = ({ to, icon, label }: { to: string; icon: React.ReactNode; label
     <NavLink
       to={to}
       className={({ isActive }) => `
-        flex items-center gap-3 px-4 py-3 rounded-xl text-[15px] font-bold transition-all duration-300 group relative
+        flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-all duration-150
         ${isActive 
-          ? 'bg-accent-blue/10 text-accent-blue shadow-[0_0_15px_rgba(0,242,255,0.1)] border border-accent-blue/20' 
-          : 'text-text-muted hover:text-text-primary hover:bg-white/5 hover:translate-x-1'
+          ? 'bg-accent-blue/10 text-accent-blue' 
+          : 'text-text-muted hover:text-text-primary hover:bg-bg-surface-2'
         }
       `}
     >
       {({ isActive }) => (
         <>
-          <span className={`transition-transform duration-300 group-hover:scale-110 ${isActive ? 'text-accent-blue glow-cyan' : ''}`}>
+          <span className={`transition-colors duration-150 ${isActive ? 'text-accent-blue' : ''}`}>
             {icon}
           </span>
-          <span className="tracking-wide uppercase text-[13px] font-black">{label}</span>
+          <span className="text-[13px]">{label}</span>
           {isActive && (
-            <div className="absolute right-3 w-1.5 h-1.5 bg-accent-blue rounded-full shadow-[0_0_8px_#00f2ff] animate-neon" />
+            <div className="ml-auto w-1 h-1 bg-accent-blue rounded-full" />
           )}
         </>
       )}

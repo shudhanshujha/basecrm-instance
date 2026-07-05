@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Loader2, Zap, Lock, Terminal, Globe, Building, User } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Building2, Lock, Mail, Globe, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import api from '../lib/axios';
@@ -38,7 +38,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           if (data.needsOnboarding) {
             localStorage.setItem('bc_needs_onboarding', 'true');
           }
-          toast.success(`Organization Created. Welcome, ${data.user.fullName || 'Operator'}`);
+          toast.success(`Welcome, ${data.user.fullName || 'User'}`);
           onLogin();
         }
       } else {
@@ -55,16 +55,16 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           } else {
             localStorage.removeItem('bc_needs_onboarding');
           }
-          toast.success(`Access Granted. Welcome, ${data.user.fullName || 'Operator'}`);
+          toast.success(`Welcome back, ${data.user.fullName || 'User'}`);
           onLogin();
         }
       }
     } catch (err: any) {
       console.error('Auth error:', err);
-      let errorMessage = isSignup ? 'System Error: Registration Protocol Failed.' : 'System Error: Authentication Protocol Failed.';
+      let errorMessage = isSignup ? 'Registration failed. Please try again.' : 'Invalid credentials. Please try again.';
       if (err.response?.data?.error) errorMessage = err.response.data.error;
       setError(errorMessage);
-      toast.error(isSignup ? 'Registration Failed' : 'Identity Verification Failed');
+      toast.error(isSignup ? 'Registration failed' : 'Sign in failed');
     } finally {
       setLoading(false);
     }
@@ -73,210 +73,152 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
 
   return (
-    <div className="min-h-screen bg-[#02040a] flex items-center justify-center p-4 relative overflow-hidden font-mono">
-      {/* Dynamic Cyber Grid Background */}
-      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
-        <div className="absolute inset-0" style={{ 
-          backgroundImage: 'linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px)',
-          backgroundSize: '40px 40px'
-        }} />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#02040a] via-transparent to-transparent" />
+    <div className="min-h-screen bg-bg-primary flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Subtle background gradient */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-accent-blue/4 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-accent-purple/3 rounded-full blur-[100px]" />
       </div>
 
-      {/* Floating Particle Orbs */}
-      <motion.div 
-        animate={{ 
-          y: [0, -20, 0],
-          opacity: [0.1, 0.2, 0.1],
-          scale: [1, 1.1, 1]
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-1/4 left-1/3 w-96 h-96 bg-accent-blue/10 rounded-full blur-[100px] pointer-events-none" 
-      />
+      <div className="w-full max-w-[420px] relative z-10">
+        {/* Header */}
         <motion.div 
-          animate={{ 
-            y: [0, 20, 0],
-            opacity: [0.05, 0.15, 0.05],
-            scale: [1, 1.2, 1]
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute bottom-1/4 right-1/3 w-[500px] h-[500px] bg-accent-purple/5 rounded-full blur-[120px] pointer-events-none" 
-        />
-
-      <div className="w-full max-w-[450px] relative z-10">
-        {/* Futuristic Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-10"
         >
-          <div className="relative inline-block mb-6 group">
-             <div className="absolute inset-0 bg-accent-blue/20 blur-xl group-hover:bg-accent-blue/40 transition-all rounded-full" />
-             <div className="relative w-20 h-20 bg-[#0d1117] border border-accent-blue/30 rounded-3xl flex items-center justify-center shadow-2xl group-hover:border-accent-blue transition-all">
-                <Zap size={32} className="text-accent-blue animate-pulse" />
-             </div>
-             <motion.div 
-               animate={{ rotate: 360 }}
-               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-               className="absolute -inset-2 border border-dashed border-accent-blue/20 rounded-full pointer-events-none"
-             />
+          <div className="inline-flex w-14 h-14 bg-accent-blue rounded-2xl items-center justify-center mb-5 shadow-lg shadow-accent-blue/20">
+            <Building2 size={26} className="text-white" />
           </div>
-           <h1 className="text-3xl font-black text-white uppercase tracking-[-1px]">
-              Base<span className="text-accent-blue">CRM</span>.sys
-           </h1>
+          <h1 className="text-2xl font-bold text-text-primary tracking-tight">
+            BaseCRM
+          </h1>
+          <p className="text-[13px] text-text-muted mt-1.5">
+            {isSignup ? 'Create your account to get started' : 'Sign in to your workspace'}
+          </p>
         </motion.div>
 
-        {/* Cyber Login Card */}
+        {/* Form Card */}
         <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="relative"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="bg-bg-surface border border-border rounded-2xl p-8 shadow-[0_8px_40px_rgba(0,0,0,0.4)]"
         >
-          {/* Card Border Glow */}
-          <div className="absolute -inset-[1px] bg-gradient-to-r from-accent-blue/50 via-accent-purple/50 to-accent-blue/50 rounded-[32px] blur-[2px] opacity-30" />
-          
-          <div className="relative bg-bg-primary/80 backdrop-blur-xl border border-border rounded-[30px] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
-            {/* Top Right Scanner Animation */}
-            <div className="absolute top-0 right-0 p-4 opacity-20">
-               <Terminal size={12} className="text-accent-blue mb-1" />
-               <div className="w-10 h-[1px] bg-accent-blue animate-pulse" />
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {isSignup && (
-                <>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center px-1">
-                      <label className="text-[12px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
-                        <Building size={10} /> Organization
-                      </label>
-                    </div>
-                    <input
-                      type="text"
-                      value={companyName}
-                      onChange={e => setCompanyName(e.target.value)}
-                      placeholder="YOUR COMPANY OR FREELANCE NAME"
-                      className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-5 py-4 text-[16px] text-white outline-none focus:border-accent-blue/50 focus:ring-4 focus:ring-accent-blue/5 transition-all placeholder:text-white/10 uppercase font-bold"
-                      disabled={loading}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center px-1">
-                      <label className="text-[12px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
-                        <User size={10} /> Full Name
-                      </label>
-                    </div>
-                    <input
-                      type="text"
-                      value={fullName}
-                      onChange={e => setFullName(e.target.value)}
-                      placeholder="YOUR NAME"
-                      className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-5 py-4 text-[16px] text-white outline-none focus:border-accent-blue/50 focus:ring-4 focus:ring-accent-blue/5 transition-all placeholder:text-white/10 uppercase font-bold"
-                      disabled={loading}
-                      required
-                    />
-                  </div>
-                </>
-              )}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center px-1">
-                   <label className="text-[12px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
-                      <Globe size={10} /> Username
-                   </label>
-                </div>
-                <div className="relative group">
-                    <input
-                      type="email"
-                      autoFocus
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      placeholder="username@company.com"
-                      className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-5 py-4 text-[16px] text-white outline-none focus:border-accent-blue/50 focus:ring-4 focus:ring-accent-blue/5 transition-all placeholder:text-white/10 font-bold"
-                      disabled={loading}
-                      required
-                    />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between items-center px-1">
-                   <label className="text-[12px] font-black text-accent-blue uppercase tracking-widest flex items-center gap-2">
-                      <Lock size={10} /> Password
-                   </label>
-                </div>
-                <div className="relative group">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {isSignup && (
+              <>
+                <div className="space-y-1.5">
+                  <label className="text-[12px] font-medium text-text-muted flex items-center gap-1.5">
+                    <Globe size={11} /> Company Name
+                  </label>
                   <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-5 py-4 text-[16px] text-white outline-none focus:border-accent-blue/50 focus:ring-4 focus:ring-accent-blue/5 transition-all placeholder:text-white/10 font-bold"
+                    type="text"
+                    value={companyName}
+                    onChange={e => setCompanyName(e.target.value)}
+                    placeholder="Your company or freelance name"
+                    className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[14px] text-text-primary outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/20 transition-all placeholder:text-text-muted/40"
                     disabled={loading}
                     required
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(v => !v)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-accent-blue transition-colors p-1"
-                    tabIndex={-1}
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
                 </div>
-              </div>
-
-              <AnimatePresence>
-                {error && (
-                  <motion.div 
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="px-4 py-3 bg-danger/10 border border-danger/20 rounded-xl text-[13px] text-danger font-black uppercase tracking-wider flex items-center gap-2"
-                  >
-                    <div className="w-1 h-1 bg-danger rounded-full animate-ping" />
-                    {error}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <button
-                type="submit"
-                disabled={loading || !email || !password}
-                className="relative w-full group overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-accent-blue to-accent-purple group-hover:scale-105 transition-transform duration-500 rounded-2xl" />
-                <div className="relative flex items-center justify-center gap-3 py-4 text-[14px] font-black text-white uppercase tracking-[4px] bg-transparent">
-                  {loading ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin" />
-                      {isSignup ? 'Initializing...' : 'Decrypting...'}
-                    </>
-                  ) : (
-                    <>
-                      {isSignup ? 'Create Account' : 'Execute Login'}
-                      <Zap size={14} className="group-hover:translate-x-1 transition-transform" />
-                    </>
-                  )}
+                <div className="space-y-1.5">
+                  <label className="text-[12px] font-medium text-text-muted flex items-center gap-1.5">
+                    <User size={11} /> Full Name
+                  </label>
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={e => setFullName(e.target.value)}
+                    placeholder="Your full name"
+                    className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[14px] text-text-primary outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/20 transition-all placeholder:text-text-muted/40"
+                    disabled={loading}
+                    required
+                  />
                 </div>
-              </button>
+              </>
+            )}
+            <div className="space-y-1.5">
+              <label className="text-[12px] font-medium text-text-muted flex items-center gap-1.5">
+                <Mail size={11} /> Email
+              </label>
+              <input
+                type="email"
+                autoFocus
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@company.com"
+                className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[14px] text-text-primary outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/20 transition-all placeholder:text-text-muted/40"
+                disabled={loading}
+                required
+              />
+            </div>
 
-              <div className="text-center pt-2">
+            <div className="space-y-1.5">
+              <label className="text-[12px] font-medium text-text-muted flex items-center gap-1.5">
+                <Lock size={11} /> Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[14px] text-text-primary outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/20 transition-all placeholder:text-text-muted/40"
+                  disabled={loading}
+                  required
+                />
                 <button
                   type="button"
-                  onClick={() => { setIsSignup(!isSignup); setError(''); }}
-                  className="text-[13px] text-text-muted hover:text-accent-blue uppercase tracking-wider font-bold transition-colors"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors"
+                  tabIndex={-1}
                 >
-                  {isSignup ? 'Already have an account? Login' : 'Create account'}
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
+            </div>
 
+            <AnimatePresence>
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="px-4 py-3 bg-danger/8 border border-danger/20 rounded-xl text-[13px] text-danger flex items-center gap-2"
+                >
+                  <div className="w-1 h-1 bg-danger rounded-full shrink-0" />
+                  {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            </form>
-          </div>
+            <button
+              type="submit"
+              disabled={loading || !email || !password}
+              className="w-full bg-accent-blue hover:opacity-90 disabled:opacity-50 text-white py-3 rounded-xl text-[14px] font-semibold transition-all duration-150 mt-2 shadow-md"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 size={15} className="animate-spin" />
+                  {isSignup ? 'Creating account...' : 'Signing in...'}
+                </span>
+              ) : (
+                isSignup ? 'Create Account' : 'Sign In'
+              )}
+            </button>
+
+            <div className="text-center pt-1">
+              <button
+                type="button"
+                onClick={() => { setIsSignup(!isSignup); setError(''); }}
+                className="text-[13px] text-text-muted hover:text-text-primary transition-colors"
+              >
+                {isSignup ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+              </button>
+            </div>
+          </form>
         </motion.div>
-
-
       </div>
     </div>
   );
