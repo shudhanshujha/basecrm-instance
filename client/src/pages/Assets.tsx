@@ -95,8 +95,15 @@ const Assets: React.FC = () => {
   };
 
   const filteredAssets = assets.filter(a => {
-    const matchesSearch = (a.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
-                          (a.category?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+    const nameText = a.name || '';
+    const categoryText = a.category || 'General';
+    const descText = a.description || '';
+    
+    const matchesSearch = 
+      nameText.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      categoryText.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      descText.toLowerCase().includes(searchTerm.toLowerCase());
+      
     const matchesFilter = filterStatus === 'All' || a.status === filterStatus.toUpperCase();
     return matchesSearch && matchesFilter;
   });
@@ -115,7 +122,7 @@ const Assets: React.FC = () => {
         </div>
       </div>
 
-      <div className="card space-y-4 border-border/40">
+      <div className="card space-y-4 border-border/40 relative z-20">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {['All', 'Active', 'Inactive', 'Reserved'].map(t => (
