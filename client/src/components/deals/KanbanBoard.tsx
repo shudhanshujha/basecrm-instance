@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Calendar, User, ArrowRight, TrendingUp } from 'lucide-react';
+import { User, ArrowRight, TrendingUp, MoreVertical, Eye, Trash2 } from 'lucide-react';
+import api from '../../lib/axios';
+import toast from 'react-hot-toast';
 
 interface Deal {
   id: string;
@@ -15,6 +17,7 @@ interface KanbanBoardProps {
   deals: Deal[];
   onStatusChange: (id: string, newStatus: string) => void;
   onViewDetails: (id: string) => void;
+  onDealDeleted?: () => void;
 }
 
 const COLUMNS = [
@@ -24,7 +27,72 @@ const COLUMNS = [
   { id: 'WON', label: 'Won', color: 'border-accent-purple/40', dot: 'bg-accent-purple' },
 ];
 
-const KanbanBoard: React.FC<KanbanBoardProps> = ({ deals, onStatusChange, onViewDetails }) => {
+// Dropdown menu component for deal card
+const DealMenu: React.FC<{
+  deal: Deal;
+  onViewDetails: () => void;
+  onDeleted: () => void;
+}> = ({ deal, onViewDetails, onDeleted }) => {
+  const [open, setOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Delete "${deal.title}"? This cannot be undone.`)) return;
+    setDeleting(true);
+    try {
+      await api.delete(`/deals/${deal.id}`);
+      toast.success('Deal deleted');
+      onDeleted();
+    } catch {
+      toast.error('Failed to delete deal');
+    } finally {
+      setDeleting(false);
+      setOpen(false);
+    }
+  };
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={(e) => { e.stopPropagation(); setOpen(o => !o); }}
+        className="p-1 rounded-md hover:bg-white/10 text-text-muted hover:text-text-primary transition-colors"
+      >
+        <MoreVertical size={14} />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-7 z-50 bg-bg-surface border border-border rounded-xl shadow-2xl w-40 py-1 overflow-hidden">
+          <button
+            onClick={(e) => { e.stopPropagation(); setOpen(false); onViewDetails(); }}
+            className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] text-text-primary hover:bg-bg-surface-2 transition-colors"
+          >
+            <Eye size={13} className="text-accent-blue" />
+            View Details
+          </button>
+          <div className="h-px bg-border mx-2 my-0.5" />
+          <button
+            onClick={(e) => { e.stopPropagation(); handleDelete(); }}
+            disabled={deleting}
+            className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] text-danger hover:bg-danger/10 transition-colors disabled:opacity-50"
+          >
+            <Trash2 size={13} />
+            {deleting ? 'Deleting...' : 'Delete Deal'}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const KanbanBoard: React.FC<KanbanBoardProps> = ({ deals, onStatusChange, onViewDetails, onDealDeleted }) => {
   return (
     <div className="grid grid-cols-4 gap-4 min-h-[520px]">
       {COLUMNS.map((col) => {
@@ -55,9 +123,14 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ deals, onStatusChange, onView
                     className="group bg-bg-surface border border-border p-4 rounded-xl hover:border-accent-blue/30 transition-all"
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="text-[14px] font-semibold text-text-primary truncate pr-2 leading-tight">
+                      <h4 className="text-[14px] font-semibold text-text-primary truncate pr-1 leading-tight flex-1">
                         {deal.title}
                       </h4>
+                      <DealMenu
+                        deal={deal}
+                        onViewDetails={() => onViewDetails(deal.id)}
+                        onDeleted={() => onDealDeleted?.()}
+                      />
                     </div>
 
                     <div className="space-y-2">

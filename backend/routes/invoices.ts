@@ -64,7 +64,7 @@ router.post('/', async (req: any, res) => {
       totalAmount, lineItems, notes, bankDetails,
       reverseCharge, upiId, showUpiQr, showDigitalSignature, signatureUrl,
       templateId, currency, projectName, servicePeriod, billingType, projectScope,
-      logoUrl
+      logoUrl, status
     } = req.body;
 
     const templateData = {
@@ -96,7 +96,7 @@ router.post('/', async (req: any, res) => {
           totalAmount: parseFloat(totalAmount) || 0,
           notes,
           bankDetails: bankDetails ? (typeof bankDetails === 'string' ? JSON.parse(bankDetails) : bankDetails) : null,
-          status: 'PENDING',
+          status: status || 'PENDING',
           reverseCharge: reverseCharge || 'N',
           upiId: upiId || '',
           showUpiQr: showUpiQr !== undefined ? showUpiQr : true,
@@ -106,6 +106,7 @@ router.post('/', async (req: any, res) => {
           templateData
         }
       });
+
 
       if (items && Array.isArray(items)) {
         await tx.invoiceItem.createMany({
@@ -147,14 +148,13 @@ router.put('/:id', async (req: any, res) => {
     const prisma = getPrisma();
     const orgId = await getOrgId(req);
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
-
-    const { 
+     const { 
       invoiceNumber, clientId, dealId, invoiceDate, dueDate, 
       subtotal, taxableAmount, cgstAmount, sgstAmount, igstAmount, 
       totalAmount, lineItems, notes, bankDetails,
       reverseCharge, upiId, showUpiQr, showDigitalSignature, signatureUrl,
       templateId, currency, projectName, servicePeriod, billingType, projectScope,
-      logoUrl
+      logoUrl, status
     } = req.body;
 
     const templateData = {
@@ -192,7 +192,8 @@ router.put('/:id', async (req: any, res) => {
           showDigitalSignature: showDigitalSignature !== undefined ? showDigitalSignature : undefined,
           signatureUrl,
           templateId: templateId || undefined,
-          templateData
+          templateData,
+          status: status || undefined
         }
       });
 

@@ -85,6 +85,7 @@ const GstStandard: React.FC<TemplateProps> = ({ invoiceData }) => {
   const isInterState = invoiceData.gstConfig === 'INTER';
   const totalTaxAmountValue = (invoiceData.cgstTotal || 0) + (invoiceData.sgstTotal || 0) + (invoiceData.igstTotal || 0);
   const cur = invoiceData.currency || '₹';
+  const isQuo = invoiceData.status === 'QUOTATION' || (invoiceData.invoiceNumber && invoiceData.invoiceNumber.startsWith('QUO-'));
 
   const dynamic = {
     invoiceTitleBar: { backgroundColor: headerBg },
@@ -126,12 +127,12 @@ const GstStandard: React.FC<TemplateProps> = ({ invoiceData }) => {
             </View>
           </View>
 
-          <View style={[baseStyles.invoiceTitleBar, dynamic.invoiceTitleBar]}><Text>Invoice</Text></View>
+          <View style={[baseStyles.invoiceTitleBar, dynamic.invoiceTitleBar]}><Text>{isQuo ? 'Quotation' : 'Invoice'}</Text></View>
           <View style={baseStyles.metaGrid}>
             <View style={baseStyles.metaInnerRow}>
               <View style={[baseStyles.metaCol, { borderRight: '1pt solid #000000' }]}>
-                <View style={baseStyles.metaItem}><Text style={baseStyles.metaLabel}>Invoice No:</Text><Text style={baseStyles.metaValue}>{invoiceData.invoiceNumber}</Text></View>
-                <View style={baseStyles.metaItem}><Text style={baseStyles.metaLabel}>Invoice Date:</Text><Text style={baseStyles.metaValue}>{invoiceData.invoiceDate}</Text></View>
+                <View style={baseStyles.metaItem}><Text style={baseStyles.metaLabel}>{isQuo ? 'Quotation No:' : 'Invoice No:'}</Text><Text style={baseStyles.metaValue}>{invoiceData.invoiceNumber}</Text></View>
+                <View style={baseStyles.metaItem}><Text style={baseStyles.metaLabel}>{isQuo ? 'Quotation Date:' : 'Invoice Date:'}</Text><Text style={baseStyles.metaValue}>{invoiceData.invoiceDate}</Text></View>
                 <View style={baseStyles.metaItem}><Text style={baseStyles.metaLabel}>Reverse Charge:</Text><Text style={baseStyles.metaValue}>{invoiceData.reverseCharge || 'N'}</Text></View>
                 <View style={baseStyles.metaItemLast}><Text style={baseStyles.metaLabel}>State:</Text><Text style={baseStyles.metaValue}>{invoiceData.seller.state} | Code: {invoiceData.seller.stateCode}</Text></View>
               </View>
@@ -149,7 +150,7 @@ const GstStandard: React.FC<TemplateProps> = ({ invoiceData }) => {
           </View>
 
           <View style={[baseStyles.partyHeaderGrid, dynamic.partyHeaderGrid]}>
-            <Text style={[baseStyles.partyHeaderCell, { borderRight: '1pt solid #000000' }]}>Invoice to Party</Text>
+            <Text style={[baseStyles.partyHeaderCell, { borderRight: '1pt solid #000000' }]}>{isQuo ? 'Quotation to Party' : 'Invoice to Party'}</Text>
             <Text style={baseStyles.partyHeaderCell}>Ship to Party</Text>
           </View>
           <View style={baseStyles.partyDataGrid}>
@@ -216,7 +217,7 @@ const GstStandard: React.FC<TemplateProps> = ({ invoiceData }) => {
 
           <View wrap={false}>
             <View style={[baseStyles.summaryHeaderRow, dynamic.summaryHeaderRow]}>
-               <Text style={baseStyles.summaryHeaderLeft}>TOTAL INVOICE AMOUNT IN WORDS</Text>
+               <Text style={baseStyles.summaryHeaderLeft}>{isQuo ? 'TOTAL QUOTATION AMOUNT IN WORDS' : 'TOTAL INVOICE AMOUNT IN WORDS'}</Text>
                <View style={baseStyles.summaryTotalsBox}></View>
             </View>
             <View style={baseStyles.summaryDataGrid}>

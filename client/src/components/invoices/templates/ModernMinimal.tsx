@@ -68,6 +68,7 @@ const ModernMinimal: React.FC<TemplateProps> = ({ invoiceData }) => {
   const showGst = invoiceData.gstConfig !== 'NONE';
   const totalTax = (invoiceData.cgstTotal || 0) + (invoiceData.sgstTotal || 0) + (invoiceData.igstTotal || 0);
   const formatCur = (val: number) => `${cur}${val.toFixed(2)}`;
+  const isQuo = invoiceData.status === 'QUOTATION' || (invoiceData.invoiceNumber && invoiceData.invoiceNumber.startsWith('QUO-'));
 
   const d = {
     logoPlaceholder: { backgroundColor: accentColor },
@@ -102,11 +103,11 @@ const ModernMinimal: React.FC<TemplateProps> = ({ invoiceData }) => {
               </View>
               <View style={baseStyles.brandText}>
                 <Text style={baseStyles.companyName}>{invoiceData.seller.name}</Text>
-                <Text style={[baseStyles.companySub, d.companySub]}>Invoice</Text>
+                <Text style={[baseStyles.companySub, d.companySub]}>{isQuo ? 'Quotation' : 'Invoice'}</Text>
               </View>
             </View>
             <View style={baseStyles.titleGroup}>
-              <Text style={[baseStyles.invoiceTitle, d.invoiceTitle]}>INVOICE</Text>
+              <Text style={[baseStyles.invoiceTitle, d.invoiceTitle]}>{isQuo ? 'QUOTATION' : 'INVOICE'}</Text>
               <Text style={baseStyles.invoiceNumber}>{invoiceData.invoiceNumber}</Text>
             </View>
           </View>
@@ -116,7 +117,7 @@ const ModernMinimal: React.FC<TemplateProps> = ({ invoiceData }) => {
           <View style={baseStyles.grid2col}>
             <View style={baseStyles.gridCol}>
               <Text style={[baseStyles.sectionLabel, d.sectionLabel]}>Dates</Text>
-              <View style={baseStyles.metaBlock}><Text style={baseStyles.metaLabel}>Invoice Date</Text><Text style={baseStyles.metaValue}>{invoiceData.invoiceDate}</Text></View>
+              <View style={baseStyles.metaBlock}><Text style={baseStyles.metaLabel}>{isQuo ? 'Quotation Date' : 'Invoice Date'}</Text><Text style={baseStyles.metaValue}>{invoiceData.invoiceDate}</Text></View>
               <View style={baseStyles.metaBlock}><Text style={baseStyles.metaLabel}>Date of Supply</Text><Text style={baseStyles.metaValue}>{invoiceData.dateOfSupply}</Text></View>
               <View style={[baseStyles.metaBlock, { marginTop: 4 }]}><Text style={baseStyles.metaLabel}>Place</Text><Text style={baseStyles.metaValue}>{invoiceData.placeOfSupply}</Text></View>
             </View>

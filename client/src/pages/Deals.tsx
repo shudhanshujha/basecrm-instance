@@ -1,84 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
-  Plus, Search, Filter, Calendar, Box, 
-  ChevronRight, ArrowRight, Download, ArrowUp, ArrowDown,
-  Tag, Loader2, Briefcase, LayoutGrid, List as ListIcon, User
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import ExportButton from '../components/ui/ExportButton';
-import KanbanBoard from '../components/deals/KanbanBoard';
-import api from '../lib/axios';
-import { format } from 'date-fns';
-import toast from 'react-hot-toast';
-
-const Deals: React.FC = () => {
-  const navigate = useNavigate();
-  const [searchTerm, setSearchState] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('kanban');
-  const [isLoading, setIsLoading] = useState(true);
-  const [deals, setDeals] = useState<any[]>([]);
-
-  useEffect(() => {
-    fetchDeals();
-  }, []);
-
-  const fetchDeals = async () => {
-    try {
-      setIsLoading(true);
-      const res = await api.get('/deals');
-      setDeals(res.data);
-    } catch (error) {
-      console.error('Error fetching deals:', error);
-      toast.error('Failed to load deals');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const getStatusBg = (status: string) => {
-    const bgMap: any = { 
-      'ACTIVE': 'bg-success', 
-      'LEAD': 'bg-text-muted', 
-      'PROPOSAL': 'bg-accent-blue', 
-      'WON': 'bg-success',
-      'LOST': 'bg-danger',
-      'COMPLETED': 'bg-accent-blue', 
-      'CANCELLED': 'bg-danger' 
-    };
-    return bgMap[status.toUpperCase()] || 'bg-text-muted';
-  };
-
-  const filteredDeals = useMemo(() => {
-    return [...deals]
-      .filter(d => 
-        (statusFilter === 'All' || d.status.toUpperCase() === statusFilter.toUpperCase()) &&
-        ((d.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
-         (d.client?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()))
-      )
-      .sort((a, b) => {
-        const valA = a.value || 0;
-        const valB = b.value || 0;
-        if (sortOrder === 'asc') return valA - valB;
-        return valB - valA;
-      });
-  }, [deals, searchTerm, statusFilter, sortOrder]);
-
-  const updateStatus = async (id: string, newStatus: string) => {
-    try {
-      await api.put(`/deals/${id}`, { status: newStatus.toUpperCase() });
-      toast.success(`Status updated to ${newStatus}`);
-      fetchDeals();
-    } catch (error) {
-      toast.error('Failed to update status');
-    }
-import React, { useState, useMemo, useEffect } from 'react';
-import { 
-  Plus, Search, Filter, Calendar, Box, 
-  ChevronRight, ArrowRight, Download, ArrowUp, ArrowDown,
-  Tag, Loader2, Briefcase, LayoutGrid, List as ListIcon, User
+  Plus, Search, Calendar, Box, 
+  ArrowRight, ArrowUp, ArrowDown,
+  Loader2, LayoutGrid, List as ListIcon, User
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -255,7 +179,8 @@ const Deals: React.FC = () => {
             <KanbanBoard 
               deals={deals} 
               onStatusChange={updateStatus} 
-              onViewDetails={(id) => navigate(`/deals/${id}`)} 
+              onViewDetails={(id) => navigate(`/deals/${id}`)}
+              onDealDeleted={fetchDeals}
             />
           </motion.div>
         ) : (
@@ -276,6 +201,42 @@ const Deals: React.FC = () => {
                   <div className="space-y-2">
                      <div className="flex items-center gap-3">
                           <h3 className="text-[18px] font-bold text-text-primary group-hover:text-accent-blue transition-colors">{deal.title}</h3>
+                        <span className={`text-[11px] font-black uppercase px-2 py-0.5 rounded shadow-inner text-white ${getStatusBg(deal.status)}`}>
+                          {deal.status}
+                        </span>
+                     </div>
+                     <p className="text-[15px] font-medium text-text-muted flex items-center gap-2">
+                        <User size={12} className="text-accent-blue" />
+                        {deal.client?.name || 'Manual Entity'}
+                     </p>
+                  </div>
+                  <div className="text-right">
+                     <div className="text-[19px] font-black text-text-primary">₹{((deal.value || 0) / 100000).toFixed(2)}L</div>
+                     <div className="text-[12px] text-text-muted uppercase font-black tracking-widest mt-1">Contract Value</div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-8 mt-8 pt-5 border-t border-white/5">
+                   <div className="flex items-center gap-3 text-text-muted">
+                      <div className="p-1.5 bg-accent-orange/10 rounded-lg text-accent-orange"><Box size={14} /></div>
+                      <span className="text-[14px] text-text-muted">{deal.activityLogs?.length || 0} activity logs</span>
+                   </div>
+                   <div className="flex items-center gap-3 text-text-muted">
+                      <div className="p-1.5 bg-accent-blue/10 rounded-lg text-accent-blue"><Calendar size={14} /></div>
+                      <span className="text-[14px] font-black uppercase tracking-tight">
+                        {deal.startDate ? format(new Date(deal.startDate), 'dd MMM yy') : '-'} — {deal.endDate ? format(new Date(deal.endDate), 'dd MMM yy') : '-'}
+                      </span>
+                   </div>
+                   <div className="flex justify-end">
+                      <button onClick={() => navigate(`/deals/${deal.id}`)} className="text-[13px] text-text-muted hover:text-text-primary flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-lg hover:bg-bg-surface-2">
+                         View Details <ArrowRight size={13} />
+                       </button>
+                   </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );

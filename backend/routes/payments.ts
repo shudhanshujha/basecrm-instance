@@ -41,8 +41,8 @@ router.post('/clients', async (req: any, res) => {
     const { invoiceId, clientId, amount, paymentDate, paymentMode, referenceNumber, notes } = req.body;
     let internalInvoiceId = null;
     
-    // Look up invoice by number or ID
-    if (invoiceId) {
+    // Look up invoice by number or ID — OPTIONAL
+    if (invoiceId && invoiceId.trim()) {
       const invoice = await getPrisma().invoice.findFirst({
         where: { 
           orgId,
@@ -54,12 +54,10 @@ router.post('/clients', async (req: any, res) => {
       });
       if (invoice) {
         internalInvoiceId = invoice.id;
-      } else {
-        return res.status(400).json({ error: 'Invoice reference not found.' });
       }
-    } else {
-        return res.status(400).json({ error: 'Invoice reference is required.' });
+      // If invoice ref provided but not found, still allow — just record without linking
     }
+
 
     const payment = await getPrisma().payment.create({
       data: {
@@ -74,11 +72,13 @@ router.post('/clients', async (req: any, res) => {
       }
     });
     
-    // Auto-update invoice status to PAID
-    await getPrisma().invoice.update({
-      where: { id: internalInvoiceId },
-      data: { status: 'PAID' }
-    });
+    // Auto-update invoice status to PAID if linked
+    if (internalInvoiceId) {
+      await getPrisma().invoice.update({
+        where: { id: internalInvoiceId },
+        data: { status: 'PAID' }
+      });
+    }
 
     res.status(201).json(payment);
   } catch (error) {

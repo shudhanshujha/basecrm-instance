@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
   ResponsiveContainer, AreaChart, Area,
@@ -55,8 +55,9 @@ const Analytics: React.FC = () => {
   const gstReport = mainAnalytics?.gstReport;
 
   const expBreakdown = plReport ? [
-    { name: 'Vendor Payouts', value: plReport.expenses?.direct || 0, color: '#f97316' },
-    { name: 'Indirect Expenses', value: plReport.expenses?.indirect || 0, color: '#3b82f6' },
+    { name: 'Vendor Payouts', value: plReport.expenses?.vendorPayouts || 0, color: '#f97316' },
+    { name: 'Direct Costs', value: plReport.expenses?.directCosts || 0, color: '#a78bfa' },
+    { name: 'Indirect Expenses', value: plReport.expenses?.indirectCosts || 0, color: '#3b82f6' },
   ].filter(e => e.value > 0) : [];
 
   const tooltip = { contentStyle: { backgroundColor: '#181c27', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', fontSize: '13px' } };
@@ -66,9 +67,9 @@ const Analytics: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary uppercase tracking-tight">Intelligence Dashboard</h1>
-          <p className="text-[15px] text-text-muted mt-1 uppercase tracking-widest font-black">
-            Live Performance Analytics · {period === '3m' ? 'Last 3 Months' : period === '6m' ? 'Last 6 Months' : 'Last 12 Months'}
+          <h1 className="text-xl font-bold text-text-primary">Analytics</h1>
+          <p className="text-[12px] text-text-muted mt-1">
+            {period === '3m' ? 'Last 3 Months' : period === '6m' ? 'Last 6 Months' : 'Last 12 Months'}
           </p>
         </div>
         <div className="flex gap-3 items-center">
@@ -176,15 +177,15 @@ const Analytics: React.FC = () => {
           </div>
           <div className="flex-1 relative">
             {loading && <div className="absolute inset-0 flex items-center justify-center bg-bg-surface/60 z-10 rounded-xl"><Loader2 size={20} className="animate-spin text-accent-blue" /></div>}
-            {!loading && (data?.breakdown || []).length === 0 ? <EmptyChart message="No client invoice data yet" /> : (
+            {!loading && (data?.performanceMix || []).filter((m: any) => m.name !== 'No Data').length === 0 ? <EmptyChart message="No client invoice data yet" /> : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data?.breakdown || []} layout="vertical" margin={{ left: 10 }}>
+                <BarChart data={(data?.performanceMix || []).filter((m: any) => m.name !== 'No Data')} layout="vertical" margin={{ left: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(255,255,255,0.05)" />
                   <XAxis type="number" hide />
                   <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fill: '#e8eaf0', fontSize: 11, fontWeight: 'bold'}} width={90} />
                   <Tooltip {...tooltip} formatter={(v: any) => `₹${Number(v).toLocaleString('en-IN')}`} />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
-                    {(data?.breakdown || []).map((_: any, index: number) => (
+                    {(data?.performanceMix || []).filter((m: any) => m.name !== 'No Data').map((_: any, index: number) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Bar>

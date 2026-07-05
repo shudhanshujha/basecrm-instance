@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { 
   CreditCard, ArrowUpRight, ArrowDownRight, 
   Search, Filter, CheckCircle2, Clock, 
@@ -77,6 +77,7 @@ const Payments: React.FC = () => {
       if (activeTab === 'collections') {
         await api.post('/payments/clients', {
           ...data,
+          invoiceId: (data.invoiceId as string)?.trim() || null,
           amount: parseFloat(data.amount as string),
           paymentDate: new Date(data.paymentDate as string).toISOString()
         });
@@ -241,8 +242,8 @@ const Payments: React.FC = () => {
                        </select>
                     </div>
                     <div className="space-y-1.5">
-                       <label className="text-[13px] font-black text-text-muted uppercase ml-1">Reference (Invoice/PO)</label>
-                       <input name={activeTab === 'collections' ? 'invoiceId' : 'purpose'} type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] outline-none font-mono" placeholder="INV-0000" />
+                       <label className="text-[13px] font-black text-text-muted uppercase ml-1">Reference (Invoice/PO) - Optional</label>
+                       <input name={activeTab === 'collections' ? 'invoiceId' : 'purpose'} type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] outline-none font-mono" placeholder="e.g. INV-0000" />
                     </div>
                     <div className="space-y-1.5">
                        <label className="text-[13px] font-black text-text-muted uppercase ml-1">Date of Settlement</label>

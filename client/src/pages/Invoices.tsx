@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   FileText, Search, Plus, Filter, 
   ArrowRight, Download, Eye, ExternalLink,
@@ -15,6 +15,7 @@ const Invoices: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [invoices, setInvoices] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [docTypeFilter, setDocTypeFilter] = useState<'invoice' | 'quotation'>('invoice');
 
   useEffect(() => {
     fetchInvoices();
@@ -53,13 +54,18 @@ const Invoices: React.FC = () => {
     return bgMap[status?.toUpperCase()] || 'bg-text-muted';
   };
 
-  const filteredInvoices = invoices.filter(inv => 
-    (inv.invoiceNumber?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
-    (inv.client?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-  );
+  const filteredInvoices = invoices.filter(inv => {
+    const matchesSearch = (inv.invoiceNumber?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+                          (inv.client?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+    
+    const isQuotationDoc = inv.status === 'QUOTATION' || (inv.invoiceNumber && inv.invoiceNumber.startsWith('QUO-'));
+    const matchesDocType = docTypeFilter === 'quotation' ? isQuotationDoc : !isQuotationDoc;
 
-  const totalBilled = invoices.filter(i => i.status !== 'CANCELLED' && i.status !== 'DRAFT').reduce((acc, i) => acc + (i.totalAmount || 0), 0);
-  const pendingCollection = invoices.filter(i => i.status === 'PENDING' || i.status === 'OVERDUE').reduce((acc, i) => acc + (i.totalAmount || 0), 0);
+    return matchesSearch && matchesDocType;
+  });
+
+  const totalBilled = invoices.filter(i => i.status !== 'CANCELLED' && i.status !== 'DRAFT' && i.status !== 'QUOTATION' && !(i.invoiceNumber && i.invoiceNumber.startsWith('QUO-'))).reduce((acc, i) => acc + (i.totalAmount || 0), 0);
+  const pendingCollection = invoices.filter(i => (i.status === 'PENDING' || i.status === 'OVERDUE') && i.status !== 'QUOTATION' && !(i.invoiceNumber && i.invoiceNumber.startsWith('QUO-'))).reduce((acc, i) => acc + (i.totalAmount || 0), 0);
   const taxCollected = invoices.filter(i => i.status === 'PAID').reduce((acc, i) => acc + ((i.cgstAmount || 0) + (i.sgstAmount || 0) + (i.igstAmount || 0)), 0);
   const settlementRate = totalBilled > 0 ? ((totalBilled - pendingCollection) / totalBilled) * 100 : 0;
 
@@ -68,15 +74,15 @@ const Invoices: React.FC = () => {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-xl font-bold text-text-primary uppercase tracking-tight">Billing & Invoices</h1>
-          <p className="text-[14px] text-text-muted mt-1 uppercase tracking-widest font-black">Financial Invoicing · Accounts Receivable</p>
+          <p className="text-[12px] text-text-muted mt-1 uppercase tracking-wider font-semibold">Financial Invoicing · Accounts Receivable</p>
         </div>
         <div className="flex gap-2">
           <ExportButton data={invoices} filename="business_invoices" />
           <button 
-            onClick={() => navigate('/invoices/new')} 
-            className="btn-primary text-[15px] py-1.5 flex items-center gap-2 shadow-lg shadow-accent-purple/30"
+            onClick={() => navigate('/invoices/new', { state: { defaultDocMode: docTypeFilter } })} 
+            className="btn-primary text-[14px] py-1.5 flex items-center gap-2"
           >
-            <Plus size={16} /> Generate Invoice
+            <Plus size={16} /> {docTypeFilter === 'quotation' ? 'Create Quotation' : 'Generate Invoice'}
           </button>
         </div>
       </div>
@@ -100,13 +106,28 @@ const Invoices: React.FC = () => {
          </div>
       </div>
 
+      <div className="flex bg-bg-surface-2 p-1 rounded-xl border border-border w-fit">
+        <button
+          onClick={() => setDocTypeFilter('invoice')}
+          className={`px-6 py-2 rounded-lg text-[13px] font-bold uppercase tracking-wider transition-all ${docTypeFilter === 'invoice' ? 'bg-accent-blue text-white shadow-[0_0_15px_rgba(88,166,255,0.3)]' : 'text-text-muted hover:text-text-primary'}`}
+        >
+          Invoices
+        </button>
+        <button
+          onClick={() => setDocTypeFilter('quotation')}
+          className={`px-6 py-2 rounded-lg text-[13px] font-bold uppercase tracking-wider transition-all ${docTypeFilter === 'quotation' ? 'bg-accent-blue text-white shadow-[0_0_15px_rgba(88,166,255,0.3)]' : 'text-text-muted hover:text-text-primary'}`}
+        >
+          Quotations
+        </button>
+      </div>
+
       <div className="card">
         <div className="relative max-w-md">
            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={14} />
            <input 
              type="text" 
-             placeholder="Search by invoice number or client..." 
-              className="w-full bg-bg-surface-2 border border-border rounded-xl pl-9 pr-3 py-2.5 text-[15px] focus:outline-none focus:border-accent-blue transition-colors"
+             placeholder={`Search by ${docTypeFilter === 'quotation' ? 'quotation number' : 'invoice number'} or client...`} 
+              className="w-full bg-bg-surface border border-border rounded-xl pl-9 pr-3 py-2 text-[14px] focus:outline-none focus:border-accent-blue transition-colors"
              value={searchTerm}
              onChange={(e) => setSearchTerm(e.target.value)}
            />
@@ -116,8 +137,8 @@ const Invoices: React.FC = () => {
       <div className="card p-0 border-border/50 shadow-xl">
          <table className="w-full text-left border-collapse">
             <thead>
-               <tr className="bg-bg-surface-2 border-b border-border text-[13px] text-text-muted uppercase font-black tracking-widest">
-                  <th className="px-6 py-4 rounded-tl-xl">Invoice Details</th>
+               <tr className="bg-bg-surface-2 border-b border-border text-[12px] text-text-muted uppercase font-bold tracking-widest">
+                  <th className="px-6 py-4 rounded-tl-xl">{docTypeFilter === 'quotation' ? 'Quotation Details' : 'Invoice Details'}</th>
                   <th className="px-6 py-4">Associated Deal</th>
                   <th className="px-6 py-4 text-center">Status</th>
                   <th className="px-6 py-4 text-right rounded-tr-xl">Total Amount</th>

@@ -251,17 +251,35 @@ router.get('/dashboard', async (req: any, res) => {
       select: { invoiceDate: true, totalAmount: true }
     });
 
+    // Also get expenses per month for the trend chart
+    const expensesInRange = await getPrisma().expense.findMany({
+      where: { orgId, date: { gte: startDate } },
+      select: { date: true, amount: true }
+    });
+
     const monthMap: any = {};
     for (let i = months - 1; i >= 0; i--) {
       const d = subMonths(now, i);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      monthMap[key] = { name: d.toLocaleDateString('en-IN', { month: 'short' }), revenue: 0 };
+      monthMap[key] = { name: d.toLocaleDateString('en-IN', { month: 'short' }), revenue: 0, expenses: 0, profit: 0 };
     }
     invoicesInRange.forEach(inv => {
       const d = new Date(inv.invoiceDate);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
       if (monthMap[key]) monthMap[key].revenue += (inv.totalAmount || 0) / 100000;
     });
+    expensesInRange.forEach(exp => {
+      const d = new Date(exp.date);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      if (monthMap[key]) monthMap[key].expenses += (exp.amount || 0) / 100000;
+    });
+    // Derive profit
+    Object.values(monthMap).forEach((m: any) => {
+      m.profit = parseFloat((m.revenue - m.expenses).toFixed(2));
+      m.revenue = parseFloat(m.revenue.toFixed(2));
+      m.expenses = parseFloat(m.expenses.toFixed(2));
+    });
+
 
     // Performance Mix (Pie Chart Data)
     let performanceMix: any[] = [];
