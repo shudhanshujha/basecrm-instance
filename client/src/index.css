@@ -20,7 +20,7 @@
 @layer base {
   body {
     @apply bg-bg-primary text-text-primary font-sans;
-    font-size: 23px;
+    font-size: 27px;
     background-image: 
       radial-gradient(ellipse at 20% 0%, rgba(110, 142, 251, 0.04) 0%, transparent 60%),
       radial-gradient(ellipse at 80% 100%, rgba(139, 127, 232, 0.03) 0%, transparent 60%);
@@ -140,3 +140,31 @@
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
 }
+
+/* Global Font Size Scale Boost (+4px) */
+.text-xs { font-size: calc(0.75rem + 4px) !important; }
+.text-sm { font-size: calc(0.875rem + 4px) !important; }
+.text-base { font-size: calc(1rem + 4px) !important; }
+.text-lg { font-size: calc(1.125rem + 4px) !important; }
+.text-xl { font-size: calc(1.25rem + 4px) !important; }
+.text-2xl { font-size: calc(1.5rem + 4px) !important; }
+.text-3xl { font-size: calc(1.875rem + 4px) !important; }
+.text-4xl { font-size: calc(2.25rem + 4px) !important; }
+
+/* Custom tailwind arbitrary pixel class overrides (+4px) */
+.text-\[10px\] { font-size: 14px !important; }
+.text-\[11px\] { font-size: 15px !important; }
+.text-\[12px\] { font-size: 16px !important; }
+.text-\[13px\] { font-size: 17px !important; }
+.text-\[14px\] { font-size: 18px !important; }
+.text-\[15px\] { font-size: 19px !important; }
+.text-\[16px\] { font-size: 20px !important; }
+.text-\[17px\] { font-size: 21px !important; }
+.text-\[18px\] { font-size: 22px !important; }
+.text-\[20px\] { font-size: 24px !important; }
+.text-\[24px\] { font-size: 28px !important; }
+.text-\[28px\] { font-size: 32px !important; }
+.text-\[30px\] { font-size: 34px !important; }
+.text-\[32px\] { font-size: 36px !important; }
+.text-\[36px\] { font-size: 40px !important; }
+.text-\[40px\] { font-size: 44px !important; }
