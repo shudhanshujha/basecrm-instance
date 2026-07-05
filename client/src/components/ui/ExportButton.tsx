@@ -1,6 +1,6 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
-import { FileDown, FileSpreadsheet, FileText, ChevronDown, File, Calendar } from 'lucide-react';
-import { exportToCSV, exportToExcel, exportToPDF } from '../../lib/export';
+import React, { useState, useRef, useEffect } from 'react';
+import { FileDown, FileSpreadsheet, FileText, ChevronDown, Calendar } from 'lucide-react';
+import { exportToCSV, exportToExcel } from '../../lib/export';
 import { format, subDays, isAfter, startOfYear } from 'date-fns';
 
 interface ExportButtonProps {
@@ -9,6 +9,17 @@ interface ExportButtonProps {
 }
 
 type TimeRange = 'all' | '30d' | '90d' | '6m' | 'ytd';
+
+const safeFormatDate = (dateStr: any) => {
+  if (!dateStr) return 'N/A';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 'N/A';
+    return format(d, 'dd MMM yyyy');
+  } catch {
+    return 'N/A';
+  }
+};
 
 const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -62,12 +73,12 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
         flattened['NOTES'] = item.notes || '';
         flattened['TOTAL DEALS'] = item.deals?.length || 0;
         flattened['TOTAL INVOICES'] = item.invoices?.length || 0;
-        flattened['CREATED AT'] = item.createdAt ? format(new Date(item.createdAt), 'dd MMM yyyy') : 'N/A';
+        flattened['CREATED AT'] = safeFormatDate(item.createdAt);
         return flattened;
       }
 
       if (filename.includes('expense')) {
-        flattened['DATE'] = item.date ? format(new Date(item.date), 'dd MMM yyyy') : 'N/A';
+        flattened['DATE'] = safeFormatDate(item.date);
         flattened['CATEGORY'] = item.category || 'N/A';
         flattened['AMOUNT'] = item.amount || 0;
         flattened['DESCRIPTION'] = item.description || '';
@@ -78,7 +89,7 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
         flattened['CGST'] = item.cgstAmount || 0;
         flattened['SGST'] = item.sgstAmount || 0;
         flattened['IGST'] = item.igstAmount || 0;
-        flattened['CREATED AT'] = item.createdAt ? format(new Date(item.createdAt), 'dd MMM yyyy') : 'N/A';
+        flattened['CREATED AT'] = safeFormatDate(item.createdAt);
         return flattened;
       }
 
@@ -98,12 +109,12 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
         flattened['STATUS'] = item.status || 'N/A';
         flattened['NOTES'] = item.notes || '';
         flattened['TOTAL CONTRACTS'] = item.vendorContracts?.length || 0;
-        flattened['CREATED AT'] = item.createdAt ? format(new Date(item.createdAt), 'dd MMM yyyy') : 'N/A';
+        flattened['CREATED AT'] = safeFormatDate(item.createdAt);
         return flattened;
       }
 
       if (filename.includes('collection')) {
-        flattened['PAYMENT DATE'] = item.paymentDate ? format(new Date(item.paymentDate), 'dd MMM yyyy') : 'N/A';
+        flattened['PAYMENT DATE'] = safeFormatDate(item.paymentDate);
         flattened['AMOUNT'] = item.amount || 0;
         flattened['PAYMENT MODE'] = item.paymentMode || 'N/A';
         flattened['REFERENCE NO'] = item.referenceNumber || '';
@@ -118,7 +129,7 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
       }
 
       if (filename.includes('payout')) {
-        flattened['PAYMENT DATE'] = item.paymentDate ? format(new Date(item.paymentDate), 'dd MMM yyyy') : 'N/A';
+        flattened['PAYMENT DATE'] = safeFormatDate(item.paymentDate);
         flattened['AMOUNT'] = item.amount || 0;
         flattened['PAYMENT MODE'] = item.paymentMode || 'N/A';
         flattened['REFERENCE NO'] = item.referenceNumber || '';
@@ -136,7 +147,7 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
         flattened['CATEGORY'] = item.category || 'N/A';
         flattened['DESCRIPTION'] = item.description || 'N/A';
         flattened['STATUS'] = item.status || 'N/A';
-        flattened['CREATED AT'] = item.createdAt ? format(new Date(item.createdAt), 'dd MMM yyyy') : 'N/A';
+        flattened['CREATED AT'] = safeFormatDate(item.createdAt);
         return flattened;
       }
 
@@ -145,8 +156,8 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
         flattened['CLIENT NAME'] = item.client?.name || 'N/A';
         flattened['CLIENT GSTIN'] = item.client?.gstin || 'N/A';
         flattened['CLIENT STATE'] = item.client?.state || 'N/A';
-        flattened['INVOICE DATE'] = item.invoiceDate ? format(new Date(item.invoiceDate), 'dd MMM yyyy') : 'N/A';
-        flattened['DUE DATE'] = item.dueDate ? format(new Date(item.dueDate), 'dd MMM yyyy') : 'N/A';
+        flattened['INVOICE DATE'] = safeFormatDate(item.invoiceDate);
+        flattened['DUE DATE'] = safeFormatDate(item.dueDate);
         flattened['TAXABLE AMOUNT'] = item.taxableAmount || item.subtotal || 0;
         flattened['CGST RATE'] = item.cgstRate ? `${item.cgstRate}%` : (item.cgstAmount > 0 ? '9%' : '0%');
         flattened['CGST AMOUNT'] = item.cgstAmount || 0;
@@ -166,8 +177,8 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
       if (filename.includes('deal')) {
         flattened['DEAL TITLE'] = item.title || 'N/A';
         flattened['CLIENT'] = item.client?.name || 'N/A';
-        flattened['START DATE'] = item.startDate ? format(new Date(item.startDate), 'dd MMM yyyy') : 'N/A';
-        flattened['END DATE'] = item.endDate ? format(new Date(item.endDate), 'dd MMM yyyy') : 'N/A';
+        flattened['START DATE'] = safeFormatDate(item.startDate);
+        flattened['END DATE'] = safeFormatDate(item.endDate);
         flattened['VALUE'] = item.value || 0;
         flattened['STATUS'] = item.status || 'N/A';
         return flattened;
@@ -220,7 +231,7 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
     return summary;
   };
 
-  const handleExport = (type: 'csv' | 'excel' | 'pdf') => {
+  const handleExport = (type: 'csv' | 'excel') => {
     const filtered = getFilteredData();
     if (filtered.length === 0) {
       alert('No data found for the selected time range');
@@ -239,10 +250,8 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
 
     if (type === 'csv') {
       exportToCSV(options);
-    } else if (type === 'excel') {
-      exportToExcel(options);
     } else {
-      exportToPDF(options);
+      exportToExcel(options);
     }
     setIsOpen(false);
   };
@@ -293,12 +302,6 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, filename }) => {
               className="w-full flex items-center gap-3 px-4 py-2.5 text-[14px] text-text-primary hover:bg-bg-surface-2 transition-colors rounded-lg"
             >
               <FileSpreadsheet size={14} className="text-success" /> Export as Excel
-            </button>
-            <button 
-              onClick={() => handleExport('pdf')}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-[14px] text-text-primary hover:bg-bg-surface-2 transition-colors rounded-lg"
-            >
-              <File size={14} className="text-danger" /> Export as Professional PDF
             </button>
           </div>
         </div>

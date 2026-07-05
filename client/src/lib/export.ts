@@ -1,5 +1,3 @@
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 
@@ -97,54 +95,4 @@ export const exportToExcel = ({ headers, data, filename, title, orgName = 'BUSIN
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Report');
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   XLSX.writeFile(workbook, `${filename.replace(/[^a-z0-9]/gi, '_')}_${timestamp}.xlsx`);
-};
-
-export const exportToPDF = ({ headers, data, filename, title, orgName = 'BUSINESS CRM', summary }: ExportOptions) => {
-  const orientation = headers.length > 6 ? 'landscape' : 'portrait';
-  const doc = new jsPDF({ orientation });
-  
-  const pageWidth = doc.internal.pageSize.getWidth();
-  
-  // Header Branding
-  doc.setFontSize(16);
-  doc.setTextColor(249, 115, 22); // Accent Orange
-  doc.text(orgName, 14, 15);
-  
-  doc.setFontSize(14);
-  doc.setTextColor(40);
-  doc.text(title, 14, 25);
-  
-  doc.setFontSize(9);
-  doc.setTextColor(100);
-  doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 32);
-  
-  (doc as any).autoTable({
-    head: [headers],
-    body: data,
-    startY: 38,
-    theme: 'grid',
-    headStyles: { fillColor: [249, 115, 22], textColor: 255, fontStyle: 'bold' },
-    styles: { fontSize: 8, cellPadding: 2 },
-    alternateRowStyles: { fillColor: [250, 250, 250] },
-    margin: { top: 38 },
-  });
-
-  if (summary) {
-    const finalY = (doc as any).lastAutoTable.finalY || 40;
-    doc.setFontSize(10);
-    doc.setTextColor(40);
-    doc.setFont('helvetica', 'bold');
-    doc.text('REPORT SUMMARY', 14, finalY + 10);
-    
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    let offset = 18;
-    Object.entries(summary).forEach(([key, value]) => {
-      doc.text(`${key}: ${value}`, 14, finalY + offset);
-      offset += 6;
-    });
-  }
-  
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  doc.save(`${filename.replace(/[^a-z0-9]/gi, '_')}_${timestamp}.pdf`);
 };
