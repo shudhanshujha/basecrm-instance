@@ -188,64 +188,69 @@ router.get('/dashboard', async (req: any, res) => {
     const { range, breakdown } = req.query;
     const now = new Date();
     
-    // Monthly Comparison logic
-    const currMonthStart = startOfMonth(now);
-    const prevMonthStart = startOfMonth(subMonths(now, 1));
-    const prevMonthEnd = endOfMonth(subMonths(now, 1));
+    let months = range === '1y' ? 12 : range === '1m' ? 1 : range === '3m' ? 3 : 6;
+    const startDate = subMonths(now, months);
+    const prevPeriodStartDate = subMonths(startDate, months);
 
-    // 1. Revenue & Growth
-    const currRev = await getPrisma().invoice.aggregate({
-      where: { orgId, invoiceDate: { gte: currMonthStart } },
+    // 1. Revenue & Growth (Calculated for the selected period vs the previous period of same length)
+    const rangeRevAgg = await getPrisma().invoice.aggregate({
+      where: { 
+        orgId, 
+        invoiceDate: { gte: startDate },
+        status: { notIn: ['CANCELLED', 'DRAFT', 'QUOTATION'] }
+      },
       _sum: { totalAmount: true }
     });
-    const prevRev = await getPrisma().invoice.aggregate({
-      where: { orgId, invoiceDate: { gte: prevMonthStart, lte: prevMonthEnd } },
+    
+    const prevPeriodRevAgg = await getPrisma().invoice.aggregate({
+      where: { 
+        orgId, 
+        invoiceDate: { gte: prevPeriodStartDate, lt: startDate },
+        status: { notIn: ['CANCELLED', 'DRAFT', 'QUOTATION'] }
+      },
       _sum: { totalAmount: true }
     });
 
-    const revenueVal = currRev._sum.totalAmount || 0;
-    const prevRevenueVal = prevRev._sum.totalAmount || 0;
-    const revGrowth = prevRevenueVal > 0 
-      ? ((revenueVal - prevRevenueVal) / prevRevenueVal) * 100
+    const rangeRevenueVal = rangeRevAgg._sum.totalAmount || 0;
+    const prevPeriodRevenueVal = prevPeriodRevAgg._sum.totalAmount || 0;
+    const revGrowth = prevPeriodRevenueVal > 0 
+      ? ((rangeRevenueVal - prevPeriodRevenueVal) / prevPeriodRevenueVal) * 100
       : 0;
 
-    // 2. Deals
+    // 2. Deals (Active count, and new deals created in this period)
     const activeCount = await getPrisma().deal.count({
       where: { orgId, status: 'ACTIVE' }
     });
-    const newDealsThisMonth = await getPrisma().deal.count({
-      where: { orgId, createdAt: { gte: currMonthStart } }
+    const newDealsInRange = await getPrisma().deal.count({
+      where: { orgId, createdAt: { gte: startDate } }
     });
 
-    // 3. Outstanding
+    // 3. Outstanding (All outstanding receivables pending / overdue)
     const outstandingAgg = await getPrisma().invoice.aggregate({
-      where: { orgId, status: { in: ['PENDING', 'OVERDUE'] } },
+      where: { 
+        orgId, 
+        status: { in: ['PENDING', 'OVERDUE'] } 
+      },
       _sum: { totalAmount: true }
     });
     const overdueCount = await getPrisma().invoice.count({
       where: { orgId, status: 'OVERDUE' }
     });
 
-    // 4. Profitability
-    const totalExp = await getPrisma().expense.aggregate({
-      where: { orgId },
+    // 4. Profitability (Calculated within the selected range)
+    const rangeExpAgg = await getPrisma().expense.aggregate({
+      where: { orgId, date: { gte: startDate } },
       _sum: { amount: true }
     });
-    const vendorPay = await getPrisma().vendorPayment.aggregate({
-      where: { orgId },
+    const rangeVendorPayAgg = await getPrisma().vendorPayment.aggregate({
+      where: { orgId, paymentDate: { gte: startDate } },
       _sum: { amount: true }
     });
-    const totalCosts = (totalExp._sum.amount || 0) + (vendorPay._sum.amount || 0);
-    const allTimeRev = await getPrisma().invoice.aggregate({
-      where: { orgId },
-      _sum: { totalAmount: true }
-    });
-    const totalRevenue = allTimeRev._sum.totalAmount || 0;
-    const margin = totalRevenue > 0 ? ((totalRevenue - totalCosts) / totalRevenue) * 100 : 0;
+    const rangeCosts = (rangeExpAgg._sum.amount || 0) + (rangeVendorPayAgg._sum.amount || 0);
+    const rangeProfit = rangeRevenueVal - rangeCosts;
+    const margin = rangeRevenueVal > 0 ? (rangeProfit / rangeRevenueVal) * 100 : 0;
 
     // Trend Logic...
-    let months = range === '1y' ? 12 : range === '1m' ? 1 : range === '3m' ? 3 : 6;
-    const startDate = subMonths(now, months);
     const invoicesInRange = await getPrisma().invoice.findMany({
       where: { orgId, invoiceDate: { gte: startDate } },
       select: { invoiceDate: true, totalAmount: true }
@@ -286,7 +291,10 @@ router.get('/dashboard', async (req: any, res) => {
     if (breakdown === 'asset') {
       const assets = await getPrisma().asset.findMany({ where: { orgId } });
       const invoiceItems = await getPrisma().invoiceItem.findMany({
-        where: { orgId },
+        where: { 
+          orgId,
+          invoice: { status: { notIn: ['CANCELLED', 'DRAFT', 'QUOTATION'] } }
+        },
         select: { assetName: true, total: true }
       });
       const assetMap: any = {};
@@ -313,7 +321,12 @@ router.get('/dashboard', async (req: any, res) => {
       // Default: Client Breakdown
       const clients = await getPrisma().client.findMany({
         where: { orgId },
-        include: { invoices: { select: { totalAmount: true } } }
+        include: { 
+          invoices: { 
+            where: { status: { notIn: ['CANCELLED', 'DRAFT', 'QUOTATION'] } },
+            select: { totalAmount: true } 
+          } 
+        }
       });
       performanceMix = clients.map(c => ({
         name: c.name,
@@ -323,23 +336,23 @@ router.get('/dashboard', async (req: any, res) => {
 
     res.json({
       kpis: {
-        revenue: `₹${(revenueVal / 100000).toFixed(1)}L`,
-        revenueTrend: `${revGrowth >= 0 ? '↑' : '↓'} ${Math.abs(revGrowth).toFixed(1)}% vs prev month`,
+        revenue: `₹${(rangeRevenueVal / 100000).toFixed(1)}L`,
+        revenueTrend: `${revGrowth >= 0 ? '↑' : '↓'} ${Math.abs(revGrowth).toFixed(1)}% vs prev period`,
         revenueTrendType: revGrowth >= 0 ? 'up' : 'down',
         deals: activeCount.toString(),
-        dealsTrend: `↑ ${newDealsThisMonth} new this month`,
+        dealsTrend: `↑ ${newDealsInRange} new in this period`,
         dealsTrendType: 'up',
         outstanding: `₹${((outstandingAgg._sum.totalAmount || 0) / 100000).toFixed(1)}L`,
         outstandingTrend: `! ${overdueCount} overdue items`,
         outstandingTrendType: overdueCount > 0 ? 'down' : 'up',
-        profit: `₹${((totalRevenue - totalCosts) / 100000).toFixed(1)}L`,
-        profitTrend: `↑ ${margin.toFixed(1)}% gross margin`,
-        profitTrendType: margin > 40 ? 'up' : 'down'
+        profit: `₹${(rangeProfit / 100000).toFixed(1)}L`,
+        profitTrend: `↑ ${margin.toFixed(1)}% margin`,
+        profitTrendType: margin > 30 ? 'up' : 'down'
       },
       revenue: Object.values(monthMap).map((m: any) => ({ ...m, revenue: parseFloat(m.revenue.toFixed(2)) })),
       performanceMix: performanceMix.length > 0 ? performanceMix : [{ name: 'No Data', value: 1 }],
       invoices: await getPrisma().invoice.findMany({
-        where: { orgId },
+        where: { orgId, status: { notIn: ['CANCELLED', 'DRAFT', 'QUOTATION'] } },
         take: 5,
         orderBy: { invoiceDate: 'desc' },
         include: { client: true }
