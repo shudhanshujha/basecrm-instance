@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { 
   Search, Filter, Plus, Database, 
   Table, Download, Upload, Info, ExternalLink,
@@ -19,6 +19,7 @@ const Assets: React.FC = () => {
   
   const [assets, setAssets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   React.useEffect(() => {
     fetchAssets();
@@ -72,9 +73,10 @@ const Assets: React.FC = () => {
 
   const handleSaveAsset = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return; // prevent duplicate submissions
+    setIsSubmitting(true);
     const formData = new FormData(e.target as HTMLFormElement);
     const data = Object.fromEntries(formData.entries());
-    
     try {
       await api.post('/assets', {
         ...data,
@@ -83,9 +85,12 @@ const Assets: React.FC = () => {
       toast.success('Asset added successfully');
       setShowAddModal(false);
       fetchAssets();
+      (e.target as HTMLFormElement).reset();
     } catch (error) {
       console.error('Save asset error:', error);
       toast.error('Failed to save asset');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -264,9 +269,13 @@ const Assets: React.FC = () => {
                     <textarea name="description" rows={3} className="w-full bg-bg-surface-2 border border-border rounded-xl px-4 py-3 text-[16px] outline-none resize-none" placeholder="Enter asset details..."></textarea>
                  </div>
               </div>
-              <div className="p-6 border-t border-border flex justify-end gap-3 bg-bg-surface-2 rounded-b-2xl">
-                 <button type="button" onClick={() => setShowAddModal(false)} className="btn-outline px-8 py-2.5 text-[15px]">Discard</button>
-                 <button type="submit" className="px-10 py-2.5 rounded-xl text-[15px] font-black uppercase tracking-widest text-white shadow-xl bg-accent-orange shadow-accent-orange/20 transition-all">Save Asset</button>
+              <div className="p-6 border-t border-border flex justify-end gap-3">
+                 <button type="button" onClick={() => setShowAddModal(false)} className="btn-outline px-6">Cancel</button>
+                 <button type="submit" disabled={isSubmitting} className="btn-primary px-8 flex items-center gap-2 disabled:opacity-60">
+                   {isSubmitting ? (
+                     <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Saving...</>
+                   ) : 'Save Asset'}
+                 </button>
               </div>
               </form>
            </div>

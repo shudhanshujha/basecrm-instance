@@ -123,8 +123,8 @@ const Dashboard: React.FC = () => {
           <div className="flex-1 flex flex-col gap-5">
              <div className="flex bg-bg-surface-2 p-1 rounded-lg border border-border">
                 {['client', 'asset', 'deal'].map((type) => (
-                   <button 
-                     key={type} 
+                   <button
+                     key={type}
                      onClick={() => setBreakdownType(type as any)}
                      className={`flex-1 py-1.5 text-[12px] font-medium rounded-md transition-all capitalize ${breakdownType === type ? 'bg-accent-blue text-white shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
                    >
@@ -132,45 +132,66 @@ const Dashboard: React.FC = () => {
                    </button>
                 ))}
              </div>
-             <div className="h-[220px] relative">
-                <ResponsiveContainer width="100%" height="100%">
-                   <PieChart>
-                      <Pie
-                        data={stats?.performanceMix || []}
-                        innerRadius={65}
-                        outerRadius={85}
-                        paddingAngle={4}
-                        dataKey="value"
-                        stroke="none"
-                      >
-                         {(stats?.performanceMix || []).map((entry: any, index: number) => (
-                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                         ))}
-                      </Pie>
-                      <Tooltip 
-                         contentStyle={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: '10px', fontSize: '13px' }}
-                         itemStyle={{ color: 'var(--color-text-primary)' }}
-                      />
-                   </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                   <span className="text-[11px] text-text-muted capitalize">{breakdownType}</span>
-                    <span className="text-lg font-bold text-text-primary mt-0.5">{stats?.performanceMix?.length || 0}</span>
-                </div>
-             </div>
-             <div className="space-y-1.5 mt-auto overflow-y-auto max-h-[110px] pr-1">
-                {(stats?.performanceMix || []).map((item: any, idx: number) => (
-                   <div key={idx} className="flex justify-between items-center px-3 py-2 bg-bg-surface-2 rounded-lg hover:bg-border/40 transition-all">
-                      <div className="flex items-center gap-2.5">
-                         <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
-                          <span className="text-[12px] text-text-primary truncate max-w-[120px]">{item.name}</span>
-                       </div>
-                       <span className="text-[12px] text-text-muted">₹{(item.value / 100000).toFixed(1)}L</span>
+             {/* Detect backend's "No Data" placeholder */}
+             {(() => {
+               const mix = stats?.performanceMix || [];
+               const hasNoData = mix.length === 0 || (mix.length === 1 && mix[0].name === 'No Data');
+               if (hasNoData) {
+                 return (
+                   <div className="flex-1 flex flex-col items-center justify-center py-8 text-text-muted">
+                     <div className="w-16 h-16 rounded-full border-2 border-dashed border-border flex items-center justify-center mb-3">
+                       <BarChart3 size={24} className="opacity-30" />
+                     </div>
+                     <p className="text-[12px]">No {breakdownType} data yet</p>
                    </div>
-                ))}
-             </div>
+                 );
+               }
+               const realCount = mix.filter((m: any) => m.name !== 'No Data').length;
+               return (
+                 <>
+                   <div className="h-[200px] relative">
+                      <ResponsiveContainer width="100%" height="100%">
+                         <PieChart>
+                            <Pie
+                              data={mix}
+                              innerRadius={60}
+                              outerRadius={80}
+                              paddingAngle={4}
+                              dataKey="value"
+                              stroke="none"
+                            >
+                               {mix.map((entry: any, index: number) => (
+                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                               ))}
+                            </Pie>
+                            <Tooltip
+                               contentStyle={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: '10px', fontSize: '13px' }}
+                               itemStyle={{ color: 'var(--color-text-primary)' }}
+                            />
+                         </PieChart>
+                      </ResponsiveContainer>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                         <span className="text-[11px] text-text-muted capitalize">{breakdownType}s</span>
+                          <span className="text-lg font-bold text-text-primary mt-0.5">{realCount}</span>
+                      </div>
+                   </div>
+                   <div className="space-y-1.5 mt-auto overflow-y-auto max-h-[110px] pr-1">
+                      {mix.map((item: any, idx: number) => (
+                         <div key={idx} className="flex justify-between items-center px-3 py-2 bg-bg-surface-2 rounded-lg hover:bg-border/40 transition-all">
+                            <div className="flex items-center gap-2.5">
+                               <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
+                                <span className="text-[12px] text-text-primary truncate max-w-[120px]">{item.name}</span>
+                             </div>
+                             <span className="text-[12px] text-text-muted">₹{(item.value / 100000).toFixed(1)}L</span>
+                         </div>
+                      ))}
+                   </div>
+                 </>
+               );
+             })()}
           </div>
         </div>
+
       </div>
 
       <div className="card p-0 overflow-hidden">
