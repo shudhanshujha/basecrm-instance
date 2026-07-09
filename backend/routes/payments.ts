@@ -39,7 +39,7 @@ router.post('/clients', async (req: any, res) => {
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
 
     const { invoiceId, clientId, amount, paymentDate, paymentMode, referenceNumber, notes } = req.body;
-    let internalInvoiceId = null;
+    let internalInvoiceId: string | undefined = undefined;
     
     // Look up invoice by number or ID — OPTIONAL
     if (invoiceId && invoiceId.trim()) {
