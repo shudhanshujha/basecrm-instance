@@ -62,6 +62,8 @@ const ProductCompany: React.FC<TemplateProps> = ({ invoiceData }) => {
   const phoneStr = Array.isArray(invoiceData.seller.phone) ? invoiceData.seller.phone.join(', ') : invoiceData.seller.phone;
   const showGst = invoiceData.gstConfig !== 'NONE';
   const totalTax = (invoiceData.cgstTotal || 0) + (invoiceData.sgstTotal || 0) + (invoiceData.igstTotal || 0);
+  const isQuo = invoiceData.status === 'QUOTATION' || (invoiceData.invoiceNumber && invoiceData.invoiceNumber.startsWith('QUO-'));
+
   const formatCur = (val: number) => `${cur}${val.toFixed(2)}`;
 
   const d = {
@@ -100,14 +102,14 @@ const ProductCompany: React.FC<TemplateProps> = ({ invoiceData }) => {
               {invoiceData.seller.gstin && <Text style={baseStyles.companyDetail}>GSTIN: {invoiceData.seller.gstin}</Text>}
             </View>
             <View style={baseStyles.invoiceBadge}>
-              <Text style={[baseStyles.invoiceBadgeText, d.invoiceBadgeText]}>Invoice</Text>
+              <Text style={[baseStyles.invoiceBadgeText, d.invoiceBadgeText]}>{isQuo ? 'Quotation' : 'Invoice'}</Text>
               <Text style={{ fontSize: 7, color: accentColor, marginTop: 2, fontWeight: 'bold' }}>{invoiceData.invoiceNumber}</Text>
             </View>
           </View>
 
           <View style={[baseStyles.infoGrid, d.infoGrid]}>
             <View style={baseStyles.infoCol}>
-              <Text style={baseStyles.infoLabel}>Invoice Date</Text>
+              <Text style={baseStyles.infoLabel}>{isQuo ? 'Quotation Date' : 'Invoice Date'}</Text>
               <Text style={baseStyles.infoValue}>{invoiceData.invoiceDate}</Text>
               <Text style={baseStyles.infoLabel}>Place of Supply</Text>
               <Text style={baseStyles.infoValue}>{invoiceData.placeOfSupply}</Text>

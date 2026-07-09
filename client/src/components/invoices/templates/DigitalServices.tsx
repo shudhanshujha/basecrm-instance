@@ -65,6 +65,8 @@ const DigitalServices: React.FC<TemplateProps> = ({ invoiceData }) => {
   const totalTax = (invoiceData.cgstTotal || 0) + (invoiceData.sgstTotal || 0) + (invoiceData.igstTotal || 0);
   const showGst = invoiceData.gstConfig !== 'NONE';
 
+  const isQuo = invoiceData.status === 'QUOTATION' || (invoiceData.invoiceNumber && invoiceData.invoiceNumber.startsWith('QUO-'));
+
   const formatCur = (val: number) => `${cur}${val.toFixed(2)}`;
 
   const d = {
@@ -104,7 +106,7 @@ const DigitalServices: React.FC<TemplateProps> = ({ invoiceData }) => {
             </View>
             <View style={baseStyles.headerInfo}>
               <Text style={baseStyles.companyName}>{invoiceData.seller.name}</Text>
-              <Text style={[baseStyles.companyTagline, d.companyTagline]}>Digital Invoice</Text>
+              <Text style={[baseStyles.companyTagline, d.companyTagline]}>{isQuo ? 'Digital Quotation' : 'Digital Invoice'}</Text>
               <Text style={baseStyles.companyDetail}>{invoiceData.seller.address}</Text>
               <Text style={baseStyles.companyDetail}>Phone: {phoneStr} | Email: {invoiceData.seller.email}</Text>
               {invoiceData.seller.gstin && <Text style={baseStyles.companyDetail}>GSTIN: {invoiceData.seller.gstin}</Text>}
@@ -112,11 +114,11 @@ const DigitalServices: React.FC<TemplateProps> = ({ invoiceData }) => {
           </View>
 
           <View style={[baseStyles.titleRow, d.titleRow]}>
-            <Text style={[baseStyles.invoiceTitle, d.invoiceTitle]}>Invoice</Text>
+            <Text style={[baseStyles.invoiceTitle, d.invoiceTitle]}>{isQuo ? 'Quotation' : 'Invoice'}</Text>
             <View style={baseStyles.invoiceMeta}>
-              <Text style={baseStyles.metaText}>Invoice #</Text>
+              <Text style={baseStyles.metaText}>{isQuo ? 'Quotation #' : 'Invoice #'}</Text>
               <Text style={baseStyles.metaValue}>{invoiceData.invoiceNumber}</Text>
-              <Text style={[baseStyles.metaText, { marginTop: 2 }]}>Date</Text>
+              <Text style={[baseStyles.metaText, { marginTop: 2 }]}>{isQuo ? 'Quotation Date' : 'Date'}</Text>
               <Text style={baseStyles.metaValue}>{invoiceData.invoiceDate}</Text>
             </View>
           </View>

@@ -28,6 +28,8 @@ const InvoiceGenerator: React.FC = () => {
   const [formData, setFormData] = useState({
     invoiceNumber: '',
     invoiceDate: new Date().toISOString().split('T')[0],
+    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     reverseCharge: "N",
     gstConfig: 'INTRA',
     upiId: "",
@@ -148,6 +150,8 @@ const InvoiceGenerator: React.FC = () => {
           setFormData({
             invoiceNumber: inv.invoiceNumber,
             invoiceDate: new Date(inv.invoiceDate).toISOString().split('T')[0],
+            validUntil: inv.dueDate ? new Date(inv.dueDate).toISOString().split('T')[0] : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            dueDate: inv.dueDate ? new Date(inv.dueDate).toISOString().split('T')[0] : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             reverseCharge: inv.reverseCharge || 'N',
             gstConfig: inv.igstAmount > 0 ? 'INTER' : (inv.cgstAmount > 0 ? 'INTRA' : 'NONE'),
             upiId: inv.upiId || org.upiId || '',
@@ -289,6 +293,7 @@ const InvoiceGenerator: React.FC = () => {
 
   const pdfData = useMemo(() => ({
     ...formData,
+    status: docMode === 'quotation' ? 'QUOTATION' : 'PENDING',
     items: totals.items,
     subtotal: totals.taxableTotal,
     cgstTotal: totals.cgstTotal,
@@ -296,7 +301,7 @@ const InvoiceGenerator: React.FC = () => {
     igstTotal: totals.igstTotal,
     grandTotal: totals.grandTotal,
     templateId: formData.templateId
-  }), [formData, totals]);
+  }), [formData, totals, docMode]);
 
   // A lightweight key representing the current invoice state to force PDFDownloadLink to re-render and prevent caching bugs
   const downloadKey = useMemo(() => {
@@ -412,6 +417,7 @@ const InvoiceGenerator: React.FC = () => {
         clientId: selectedClientId || clients.find(c => c.name === formData.buyer.name)?.id || '',
         dealId: deals.find(d => formData.descriptionHeader.includes(d.title))?.id || null,
         invoiceDate: formData.invoiceDate ? new Date(formData.invoiceDate) : new Date(),
+        dueDate: docMode === 'quotation' && formData.validUntil ? new Date(formData.validUntil) : (formData.dueDate ? new Date(formData.dueDate) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
         lineItems: JSON.stringify(totals.items),
         subtotal: totals.taxableTotal,
         taxableAmount: totals.taxableTotal,
@@ -504,10 +510,10 @@ const InvoiceGenerator: React.FC = () => {
         <div className="w-full lg:w-1/2 overflow-y-auto p-8 border-r border-border bg-bg-primary custom-scrollbar print:hidden">
           <div className="space-y-8 max-w-2xl mx-auto pb-20">
             <div className="card space-y-6">
-              <h2 className="text-[15px] font-black text-accent-orange uppercase tracking-[2px] border-b border-border pb-3">01. Invoice Meta</h2>
+              <h2 className="text-[15px] font-black text-accent-orange uppercase tracking-[2px] border-b border-border pb-3">{docMode === 'quotation' ? '01. Quotation Meta' : '01. Invoice Meta'}</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[14px] font-black text-text-muted uppercase">Invoice Number</label>
+                  <label className="text-[14px] font-black text-text-muted uppercase">{docMode === 'quotation' ? 'Quotation Number' : 'Invoice Number'}</label>
                   <div className="flex gap-2">
                     <button
                       onClick={() => {
@@ -545,7 +551,7 @@ const InvoiceGenerator: React.FC = () => {
                   )}
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[14px] font-black text-text-muted uppercase">Invoice Date</label>
+                  <label className="text-[14px] font-black text-text-muted uppercase">{docMode === 'quotation' ? 'Quotation Date' : 'Invoice Date'}</label>
                   <input type="date" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[15px] outline-none" value={formData.invoiceDate} onChange={e => setFormData({...formData, invoiceDate: e.target.value})} />
                 </div>
               </div>
@@ -555,7 +561,7 @@ const InvoiceGenerator: React.FC = () => {
               <h2 className="text-[15px] font-black text-accent-purple uppercase tracking-[2px] border-b border-border pb-3">02. Template & Branding</h2>
               
               <div className="space-y-4">
-                <label className="text-[14px] font-black text-text-muted uppercase">Invoice Template</label>
+                <label className="text-[14px] font-black text-text-muted uppercase">{docMode === 'quotation' ? 'Quotation Template' : 'Invoice Template'}</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {(Object.entries(TEMPLATES) as [TemplateId, typeof TEMPLATES[TemplateId]][]).map(([id, tmpl]) => (
                     <button
@@ -656,9 +662,15 @@ const InvoiceGenerator: React.FC = () => {
                     {deals.map(d => <option key={d.id} value={d.id}>{d.title}</option>)}
                   </select>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-[14px] font-black text-text-muted uppercase">Buyer Name</label>
-                  <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[16px] outline-none font-bold" value={formData.buyer.name} onChange={e => setFormData({...formData, buyer: {...formData.buyer, name: e.target.value}})} />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[14px] font-black text-text-muted uppercase">Buyer Name</label>
+                    <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[16px] outline-none font-bold" value={formData.buyer.name} onChange={e => setFormData({...formData, buyer: {...formData.buyer, name: e.target.value}})} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[14px] font-black text-text-muted uppercase">GSTIN</label>
+                    <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[16px] outline-none" value={formData.buyer.gstin} onChange={e => setFormData({...formData, buyer: {...formData.buyer, gstin: e.target.value}})} placeholder="22AAAAA0000A1Z5" />
+                  </div>
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[14px] font-black text-text-muted uppercase">Billing Address</label>
@@ -712,11 +724,15 @@ const InvoiceGenerator: React.FC = () => {
                           newItems[index].rate = parseFloat(e.target.value) || 0;
                           setFormData({...formData, items: newItems});
                         }} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
             <div className="card space-y-6">
-              <h2 className="text-[15px] font-black text-accent-purple uppercase tracking-[2px] border-b border-border pb-3">02-B. Invoice Settings</h2>
+              <h2 className="text-[15px] font-black text-accent-purple uppercase tracking-[2px] border-b border-border pb-3">05. {docMode === 'quotation' ? 'Quotation' : 'Invoice'} Settings</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[14px] font-black text-text-muted uppercase">Currency</label>
@@ -736,6 +752,37 @@ const InvoiceGenerator: React.FC = () => {
                     <option value="AED">AED - UAE Dirham</option>
                   </select>
                 </div>
+                <div className="space-y-1.5">
+                  <label className="text-[14px] font-black text-text-muted uppercase">GST Config</label>
+                  <select
+                    value={formData.gstConfig}
+                    onChange={e => setFormData({...formData, gstConfig: e.target.value})}
+                    className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[16px] outline-none font-bold"
+                  >
+                    <option value="INTRA">Intra-State (CGST + SGST)</option>
+                    <option value="INTER">Inter-State (IGST)</option>
+                    <option value="NONE">No GST</option>
+                  </select>
+                </div>
+              </div>
+
+              {docMode === 'quotation' && (
+                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
+                  <div className="space-y-1.5">
+                    <label className="text-[14px] font-black text-text-muted uppercase">Valid Until</label>
+                    <input type="date" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[16px] outline-none" value={formData.validUntil} onChange={e => setFormData({...formData, validUntil: e.target.value})} />
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-1.5 pt-2 border-t border-border">
+                <label className="text-[14px] font-black text-text-muted uppercase">Description / Notes</label>
+                <textarea rows={2} className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[15px] outline-none" value={formData.descriptionHeader} onChange={e => setFormData({...formData, descriptionHeader: e.target.value})} placeholder="Service/Product Delivery Details" />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[14px] font-black text-text-muted uppercase">Terms & Conditions</label>
+                <textarea rows={3} className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[15px] outline-none" value={formData.terms} onChange={e => setFormData({...formData, terms: e.target.value})} />
               </div>
 
               {formData.templateId === 'digital-services' && (
@@ -773,13 +820,48 @@ const InvoiceGenerator: React.FC = () => {
                 </div>
               )}
             </div>
+
+            {docMode === 'invoice' && (
+              <div className="card space-y-6">
+                <h2 className="text-[15px] font-black text-accent-orange uppercase tracking-[2px] border-b border-border pb-3">06. Supply Details</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[14px] font-black text-text-muted uppercase">Date of Supply</label>
+                    <input type="date" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[16px] outline-none" value={formData.dateOfSupply} onChange={e => setFormData({...formData, dateOfSupply: e.target.value})} />
                   </div>
-                ))}
+                  <div className="space-y-1.5">
+                    <label className="text-[14px] font-black text-text-muted uppercase">Place of Supply</label>
+                    <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[16px] outline-none" value={formData.placeOfSupply} onChange={e => setFormData({...formData, placeOfSupply: e.target.value})} placeholder="HARYANA (06)" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[14px] font-black text-text-muted uppercase">Transport Mode</label>
+                    <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[16px] outline-none" value={formData.transportMode} onChange={e => setFormData({...formData, transportMode: e.target.value})} placeholder="Road / Air / Rail" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[14px] font-black text-text-muted uppercase">Vehicle Number</label>
+                    <input type="text" className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[16px] outline-none" value={formData.vehicleNumber} onChange={e => setFormData({...formData, vehicleNumber: e.target.value})} placeholder="HR-01-AB-1234" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[14px] font-black text-text-muted uppercase">Reverse Charge</label>
+                    <select
+                      value={formData.reverseCharge}
+                      onChange={e => setFormData({...formData, reverseCharge: e.target.value})}
+                      className="w-full bg-bg-surface-2 border border-border rounded-xl px-3 py-2 text-[16px] outline-none font-bold"
+                    >
+                      <option value="N">No</option>
+                      <option value="Y">Yes</option>
+                    </select>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="card space-y-6">
-              <h2 className="text-[15px] font-black text-accent-orange uppercase tracking-[2px] border-b border-border pb-3">05. Payment & UPI QR</h2>
+              <h2 className="text-[15px] font-black text-accent-orange uppercase tracking-[2px] border-b border-border pb-3">0{docMode === 'invoice' ? '7' : '6'}. Payment Details</h2>
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[14px] font-black text-text-muted uppercase">UPI ID (for QR)</label>
@@ -793,17 +875,29 @@ const InvoiceGenerator: React.FC = () => {
                     <div className="space-y-2 text-[14px]">
                       <p className="font-bold text-text-primary">Scan to Pay</p>
                       <p className="text-text-muted">UPI: {formData.upiId}</p>
-                      <p className="text-text-muted">Amount: ₹{totals.grandTotal.toFixed(2)}</p>
+                      <p className="text-text-muted">Amount: {formData.currency || '₹'}{totals.grandTotal.toFixed(2)}</p>
                       <button
                         onClick={() => setFormData({...formData, showUpiQr: !formData.showUpiQr})}
                         className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[13px] font-black uppercase tracking-widest transition-all ${formData.showUpiQr ? 'bg-success/10 text-success' : 'bg-bg-surface text-text-muted'}`}
                       >
                         {formData.showUpiQr ? <Eye size={14} /> : <EyeOff size={14} />}
-                        {formData.showUpiQr ? 'Show on Invoice' : 'Hidden on Invoice'}
+                        {formData.showUpiQr ? `Show on ${docMode === 'quotation' ? 'Quotation' : 'Document'}` : `Hidden on ${docMode === 'quotation' ? 'Quotation' : 'Document'}`}
                       </button>
                     </div>
                   </div>
                 )}
+                <div className="flex items-center gap-4 pt-2 border-t border-border">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="showDigitalSignature"
+                      checked={formData.showDigitalSignature}
+                      onChange={e => setFormData({...formData, showDigitalSignature: e.target.checked})}
+                      className="w-4 h-4 rounded border-border accent-accent-purple"
+                    />
+                    <label htmlFor="showDigitalSignature" className="text-[13px] font-bold text-text-muted uppercase tracking-wider">Digital Signature</label>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

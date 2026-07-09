@@ -70,6 +70,9 @@ export interface TemplateProps {
       headerStyle?: 'centered' | 'left-aligned' | 'split';
       [key: string]: any;
     };
+    status?: string;
+    currency?: string;
+    terms?: string;
     [key: string]: any;
   };
 }

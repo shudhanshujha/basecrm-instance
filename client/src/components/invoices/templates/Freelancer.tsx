@@ -60,6 +60,8 @@ const Freelancer: React.FC<TemplateProps> = ({ invoiceData }) => {
   const lightBg = getLightBg(accentColor);
   const cur = invoiceData.currency || '$';
   const phoneStr = Array.isArray(invoiceData.seller.phone) ? invoiceData.seller.phone.join(', ') : invoiceData.seller.phone;
+  const isQuo = invoiceData.status === 'QUOTATION' || (invoiceData.invoiceNumber && invoiceData.invoiceNumber.startsWith('QUO-'));
+
   const formatCur = (val: number) => `${cur}${val.toFixed(2)}`;
 
   const d = {
@@ -97,11 +99,11 @@ const Freelancer: React.FC<TemplateProps> = ({ invoiceData }) => {
               </View>
               <View style={baseStyles.nameGroup}>
                 <Text style={baseStyles.freelancerName}>{invoiceData.seller.name}</Text>
-                <Text style={[baseStyles.freelancerTag, d.freelancerTag]}>Independent Consultant</Text>
+                <Text style={[baseStyles.freelancerTag, d.freelancerTag]}>{isQuo ? 'Quotation' : 'Independent Consultant'}</Text>
               </View>
             </View>
             <View style={baseStyles.rightInvoice}>
-              <Text style={[baseStyles.invoiceTitle, d.invoiceTitle]}>Invoice</Text>
+              <Text style={[baseStyles.invoiceTitle, d.invoiceTitle]}>{isQuo ? 'Quotation' : 'Invoice'}</Text>
               <Text style={baseStyles.invoiceNum}>{invoiceData.invoiceNumber}</Text>
             </View>
           </View>
@@ -176,7 +178,7 @@ const Freelancer: React.FC<TemplateProps> = ({ invoiceData }) => {
           </View>
 
           <View style={[baseStyles.wordsBox, d.wordsBox]}>
-            <Text style={[baseStyles.wordsLabel, d.wordsLabel]}>In Words:</Text>
+            <Text style={[baseStyles.wordsLabel, d.wordsLabel]}>{isQuo ? 'Quotation Amount:' : 'In Words:'}</Text>
             <Text style={baseStyles.wordsText}>{formatCur(invoiceData.grandTotal)}</Text>
           </View>
 

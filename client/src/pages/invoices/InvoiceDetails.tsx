@@ -36,7 +36,8 @@ const InvoiceDetails: React.FC = () => {
     return <div className="text-center py-20 text-text-muted">Invoice not found</div>;
   }
 
-  // Dynamically map all database fields returned from backend (including the relations, items, and company metadata)
+  const isQuo = invoice.status === 'QUOTATION' || (invoice.invoiceNumber && invoice.invoiceNumber.startsWith('QUO-'));
+
   const formattedInvoiceData = {
     invoiceNumber: invoice.invoiceNumber,
     invoiceDate: new Date(invoice.invoiceDate).toISOString().split('T')[0],
@@ -113,7 +114,10 @@ const InvoiceDetails: React.FC = () => {
     cgstTotal: invoice.cgstAmount || 0,
     sgstTotal: invoice.sgstAmount || 0,
     igstTotal: invoice.igstAmount || 0,
-    grandTotal: invoice.totalAmount || 0
+    grandTotal: invoice.totalAmount || 0,
+    status: invoice.status || (isQuo ? 'QUOTATION' : 'PENDING'),
+    currency: invoice.currency || '₹',
+    terms: invoice.paymentTerms || ''
   };
 
   return (
@@ -124,7 +128,7 @@ const InvoiceDetails: React.FC = () => {
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-text-primary">Invoice {invoice.invoiceNumber}</h1>
+            <h1 className="text-xl font-bold text-text-primary">{isQuo ? 'Quotation' : 'Invoice'} {invoice.invoiceNumber}</h1>
             <p className="text-[14px] text-text-muted mt-1 uppercase tracking-widest font-black">
               {invoice.client?.name} · {invoice.status}
             </p>
@@ -136,7 +140,7 @@ const InvoiceDetails: React.FC = () => {
              className="bg-bg-surface-2 border border-border text-text-primary px-4 py-1.5 rounded-lg font-black text-[15px] uppercase tracking-widest hover:border-accent-orange transition-all flex items-center gap-2"
            >
              <Pencil size={16} />
-             Edit Invoice
+              {isQuo ? 'Edit Quotation' : 'Edit Invoice'}
            </button>
            <PDFDownloadLink 
              document={<FiscalInvoice invoiceData={formattedInvoiceData} />} 
