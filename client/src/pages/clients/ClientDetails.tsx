@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Mail, Phone, MapPin, 
@@ -22,6 +22,7 @@ const ClientDetails: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [timeline, setTimeline] = useState<any[]>([]);
+  const isSubmittingRef = useRef(false);
 
   const [fileRefreshTrigger, setFileRefreshTrigger] = useState(0);
   const [client, setClient] = useState<any>({
@@ -58,6 +59,8 @@ const ClientDetails: React.FC = () => {
   };
 
   const handleSave = async () => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     try {
       await api.put(`/clients/${id}`, {
         name: client.name,
@@ -73,6 +76,8 @@ const ClientDetails: React.FC = () => {
       const msg = error?.response?.data?.error || error?.message || 'Unknown error';
       console.error('Failed to update client:', msg);
       toast.error(`Failed to save changes: ${msg}`);
+    } finally {
+      isSubmittingRef.current = false;
     }
   };
 

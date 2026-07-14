@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, TrendingDown, Users, 
   Box, CreditCard, ArrowRight,
-  Plus, Calendar, BarChart3, Loader2, Target, Activity, FileText
+  Plus, Calendar, BarChart3, Loader2, Target, Activity, FileText, RefreshCw
 } from 'lucide-react';
 import KPICard from '../components/ui/KPICard';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import api from '../lib/axios';
 import { 
   BarChart, Bar, XAxis, YAxis, 
@@ -31,8 +32,10 @@ const Dashboard: React.FC = () => {
         params: { range: period, breakdown: breakdownType } 
       });
       setStats(res.data);
-    } catch (error) {
-      console.error('Error fetching dashboard:', error);
+    } catch (error: any) {
+      const msg = error?.response?.data?.error || error?.message || 'Connection failed';
+      console.error('Dashboard fetch error:', msg);
+      toast.error(`Dashboard sync failed: ${msg}`);
     } finally {
       setIsLoading(false);
     }
@@ -62,6 +65,9 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         <div className="flex gap-3">
+          <button onClick={fetchDashboardStats} className="btn-outline flex items-center gap-2 px-3 py-1.5 text-[13px]">
+            <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} /> Refresh
+          </button>
           <button onClick={() => navigate('/deals/new')} className="btn-primary flex items-center gap-2">
             <Plus size={14} /> New Deal
           </button>
