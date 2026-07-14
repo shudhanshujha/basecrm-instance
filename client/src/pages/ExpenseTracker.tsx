@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import api from '../lib/axios';
 import { 
   Plus, Search, Filter, Calendar, CreditCard, 
@@ -23,17 +23,21 @@ const Expenses = () => {
   });
 
   useEffect(() => {
-    fetchExpenses();
+    const ac = new AbortController();
+    fetchExpenses(ac.signal);
+    return () => ac.abort();
   }, []);
 
-  async function fetchExpenses() {
+  async function fetchExpenses(signal?: AbortSignal) {
     try {
       setIsLoading(true);
-      const res = await api.get('/expenses');
+      const res = await api.get('/expenses', { signal });
       setExpenses(res.data);
-    } catch (e) {
-      console.error(e);
-      toast.error('Failed to load expenses');
+    } catch (e: any) {
+      if (e?.name !== 'CanceledError') {
+        console.error(e);
+        toast.error('Failed to load expenses');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -64,9 +68,11 @@ const Expenses = () => {
     }
   };
 
-  const filteredExpenses = expenses.filter(ex => 
-    ex.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ex.category?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredExpenses = useMemo(() =>
+    expenses.filter(ex => 
+      ex.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ex.category?.toLowerCase().includes(searchTerm.toLowerCase())
+    ), [expenses, searchTerm]
   );
 
   return (

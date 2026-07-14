@@ -1,19 +1,11 @@
 import { Router } from 'express';
 import { getPrisma } from '../prismaClient.js';
 import { authMiddleware } from '../middleware/auth.js';
+import { getOrgId } from '../middleware/org.js';
 
 const router = Router();
 
 router.use(authMiddleware);
-
-const getOrgId = async (req: any) => {
-  if (req.user.orgId) return req.user.orgId;
-  if (req.user.id === 'bypass-admin') return 'bypass-org';
-  const profile = await getPrisma().profile.findUnique({
-    where: { id: req.user.id }
-  });
-  return profile?.orgId;
-};
 
 router.get('/', async (req: any, res) => {
   try {
@@ -22,12 +14,26 @@ router.get('/', async (req: any, res) => {
 
     const notifications: any[] = [];
     const now = new Date();
+    const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
     
-    // 1. Overdue invoices
-    const overdueInvoices = await getPrisma().invoice.findMany({
-      where: { orgId, status: 'OVERDUE' },
-      include: { client: true }
-    });
+    const [overdueInvoices, endingDeals, recentPayments, taskReminders] = await Promise.all([
+      getPrisma().invoice.findMany({
+        where: { orgId, status: 'OVERDUE' },
+        include: { client: true }
+      }),
+      getPrisma().deal.findMany({
+        where: { orgId, status: 'ACTIVE', endDate: { gte: now, lte: nextWeek } }
+      }),
+      getPrisma().payment.findMany({
+        where: { orgId, paymentDate: { gte: threeDaysAgo } },
+        include: { client: true }
+      }),
+      getPrisma().task.findMany({
+        where: { orgId, status: { notIn: ['COMPLETED', 'CANCELLED'] }, reminderAt: { lte: now } }
+      })
+    ]);
+    
     overdueInvoices.forEach(inv => {
       notifications.push({
         id: `inv-${inv.id}`,
@@ -38,16 +44,6 @@ router.get('/', async (req: any, res) => {
       });
     });
 
-    // 2. Deals ending soon
-    const nextWeek = new Date();
-    nextWeek.setDate(now.getDate() + 7);
-    const endingDeals = await getPrisma().deal.findMany({
-      where: { 
-        orgId,
-        status: 'ACTIVE',
-        endDate: { gte: now, lte: nextWeek }
-      }
-    });
     endingDeals.forEach(deal => {
       const daysLeft = Math.ceil((deal.endDate.getTime() - now.getTime()) / (1000 * 3600 * 24));
       notifications.push({
@@ -59,13 +55,6 @@ router.get('/', async (req: any, res) => {
       });
     });
 
-    // 3. Recent payments
-    const threeDaysAgo = new Date();
-    threeDaysAgo.setDate(now.getDate() - 3);
-    const recentPayments = await getPrisma().payment.findMany({
-      where: { orgId, paymentDate: { gte: threeDaysAgo } },
-      include: { client: true }
-    });
     recentPayments.forEach(pay => {
       notifications.push({
         id: `pay-${pay.id}`,
@@ -76,14 +65,6 @@ router.get('/', async (req: any, res) => {
       });
     });
 
-    // 4. Task Reminders
-    const taskReminders = await getPrisma().task.findMany({
-      where: {
-        orgId,
-        status: { notIn: ['COMPLETED', 'CANCELLED'] },
-        reminderAt: { lte: now }
-      }
-    });
     taskReminders.forEach(task => {
       notifications.push({
         id: `task-${task.id}`,

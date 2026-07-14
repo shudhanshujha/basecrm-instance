@@ -22,20 +22,25 @@ const Dashboard: React.FC = () => {
   const [breakdownType, setBreakdownType] = useState<'client' | 'deal' | 'asset'>('client');
 
   useEffect(() => {
-    fetchDashboardStats();
+    const ac = new AbortController();
+    fetchDashboardStats(ac.signal);
+    return () => ac.abort();
   }, [period, breakdownType]);
 
-  const fetchDashboardStats = async () => {
+  const fetchDashboardStats = async (signal?: AbortSignal) => {
     try {
       setIsLoading(true);
       const res = await api.get('/analytics/dashboard', { 
-        params: { range: period, breakdown: breakdownType } 
+        params: { range: period, breakdown: breakdownType },
+        signal
       });
       setStats(res.data);
     } catch (error: any) {
-      const msg = error?.response?.data?.error || error?.message || 'Connection failed';
-      console.error('Dashboard fetch error:', msg);
-      toast.error(`Dashboard sync failed: ${msg}`);
+      if (error?.name !== 'CanceledError') {
+        const msg = error?.response?.data?.error || error?.message || 'Connection failed';
+        console.error('Dashboard fetch error:', msg);
+        toast.error(`Dashboard sync failed: ${msg}`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -65,7 +70,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         <div className="flex gap-3">
-          <button onClick={fetchDashboardStats} className="btn-outline flex items-center gap-2 px-3 py-1.5 text-[13px]">
+          <button onClick={() => fetchDashboardStats()} className="btn-outline flex items-center gap-2 px-3 py-1.5 text-[13px]">
             <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} /> Refresh
           </button>
           <button onClick={() => navigate('/deals/new')} className="btn-primary flex items-center gap-2">

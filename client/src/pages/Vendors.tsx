@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Plus, Search, Phone, Mail, MapPin, 
   ArrowRight, X, ExternalLink, ShieldCheck,
@@ -191,16 +191,18 @@ const Vendors: React.FC = () => {
   });
 
   useEffect(() => {
-    fetchVendors();
+    const ac = new AbortController();
+    fetchVendors(ac.signal);
+    return () => ac.abort();
   }, []);
 
-  const fetchVendors = async () => {
+  const fetchVendors = async (signal?: AbortSignal) => {
     try {
       setIsLoading(true);
-      const res = await api.get('/vendors');
+      const res = await api.get('/vendors', { signal });
       setVendors(res.data);
-    } catch (error) {
-      toast.error('Failed to load vendors');
+    } catch (error: any) {
+      if (error?.name !== 'CanceledError') toast.error('Failed to load vendors');
     } finally {
       setIsLoading(false);
     }
@@ -274,9 +276,11 @@ const Vendors: React.FC = () => {
     setShowAddModal(true);
   };
 
-  const filteredVendors = vendors.filter(v => 
-    (v.vendorName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (v.vendorType?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  const filteredVendors = useMemo(() =>
+    vendors.filter(v => 
+      (v.vendorName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (v.vendorType?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    ), [vendors, searchTerm]
   );
 
   return (

@@ -48,16 +48,19 @@ const Settings: React.FC = () => {
   const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
-    fetchInitialData();
+    const ac = new AbortController();
+    fetchInitialData(ac.signal);
+    return () => ac.abort();
   }, []);
 
-  const fetchInitialData = async () => {
+  const fetchInitialData = async (signal?: AbortSignal) => {
     try {
-      const res = await api.get('/auth/me');
+      const res = await api.get('/auth/me', { signal });
       if (res.data.organization) {
           setOrg(res.data.organization);
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.name === 'CanceledError') return;
       console.error('Failed to fetch profile');
     }
   };

@@ -24,17 +24,21 @@ const AssetDetails: React.FC = () => {
   });
 
   useEffect(() => {
-    fetchAsset();
+    const ac = new AbortController();
+    fetchAsset(ac.signal);
+    return () => ac.abort();
   }, [id]);
 
-  const fetchAsset = async () => {
+  const fetchAsset = async (signal?: AbortSignal) => {
     try {
       setLoading(true);
-      const res = await api.get(`/assets/${id}`);
+      const res = await api.get(`/assets/${id}`, { signal });
       setAsset(res.data);
-    } catch (error) {
-      console.error('Failed to fetch asset:', error);
-      toast.error('Failed to load asset information.');
+    } catch (error: any) {
+      if (error?.name !== 'CanceledError') {
+        console.error('Failed to fetch asset:', error);
+        toast.error('Failed to load asset information.');
+      }
     } finally {
       setLoading(false);
     }

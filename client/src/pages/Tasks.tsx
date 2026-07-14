@@ -64,19 +64,23 @@ const Tasks: React.FC = () => {
   });
 
   useEffect(() => {
-    fetchTasks();
+    const ac = new AbortController();
+    fetchTasks(ac.signal);
+    return () => ac.abort();
   }, [currentDate]);
 
-  const fetchTasks = async () => {
+  const fetchTasks = async (signal?: AbortSignal) => {
     try {
       setIsLoading(true);
       const m = currentDate.getMonth() + 1;
       const y = currentDate.getFullYear();
-      const res = await api.get('/tasks', { params: { month: m, year: y } });
+      const res = await api.get('/tasks', { params: { month: m, year: y }, signal });
       setTasks(res.data);
-    } catch (error) {
-      console.error('Error fetching tasks:', error);
-      toast.error('Failed to load tasks');
+    } catch (error: any) {
+      if (error?.name !== 'CanceledError') {
+        console.error('Error fetching tasks:', error);
+        toast.error('Failed to load tasks');
+      }
     } finally {
       setIsLoading(false);
     }

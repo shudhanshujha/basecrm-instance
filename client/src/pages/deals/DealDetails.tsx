@@ -26,18 +26,20 @@ const DealDetails: React.FC = () => {
   const [newMilestone, setNewMilestone] = useState({ label: '', date: '', status: 'upcoming' });
 
   useEffect(() => {
-    fetchDeal();
+    const ac = new AbortController();
+    fetchDeal(ac.signal);
+    return () => ac.abort();
   }, [id]);
 
-  const fetchDeal = async () => {
+  const fetchDeal = async (signal?: AbortSignal) => {
     try {
       setIsLoading(true);
-      const res = await api.get(`/deals/${id}`);
+      const res = await api.get(`/deals/${id}`, { signal });
       setDeal(res.data);
       setDealNotes(res.data.notes || '');
       setMilestones(JSON.parse(res.data.milestones || '[]'));
-    } catch (error) {
-      toast.error('Failed to load deal');
+    } catch (error: any) {
+      if (error?.name !== 'CanceledError') toast.error('Failed to load deal');
     } finally {
       setIsLoading(false);
     }

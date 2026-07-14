@@ -1,20 +1,12 @@
 import { Router } from 'express';
 import { getPrisma } from '../prismaClient.js';
 import { authMiddleware } from '../middleware/auth.js';
+import { getOrgId } from '../middleware/org.js';
 
 const router = Router();
 
 // Apply auth middleware
 router.use(authMiddleware);
-
-// Helper to get org_id
-const getOrgId = async (req: any) => {
-  if (req.user.id === 'bypass-admin') return 'bypass-org';
-  const profile = await getPrisma().profile.findUnique({
-    where: { id: req.user.id }
-  });
-  return profile?.orgId;
-};
 
 // Get all invoices
 router.get('/', async (req: any, res) => {
@@ -271,7 +263,7 @@ router.put('/:id/status', async (req: any, res) => {
 
     const invoice = await getPrisma().invoice.update({
       where: { id, orgId },
-      data: { status: status.toUpperCase() }
+      data: { status: status?.toUpperCase?.() || status }
     });
     res.json(invoice);
   } catch (error) {

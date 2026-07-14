@@ -1,20 +1,12 @@
 import { Router } from 'express';
 import { getPrisma } from '../prismaClient.js';
 import { authMiddleware } from '../middleware/auth.js';
+import { getOrgId } from '../middleware/org.js';
 
 const router = Router();
 
 // Apply auth middleware
 router.use(authMiddleware);
-
-// Helper to get org_id
-const getOrgId = async (req: any) => {
-  if (req.user.id === 'bypass-admin') return 'bypass-org';
-  const profile = await getPrisma().profile.findUnique({
-    where: { id: req.user.id }
-  });
-  return profile?.orgId;
-};
 
 // --- Client Payments (Collections) ---
 router.get('/clients', async (req: any, res) => {
@@ -72,12 +64,27 @@ router.post('/clients', async (req: any, res) => {
       }
     });
     
-    // Auto-update invoice status to PAID if linked
+    // Auto-update invoice status — only mark PAID if total payments >= invoice total
     if (internalInvoiceId) {
-      await getPrisma().invoice.update({
+      const inv = await getPrisma().invoice.findUnique({
         where: { id: internalInvoiceId },
-        data: { status: 'PAID' }
+        include: { payments: true }
       });
+      if (inv) {
+        const totalPaid = inv.payments.reduce((sum, p) => sum + Number(p.amount), 0) + Number(amount);
+        const invoiceTotal = Number(inv.totalAmount);
+        if (totalPaid >= invoiceTotal) {
+          await getPrisma().invoice.update({
+            where: { id: internalInvoiceId },
+            data: { status: 'PAID' }
+          });
+        } else {
+          await getPrisma().invoice.update({
+            where: { id: internalInvoiceId },
+            data: { status: 'PARTIAL' }
+          });
+        }
+      }
     }
 
     res.status(201).json(payment);

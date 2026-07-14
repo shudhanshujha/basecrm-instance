@@ -2,21 +2,12 @@ import { Router } from 'express';
 import { getPrisma } from '../prismaClient.js';
 import { subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { authMiddleware } from '../middleware/auth.js';
+import { getOrgId } from '../middleware/org.js';
 
 const router = Router();
 
 // Apply auth middleware
 router.use(authMiddleware);
-
-// Helper to get org_id
-const getOrgId = async (req: any) => {
-  if (req.user.orgId) return req.user.orgId;
-  if (req.user.id === 'bypass-admin') return 'bypass-org';
-  const profile = await getPrisma().profile.findUnique({
-    where: { id: req.user.id }
-  });
-  return profile?.orgId;
-};
 
 router.get('/', async (req: any, res) => {
   try {

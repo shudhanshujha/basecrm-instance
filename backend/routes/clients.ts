@@ -1,21 +1,12 @@
 import { Router } from 'express';
 import { getPrisma } from '../prismaClient.js';
 import { authMiddleware } from '../middleware/auth.js';
+import { getOrgId } from '../middleware/org.js';
 
 const router = Router();
 
 // Apply auth middleware to all routes
 router.use(authMiddleware);
-
-// Helper to get org_id
-const getOrgId = async (req: any) => {
-  if (req.user.orgId) return req.user.orgId;
-  if (req.user.id === 'bypass-admin') return 'bypass-org';
-  const profile = await getPrisma().profile.findUnique({
-    where: { id: req.user.id }
-  });
-  return profile?.orgId;
-};
 
 // Get client timeline (history of deals, invoices, payments)
 router.get('/:id/timeline', async (req, res) => {
@@ -141,16 +132,16 @@ router.delete('/:id', async (req, res) => {
       // Delete quotations
       await tx.quotation.deleteMany({ where: { clientId: id } });
 
-      // Get all deals for this client
-      const deals = await tx.deal.findMany({ where: { clientId: id }, select: { id: true } });
-      for (const deal of deals) {
-        // Delete files linked to activity logs
-        const logs = await tx.activityLog.findMany({ where: { dealId: deal.id }, select: { id: true } });
-        for (const log of logs) {
-          await tx.file.deleteMany({ where: { activityLogId: log.id } });
-        }
-        await tx.activityLog.deleteMany({ where: { dealId: deal.id } });
-        await tx.file.deleteMany({ where: { dealId: deal.id } });
+      // Get all deal IDs for this client
+      const dealIds = (await tx.deal.findMany({ where: { clientId: id }, select: { id: true } })).map(d => d.id);
+      // Delete files linked to activity logs for all deals
+      const logIds = dealIds.length > 0
+        ? (await tx.activityLog.findMany({ where: { dealId: { in: dealIds } }, select: { id: true } })).map(l => l.id)
+        : [];
+      if (logIds.length > 0) await tx.file.deleteMany({ where: { activityLogId: { in: logIds } } });
+      if (dealIds.length > 0) {
+        await tx.activityLog.deleteMany({ where: { dealId: { in: dealIds } } });
+        await tx.file.deleteMany({ where: { dealId: { in: dealIds } } });
       }
 
       // Get all invoices for this client and delete their items and payments

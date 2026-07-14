@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   FileText, Search, Plus, Filter, 
   ArrowRight, Download, Eye, ExternalLink,
@@ -18,16 +18,18 @@ const Invoices: React.FC = () => {
   const [docTypeFilter, setDocTypeFilter] = useState<'invoice' | 'quotation'>('invoice');
 
   useEffect(() => {
-    fetchInvoices();
+    const ac = new AbortController();
+    fetchInvoices(ac.signal);
+    return () => ac.abort();
   }, []);
 
-  const fetchInvoices = async () => {
+  const fetchInvoices = async (signal?: AbortSignal) => {
     try {
       setIsLoading(true);
-      const res = await api.get('/invoices');
+      const res = await api.get('/invoices', { signal });
       setInvoices(res.data);
-    } catch (error) {
-      toast.error('Failed to load invoices');
+    } catch (error: any) {
+      if (error?.name !== 'CanceledError') toast.error('Failed to load invoices');
     } finally {
       setIsLoading(false);
     }
@@ -54,15 +56,17 @@ const Invoices: React.FC = () => {
     return bgMap[status?.toUpperCase()] || 'bg-text-muted';
   };
 
-  const filteredInvoices = invoices.filter(inv => {
-    const matchesSearch = (inv.invoiceNumber?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
-                          (inv.client?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
-    
-    const isQuotationDoc = inv.status === 'QUOTATION' || (inv.invoiceNumber && inv.invoiceNumber.startsWith('QUO-'));
-    const matchesDocType = docTypeFilter === 'quotation' ? isQuotationDoc : !isQuotationDoc;
+  const filteredInvoices = useMemo(() =>
+    invoices.filter(inv => {
+      const matchesSearch = (inv.invoiceNumber?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+                            (inv.client?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+      
+      const isQuotationDoc = inv.status === 'QUOTATION' || (inv.invoiceNumber && inv.invoiceNumber.startsWith('QUO-'));
+      const matchesDocType = docTypeFilter === 'quotation' ? isQuotationDoc : !isQuotationDoc;
 
-    return matchesSearch && matchesDocType;
-  });
+      return matchesSearch && matchesDocType;
+    }), [invoices, searchTerm, docTypeFilter]
+  );
 
   const totalBilled = invoices.filter(i => i.status !== 'CANCELLED' && i.status !== 'DRAFT' && i.status !== 'QUOTATION' && !(i.invoiceNumber && i.invoiceNumber.startsWith('QUO-'))).reduce((acc, i) => acc + (i.totalAmount || 0), 0);
   const pendingCollection = invoices.filter(i => (i.status === 'PENDING' || i.status === 'OVERDUE') && i.status !== 'QUOTATION' && !(i.invoiceNumber && i.invoiceNumber.startsWith('QUO-'))).reduce((acc, i) => acc + (i.totalAmount || 0), 0);

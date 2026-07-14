@@ -1,17 +1,9 @@
 import { Router } from 'express';
 import { getPrisma } from '../prismaClient.js';
 import { authMiddleware } from '../middleware/auth.js';
+import { getOrgId } from '../middleware/org.js';
 
 const router = Router();
-
-const getOrgId = async (req: any) => {
-  if (req.user.orgId) return req.user.orgId;
-  if (req.user.id === 'bypass-admin') return 'bypass-org';
-  const profile = await getPrisma().profile.findUnique({
-    where: { id: req.user.id }
-  });
-  return profile?.orgId;
-};
 
 router.get('/export', authMiddleware, async (req: any, res) => {
   try {

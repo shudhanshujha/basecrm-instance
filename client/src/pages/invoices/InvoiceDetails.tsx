@@ -12,21 +12,23 @@ const InvoiceDetails: React.FC = () => {
   const [invoice, setInvoice] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchInvoice = async () => {
+  useEffect(() => {
+    const ac = new AbortController();
+    fetchInvoice(ac.signal);
+    return () => ac.abort();
+  }, [id]);
+
+  const fetchInvoice = async (signal?: AbortSignal) => {
     try {
       setIsLoading(true);
-      const res = await api.get(`/invoices/${id}`);
+      const res = await api.get(`/invoices/${id}`, { signal });
       setInvoice(res.data);
-    } catch (error) {
-      toast.error('Failed to load invoice details');
+    } catch (error: any) {
+      if (error?.name !== 'CanceledError') toast.error('Failed to load invoice details');
     } finally {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchInvoice();
-  }, [id]);
 
   if (isLoading) {
     return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-accent-orange" /></div>;

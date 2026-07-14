@@ -1,20 +1,12 @@
 import { Router } from 'express';
 import { getPrisma } from '../prismaClient.js';
 import { authMiddleware } from '../middleware/auth.js';
+import { getOrgId } from '../middleware/org.js';
 
 const router = Router();
 
 // Apply auth middleware
 router.use(authMiddleware);
-
-// Helper to get org_id
-const getOrgId = async (req: any) => {
-  if (req.user.id === 'bypass-admin') return 'bypass-org';
-  const profile = await getPrisma().profile.findUnique({
-    where: { id: req.user.id }
-  });
-  return profile?.orgId;
-};
 
 // Get all deals
 router.get('/', async (req, res) => {
@@ -123,10 +115,8 @@ router.delete('/:id', async (req, res) => {
       await tx.file.deleteMany({ where: { dealId: id } });
 
       // Delete activity log files and logs
-      const logs = await tx.activityLog.findMany({ where: { dealId: id }, select: { id: true } });
-      for (const log of logs) {
-        await tx.file.deleteMany({ where: { activityLogId: log.id } });
-      }
+      const logIds = (await tx.activityLog.findMany({ where: { dealId: id }, select: { id: true } })).map(l => l.id);
+      if (logIds.length > 0) await tx.file.deleteMany({ where: { activityLogId: { in: logIds } } });
       await tx.activityLog.deleteMany({ where: { dealId: id } });
 
       // Nullify dealId on invoices (or delete them? instructions say keep invoices)

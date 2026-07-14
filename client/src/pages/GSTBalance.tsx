@@ -14,16 +14,18 @@ const GSTBalance: React.FC = () => {
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    fetchGSTData();
+    const ac = new AbortController();
+    fetchGSTData(ac.signal);
+    return () => ac.abort();
   }, []);
 
-  const fetchGSTData = async () => {
+  const fetchGSTData = async (signal?: AbortSignal) => {
     setLoading(true);
     try {
-      const res = await api.get('/analytics');
+      const res = await api.get('/analytics', { signal });
       setData(res.data);
-    } catch (err) {
-      toast.error('Failed to load fiscal ledger');
+    } catch (err: any) {
+      if (err?.name !== 'CanceledError') toast.error('Failed to load fiscal ledger');
     } finally {
       setLoading(false);
     }

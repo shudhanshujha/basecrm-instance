@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Search, ExternalLink, MapPin, X, Building, Loader2, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ExportButton from '../components/ui/ExportButton';
@@ -25,16 +25,18 @@ const Clients: React.FC = () => {
   });
 
   useEffect(() => {
-    fetchClients();
+    const ac = new AbortController();
+    fetchClients(ac.signal);
+    return () => ac.abort();
   }, []);
 
-  const fetchClients = async () => {
+  const fetchClients = async (signal?: AbortSignal) => {
     try {
       setIsLoading(true);
-      const res = await api.get('/clients');
+      const res = await api.get('/clients', { signal });
       setClients(res.data);
-    } catch (error) {
-      toast.error('Failed to load clients');
+    } catch (error: any) {
+      if (error?.name !== 'CanceledError') toast.error('Failed to load clients');
     } finally {
       setIsLoading(false);
     }
@@ -75,9 +77,11 @@ const Clients: React.FC = () => {
     }
   };
 
-  const filteredClients = clients.filter(c =>
-    (c.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (c.gstin?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  const filteredClients = useMemo(() =>
+    clients.filter(c =>
+      (c.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (c.gstin?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    ), [clients, searchTerm]
   );
 
   return (

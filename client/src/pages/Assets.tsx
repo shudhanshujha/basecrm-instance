@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Search, Filter, Plus, Database, 
   Table, Download, Upload, Info, ExternalLink,
@@ -22,17 +22,21 @@ const Assets: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   React.useEffect(() => {
-    fetchAssets();
+    const ac = new AbortController();
+    fetchAssets(ac.signal);
+    return () => ac.abort();
   }, []);
 
-  const fetchAssets = async () => {
+  const fetchAssets = async (signal?: AbortSignal) => {
     try {
       setIsLoading(true);
-      const res = await api.get('/assets');
+      const res = await api.get('/assets', { signal });
       setAssets(res.data);
-    } catch (error) {
-      console.error('Error fetching assets:', error);
-      toast.error('Failed to load assets');
+    } catch (error: any) {
+      if (error?.name !== 'CanceledError') {
+        console.error('Error fetching assets:', error);
+        toast.error('Failed to load assets');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -94,19 +98,21 @@ const Assets: React.FC = () => {
     }
   };
 
-  const filteredAssets = assets.filter(a => {
-    const nameText = a.name || '';
-    const categoryText = a.category || 'General';
-    const descText = a.description || '';
-    
-    const matchesSearch = 
-      nameText.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      categoryText.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      descText.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredAssets = useMemo(() =>
+    assets.filter(a => {
+      const nameText = a.name || '';
+      const categoryText = a.category || 'General';
+      const descText = a.description || '';
       
-    const matchesFilter = filterStatus === 'All' || a.status === filterStatus.toUpperCase();
-    return matchesSearch && matchesFilter;
-  });
+      const matchesSearch = 
+        nameText.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        categoryText.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        descText.toLowerCase().includes(searchTerm.toLowerCase());
+        
+      const matchesFilter = filterStatus === 'All' || a.status === filterStatus.toUpperCase();
+      return matchesSearch && matchesFilter;
+    }), [assets, searchTerm, filterStatus]
+  );
 
   return (
     <div className="space-y-6">

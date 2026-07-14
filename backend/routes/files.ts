@@ -1,20 +1,13 @@
 import { Router } from 'express';
 import { getPrisma } from '../prismaClient.js';
 import { authMiddleware } from '../middleware/auth.js';
+import { getOrgId } from '../middleware/org.js';
 import { generateUploadUrl, generateDownloadUrl, deleteStoredFile } from '../../lib/storage.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 
 router.use(authMiddleware);
-
-const getOrgId = async (req: any) => {
-  if (req.user.id === 'bypass-admin') return 'bypass-org';
-  const profile = await getPrisma().profile.findUnique({
-    where: { id: req.user.id }
-  });
-  return profile?.orgId;
-};
 
 function serializeFileRecord(record: any) {
   return {

@@ -23,25 +23,27 @@ const Payments: React.FC = () => {
   const [summary, setSummary] = useState<any>({ netCollections: 0, totalPayouts: 0, netCashFlow: 0 });
 
   React.useEffect(() => {
-    fetchPayments();
-    fetchEntities();
-    fetchSummary();
+    const ac = new AbortController();
+    fetchPayments(ac.signal);
+    fetchEntities(ac.signal);
+    fetchSummary(ac.signal);
+    return () => ac.abort();
   }, [activeTab]);
 
-  const fetchSummary = async () => {
+  const fetchSummary = async (signal?: AbortSignal) => {
     try {
-      const res = await api.get('/analytics/payments-summary');
+      const res = await api.get('/analytics/payments-summary', { signal });
       setSummary(res.data);
-    } catch (err) {
-      console.error('Failed to fetch summary');
+    } catch (err: any) {
+      if (err?.name !== 'CanceledError') console.error('Failed to fetch summary');
     }
   };
 
-  const fetchEntities = async () => {
+  const fetchEntities = async (signal?: AbortSignal) => {
     try {
       const [clientsRes, vendorsRes] = await Promise.all([
-        api.get('/clients'),
-        api.get('/vendors')
+        api.get('/clients', { signal }),
+        api.get('/vendors', { signal })
       ]);
       setClients(clientsRes.data);
       setVendors(vendorsRes.data);
@@ -50,14 +52,14 @@ const Payments: React.FC = () => {
     }
   };
 
-  const fetchPayments = async () => {
+  const fetchPayments = async (signal?: AbortSignal) => {
     try {
       setIsLoading(true);
       if (activeTab === 'collections') {
-        const res = await api.get('/payments/clients');
+        const res = await api.get('/payments/clients', { signal });
         setCollections(res.data);
       } else {
-        const res = await api.get('/payments/vendors');
+        const res = await api.get('/payments/vendors', { signal });
         setPayouts(res.data);
       }
     } catch (error) {

@@ -13,16 +13,18 @@ const PLReport: React.FC = () => {
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    fetchPLData();
+    const ac = new AbortController();
+    fetchPLData(ac.signal);
+    return () => ac.abort();
   }, []);
 
-  const fetchPLData = async () => {
+  const fetchPLData = async (signal?: AbortSignal) => {
     setLoading(true);
     try {
-      const res = await api.get('/analytics');
+      const res = await api.get('/analytics', { signal });
       setData(res.data);
-    } catch (err) {
-      toast.error('Failed to load financial records');
+    } catch (err: any) {
+      if (err?.name !== 'CanceledError') toast.error('Failed to load financial records');
     } finally {
       setLoading(false);
     }

@@ -38,21 +38,25 @@ const ClientDetails: React.FC = () => {
   });
 
   useEffect(() => {
-    fetchData();
+    const ac = new AbortController();
+    fetchData(ac.signal);
+    return () => ac.abort();
   }, [id]);
 
-  const fetchData = async () => {
+  const fetchData = async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       const [cRes, tRes] = await Promise.all([
-        api.get(`/clients/${id}`),
-        api.get(`/clients/${id}/timeline`)
+        api.get(`/clients/${id}`, { signal }),
+        api.get(`/clients/${id}/timeline`, { signal })
       ]);
       setClient(cRes.data);
       setTimeline(tRes.data);
-    } catch (error) {
-      console.error('Failed to fetch client:', error);
-      toast.error('Failed to load client information.');
+    } catch (error: any) {
+      if (error?.name !== 'CanceledError') {
+        console.error('Failed to fetch client:', error);
+        toast.error('Failed to load client information.');
+      }
     } finally {
       setLoading(false);
     }

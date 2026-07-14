@@ -25,4 +25,4 @@ const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
   );
 };
 
-export default Layout;
+export default React.memo(Layout);

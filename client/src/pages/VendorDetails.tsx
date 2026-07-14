@@ -19,17 +19,21 @@ const VendorDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchVendor();
+    const ac = new AbortController();
+    fetchVendor(ac.signal);
+    return () => ac.abort();
   }, [id]);
 
-  const fetchVendor = async () => {
+  const fetchVendor = async (signal?: AbortSignal) => {
     try {
       setLoading(true);
-      const res = await api.get(`/vendors/${id}`);
+      const res = await api.get(`/vendors/${id}`, { signal });
       setVendor(res.data);
-    } catch (error) {
-      console.error('Failed to fetch vendor:', error);
-      toast.error('Failed to load vendor profile.');
+    } catch (error: any) {
+      if (error?.name !== 'CanceledError') {
+        console.error('Failed to fetch vendor:', error);
+        toast.error('Failed to load vendor profile.');
+      }
     } finally {
       setLoading(false);
     }

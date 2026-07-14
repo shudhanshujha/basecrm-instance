@@ -84,4 +84,4 @@ const NavItem = ({ to, icon, label }: { to: string; icon: React.ReactNode; label
   );
 };
 
-export default Sidebar;
+export default React.memo(Sidebar);
