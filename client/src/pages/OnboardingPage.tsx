@@ -75,7 +75,7 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete }) => {
         localStorage.setItem('bc_user', JSON.stringify(data.user));
         localStorage.removeItem('bc_needs_onboarding');
       }
-      toast.success('Setup complete! Welcome to BaseCRM 🚀');
+      toast.success('Setup complete! Welcome to FlowCRM 🚀');
       onComplete();
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Failed to save. Please try again.');
@@ -430,7 +430,7 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete }) => {
                     {loading ? (
                       <><Loader2 size={16} className="animate-spin" /> Saving...</>
                     ) : (
-                      <>Launch BaseCRM <ArrowRight size={16} /></>
+                      <>Launch FlowCRM <ArrowRight size={16} /></>
                     )}
                   </div>
                 </button>

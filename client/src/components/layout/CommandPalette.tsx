@@ -117,7 +117,7 @@ const CommandPalette: React.FC = () => {
                        <span className="text-[12px] text-text-muted font-black uppercase">Select</span>
                     </div>
                  </div>
-                 <div className="text-[12px] text-text-muted font-black uppercase tracking-widest">BaseCRM System OS v1.0</div>
+                 <div className="text-[12px] text-text-muted font-black uppercase tracking-widest">FlowCRM v1.0</div>
               </div>
             </motion.div>
           </div>

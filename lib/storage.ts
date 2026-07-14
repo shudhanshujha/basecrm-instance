@@ -1,14 +1,14 @@
 /*
 STORAGE SETUP (S3-compatible — Backblaze B2):
 1. Go to https://secure.backblazeb2.com
-2. Create a Bucket (e.g. "basecrm-files") with "Private" access
+2. Create a Bucket (e.g. "flowcrm-files") with "Private" access
 3. Go to App Keys > Generate New Key with "Read & Write" access to the bucket
 3. Copy Key ID, Application Key, and S3 Endpoint URL
 4. Paste into .env.local:
    R2_ACCESS_KEY_ID=<key_id>
    R2_SECRET_ACCESS_KEY=<application_key>
    R2_ENDPOINT=https://s3.<region>.backblazeb2.com
-   R2_BUCKET_NAME=basecrm-files
+   R2_BUCKET_NAME=flowcrm-files
 */
 
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';

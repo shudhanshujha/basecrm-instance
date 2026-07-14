@@ -14,13 +14,13 @@ async function main() {
       console.log('Creating default organization...');
       org = await prisma.organization.create({
         data: {
-          name: 'BaseCRM Global',
-          slug: 'base-crm'
+          name: 'FlowCRM Global',
+          slug: 'flow-crm'
         }
       });
     }
 
-    const email = 'superadmin@basecrm.io';
+    const email = 'superadmin@flowcrm.io';
     const password = 'super-password-123';
     const hashedPassword = await bcrypt.hash(password, 10);
 

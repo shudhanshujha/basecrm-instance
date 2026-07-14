@@ -56,7 +56,7 @@ const InvoiceDetails: React.FC = () => {
       name: invoice.organization?.name || 'BASE CRM OPERATIONS',
       address: invoice.organization?.address || '123 Business District, Tech Park, 560001, India',
       phone: invoice.organization?.phone ? [invoice.organization.phone] : ['+91 9999999999'],
-      email: invoice.organization?.email || 'admin@basecrm.io',
+      email: invoice.organization?.email || 'admin@flowcrm.io',
       gstin: invoice.organization?.gstin || '00AAAAA0000A1Z5',
       msmeRegNo: invoice.organization?.msmeRegNo || 'UDYAM-XX-00-0000000',
       state: 'Generic',

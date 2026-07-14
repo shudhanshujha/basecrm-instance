@@ -7,7 +7,7 @@ const env = {
   "R2_ACCESS_KEY_ID": "005628a9b5421f60000000001",
   "R2_SECRET_ACCESS_KEY": "K005MvB8PFrpRPGJk2EHUi0CS4IT0s8",
   "R2_ENDPOINT": "https://s3.us-east-005.backblazeb2.com",
-  "R2_BUCKET_NAME": "basecrm-files",
+  "R2_BUCKET_NAME": "flowcrm-files",
   "DATABASE_URL": "postgresql://postgres.cyaznzqwpvurdfydzxxv:7545006695%40Mayank@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres",
   "NEXTAUTH_SECRET": "7a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d"
 };

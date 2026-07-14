@@ -1,6 +1,6 @@
-# Generic Multi-Tenant CRM
+# FlowCRM
 
-A robust, industry-agnostic CRM for managing clients, deals, invoicing, payments, and expenses. Designed to be a clean starting point for any business, regardless of vertical.
+A clean, multi-tenant CRM for managing clients, deals, invoicing, payments, and expenses. Adaptable to any business or industry.
 
 ## 🚀 Features
 

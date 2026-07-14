@@ -91,7 +91,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             <Building2 size={26} className="text-white" />
           </div>
           <h1 className="text-2xl font-bold text-text-primary tracking-tight">
-            BaseCRM
+            FlowCRM
           </h1>
           <p className="text-[13px] text-text-muted mt-1.5">
             {isSignup ? 'Create your account to get started' : 'Sign in to your workspace'}

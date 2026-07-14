@@ -4,10 +4,10 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function createAdmin() {
-  const email = 'admin@basecrm.io';
+  const email = 'admin@flowcrm.io';
   const password = 'password123'; // You can change this
-  const orgName = 'BaseCRM Operations';
-  const orgSlug = 'basecrm-ops';
+  const orgName = 'FlowCRM Operations';
+  const orgSlug = 'flowcrm-ops';
 
   console.log('--- MANUAL ADMIN CREATION ---');
 

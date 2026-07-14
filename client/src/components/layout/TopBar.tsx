@@ -39,7 +39,7 @@ const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
           <Building2 size={16} />
         </div>
         <div>
-          <div className="text-[15px] font-semibold text-text-primary tracking-tight">BaseCRM</div>
+          <div className="text-[15px] font-semibold text-text-primary tracking-tight">FlowCRM</div>
           <div className="text-[11px] text-text-muted font-normal leading-none mt-0.5">Business Management</div>
         </div>
       </div>

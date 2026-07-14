@@ -59,7 +59,7 @@ app.use('/api/tasks', taskRoutes);
 
 
 app.get('/api', (req, res) => {
-  res.send('BaseCRM API is running...');
+  res.send('FlowCRM API is running...');
 });
 
 // For local development
