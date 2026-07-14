@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Settings as SettingsIcon, Building, CreditCard, 
   ShieldCheck, Globe, Bell, Save, 
@@ -37,6 +37,8 @@ const Settings: React.FC = () => {
     accountNumber: '',
     ifscCode: ''
   });
+
+  const colorDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -457,19 +459,22 @@ const Settings: React.FC = () => {
                        <label className="text-[12px] font-black text-text-muted uppercase">Accent Color</label>
                        <div className="flex items-center gap-4">
                          <div className="w-10 h-10 rounded-xl border-2 border-border" style={{ backgroundColor: org.accentColor || '#6366F1' }} />
-                         <input
-                           type="color"
-                           value={org.accentColor || '#6366F1'}
-                           onChange={async (e) => {
-                             const color = e.target.value;
-                             try {
-                                await api.put(`/auth/organization/${org.id}`, { accentColor: color });
-                               setOrg({...org, accentColor: color});
-                               toast.success('Accent color updated');
-                             } catch { toast.error('Failed to update color'); }
-                           }}
-                           className="w-20 h-10 rounded-xl border border-border cursor-pointer bg-transparent"
-                         />
+                          <input
+                            type="color"
+                            value={org.accentColor || '#6366F1'}
+                            onChange={(e) => {
+                              const color = e.target.value;
+                              setOrg({...org, accentColor: color});
+                              if (colorDebounceRef.current) clearTimeout(colorDebounceRef.current);
+                              colorDebounceRef.current = setTimeout(async () => {
+                                try {
+                                  await api.put(`/auth/organization/${org.id}`, { accentColor: color });
+                                  toast.success('Accent color updated');
+                                } catch { toast.error('Failed to update color'); }
+                              }, 400);
+                            }}
+                            className="w-20 h-10 rounded-xl border border-border cursor-pointer bg-transparent"
+                          />
                          <span className="text-[12px] text-text-muted font-mono">{org.accentColor || '#6366F1'}</span>
                        </div>
                      </div>

@@ -451,7 +451,9 @@ const InvoiceGenerator: React.FC = () => {
       navigate('/invoices');
     } catch (error: any) {
       console.error('Save error:', error);
-      toast.error(error?.response?.data?.error || 'Failed to save. Check all fields are filled.');
+      const msg = error?.response?.data?.error || error?.message || 'Unknown error';
+      console.error('Save error:', msg);
+      toast.error(`Failed to save: ${msg}`);
     } finally {
       setIsLoading(false);
     }

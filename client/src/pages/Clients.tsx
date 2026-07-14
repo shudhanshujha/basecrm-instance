@@ -66,8 +66,10 @@ const Clients: React.FC = () => {
         name: '', contactPerson: '', state: 'General', gstin: '',
         clientType: 'REGULAR', phone: '', email: '', address: '', city: ''
       });
-    } catch (error) {
-      toast.error('Failed to add client');
+    } catch (error: any) {
+      const msg = error?.response?.data?.error || error?.message || 'Unknown error';
+      console.error('Failed to add client:', msg);
+      toast.error(`Failed to add client: ${msg}`);
     } finally {
       setIsSubmitting(false);
     }

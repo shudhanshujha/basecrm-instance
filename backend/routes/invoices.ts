@@ -113,7 +113,7 @@ router.post('/', async (req: any, res) => {
           data: items.map((item: any) => ({
             orgId,
             invoiceId: invoice.id,
-            name: item.name || '',
+            assetName: item.name || '',
             description: item.description,
             hsn: item.hsn,
             quantity: parseFloat(item.qty) || 1,
@@ -207,7 +207,7 @@ router.put('/:id', async (req: any, res) => {
           data: items.map((item: any) => ({
             orgId,
             invoiceId: id,
-            name: item.name || '',
+            assetName: item.name || '',
             description: item.description,
             hsn: item.hsn,
             quantity: parseFloat(item.qty) || 1,

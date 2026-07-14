@@ -69,9 +69,10 @@ const ClientDetails: React.FC = () => {
       setIsEditing(false);
       toast.success('Client details updated successfully!');
       fetchData();
-    } catch (error) {
-      console.error('Failed to update client:', error);
-      toast.error('Failed to save changes.');
+    } catch (error: any) {
+      const msg = error?.response?.data?.error || error?.message || 'Unknown error';
+      console.error('Failed to update client:', msg);
+      toast.error(`Failed to save changes: ${msg}`);
     }
   };
 
