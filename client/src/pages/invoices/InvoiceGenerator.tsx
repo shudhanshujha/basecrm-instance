@@ -189,7 +189,7 @@ const InvoiceGenerator: React.FC = () => {
             },
             items: inv.invoiceItems && inv.invoiceItems.length > 0 ? inv.invoiceItems.map((item: any, idx: number) => ({
               id: item.id || Date.now() + idx,
-              name: item.name || '',
+              name: item.name || item.assetName || '',
               description: item.description || '',
               hsn: item.hsn || '',
               qty: item.quantity || 1,

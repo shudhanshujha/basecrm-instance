@@ -247,6 +247,7 @@ model InvoiceItem {
   invoiceId    String       @map("invoice_id")
   assetId      String?      @map("asset_id")
   assetName    String?      @map("asset_name")
+  name         String?
   description  String?
   fromDate     DateTime?    @map("from_date")
   toDate       DateTime?    @map("to_date")

@@ -77,6 +77,7 @@ const InvoiceDetails: React.FC = () => {
     },
     items: invoice.invoiceItems && invoice.invoiceItems.length > 0 ? invoice.invoiceItems.map((item: any, idx: number) => ({
       sNo: idx + 1,
+      name: item.name || item.assetName || '',
       description: item.description || '',
       hsn: item.hsn || '',
       qty: item.quantity || 1,
