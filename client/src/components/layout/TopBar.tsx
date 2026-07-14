@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNotificationStore } from '../../store/useNotificationStore';
-import { Bell, CheckCircle2, AlertCircle, LogOut, Building2, Clock } from 'lucide-react';
+import { Bell, CheckCircle2, AlertCircle, LogOut, Clock } from 'lucide-react';
 
 const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
   const { notifications, fetchNotifications, markAsRead, clearAll } = useNotificationStore();
@@ -35,9 +35,7 @@ const TopBar: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
   return (
     <div className="app-topbar h-[60px] bg-bg-surface border-b border-border flex items-center justify-between px-6 shrink-0 relative z-50">
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 bg-accent-blue rounded-xl flex items-center justify-center text-white shadow-sm">
-          <Building2 size={16} />
-        </div>
+        <img src="/flowcrmm.png" alt="FlowCRM" className="w-8 h-8 rounded-xl object-contain" />
         <div>
           <div className="text-[15px] font-semibold text-text-primary tracking-tight">FlowCRM</div>
           <div className="text-[11px] text-text-muted font-normal leading-none mt-0.5">Business Management</div>
