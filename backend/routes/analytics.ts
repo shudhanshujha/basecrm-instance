@@ -289,28 +289,39 @@ router.get('/dashboard', async (req: any, res) => {
           orgId,
           invoice: { status: { notIn: ['CANCELLED', 'DRAFT', 'QUOTATION'] } }
         },
-        select: { assetName: true, total: true }
+        select: { assetName: true, name: true, total: true }
       });
       const assetMap: any = {};
       assets.forEach(a => assetMap[a.name] = 0);
       
       invoiceItems.forEach(item => {
-        if (item.assetName && assetMap[item.assetName] !== undefined) {
-          assetMap[item.assetName] += (item.total || 0);
+        const key = item.assetName || item.name;
+        if (key && assetMap[key] !== undefined) {
+          assetMap[key] += (item.total || 0);
         }
       });
       performanceMix = Object.entries(assetMap)
-        .map(([name, value]) => ({ name, value }))
-        .sort((a: any, b: any) => b.value - a.value)
+        .map(([name, value]) => ({ name, value: value as number, originalValue: value as number }))
+        .sort((a: any, b: any) => b.originalValue - a.originalValue)
         .slice(0, 5);
+      // If all assets have value=0, assign equal weight so chart renders
+      const assetTotal = performanceMix.reduce((s: number, a: any) => s + a.originalValue, 0);
+      if (assetTotal === 0 && performanceMix.length > 0) {
+        performanceMix = performanceMix.map((a: any) => ({ ...a, value: 1 }));
+      }
     } else if (breakdown === 'deal') {
       const deals = await getPrisma().deal.findMany({
         where: { orgId },
         select: { title: true, value: true }
       });
-      performanceMix = deals.map(d => ({ name: d.title, value: d.value || 0 }))
+      const dealMix = deals.map(d => ({ name: d.title, value: d.value || 0, originalValue: d.value || 0 }))
         .sort((a, b) => b.value - a.value)
         .slice(0, 5);
+      // If all deals have value=0, assign equal weight so chart renders
+      const dealTotal = dealMix.reduce((s, d) => s + d.value, 0);
+      performanceMix = dealTotal === 0 && dealMix.length > 0
+        ? dealMix.map(d => ({ ...d, value: 1 }))
+        : dealMix;
     } else {
       // Default: Client Breakdown
       const clients = await getPrisma().client.findMany({
@@ -322,10 +333,16 @@ router.get('/dashboard', async (req: any, res) => {
           } 
         }
       });
-      performanceMix = clients.map(c => ({
+      const clientMix = clients.map(c => ({
         name: c.name,
+        originalValue: c.invoices.reduce((sum, inv) => sum + (inv.totalAmount || 0), 0),
         value: c.invoices.reduce((sum, inv) => sum + (inv.totalAmount || 0), 0)
       })).sort((a, b) => b.value - a.value).slice(0, 5);
+      // If all clients have value=0, assign equal weight so chart renders
+      const clientTotal = clientMix.reduce((s, c) => s + c.value, 0);
+      performanceMix = clientTotal === 0 && clientMix.length > 0
+        ? clientMix.map(c => ({ ...c, value: 1 }))
+        : clientMix;
     }
 
     res.json({

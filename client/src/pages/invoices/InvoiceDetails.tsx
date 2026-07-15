@@ -120,7 +120,8 @@ const InvoiceDetails: React.FC = () => {
     grandTotal: invoice.totalAmount || 0,
     status: invoice.status || (isQuo ? 'QUOTATION' : 'PENDING'),
     currency: invoice.currency || '₹',
-    terms: invoice.paymentTerms || ''
+    terms: invoice.paymentTerms || '',
+    templateId: invoice.templateId
   };
 
   return (

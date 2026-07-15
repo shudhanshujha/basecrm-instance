@@ -235,7 +235,6 @@ model Invoice {
   client               Client        @relation(fields: [clientId], references: [id])
   organization         Organization  @relation(fields: [orgId], references: [id])
   payments             Payment[]
-  template             InvoiceTemplate? @relation(fields: [templateId], references: [id])
 
   @@unique([orgId, invoiceNumber])
   @@map("invoices")
@@ -366,7 +365,6 @@ model InvoiceTemplate {
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
   organization Organization @relation(fields: [orgId], references: [id])
-  invoices     Invoice[]
 
   @@map("invoice_templates")
 }

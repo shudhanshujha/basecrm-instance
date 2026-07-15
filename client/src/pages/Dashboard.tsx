@@ -162,7 +162,7 @@ const Dashboard: React.FC = () => {
                  <>
                    <div className="h-[200px] relative">
                       <ResponsiveContainer width="100%" height="100%">
-                         <PieChart>
+                         <PieChart key={breakdownType}>
                             <Pie
                               data={mix}
                               innerRadius={60}
@@ -193,7 +193,7 @@ const Dashboard: React.FC = () => {
                                <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
                                 <span className="text-[12px] text-text-primary truncate max-w-[120px]">{item.name}</span>
                              </div>
-                             <span className="text-[12px] text-text-muted">₹{(item.value / 100000).toFixed(1)}L</span>
+                             <span className="text-[12px] text-text-muted">₹{((item.originalValue ?? item.value) / 100000).toFixed(1)}L</span>
                          </div>
                       ))}
                    </div>
