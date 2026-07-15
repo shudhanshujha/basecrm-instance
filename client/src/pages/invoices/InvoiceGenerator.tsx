@@ -408,15 +408,22 @@ const InvoiceGenerator: React.FC = () => {
 
   const saveInvoice = async () => {
     if (isSaving) return;
-    if (!selectedClientId && !formData.buyer.name) {
-      toast.error('Please select a client before saving');
+
+    let resolvedClientId = selectedClientId;
+    if (!resolvedClientId) {
+      const matched = clients.find(c => c.name.trim().toLowerCase() === (formData.buyer.name || '').trim().toLowerCase());
+      resolvedClientId = matched?.id || '';
+    }
+    if (!resolvedClientId) {
+      toast.error('Please select a client from the dropdown before saving');
       return;
     }
+
     setIsSaving(true);
     try {
       const payload = {
         invoiceNumber: formData.invoiceNumber,
-        clientId: selectedClientId || clients.find(c => c.name === formData.buyer.name)?.id || '',
+        clientId: resolvedClientId,
         dealId: deals.find(d => formData.descriptionHeader.includes(d.title))?.id || null,
         invoiceDate: formData.invoiceDate ? new Date(formData.invoiceDate) : new Date(),
         dueDate: docMode === 'quotation' && formData.validUntil ? new Date(formData.validUntil) : (formData.dueDate ? new Date(formData.dueDate) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),

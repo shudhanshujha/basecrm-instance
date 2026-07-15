@@ -172,6 +172,9 @@ router.get('/', async (req: any, res) => {
 });
 
 router.get('/dashboard', async (req: any, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   try {
     const orgId = await getOrgId(req);
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });

@@ -31,7 +31,7 @@ const Dashboard: React.FC = () => {
     try {
       setIsLoading(true);
       const res = await api.get('/analytics/dashboard', { 
-        params: { range: period, breakdown: breakdownType },
+        params: { range: period, breakdown: breakdownType, _t: Date.now() },
         signal
       });
       setStats(res.data);
