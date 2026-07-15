@@ -10,8 +10,9 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
 
     if (!token) {
       // For backward compatibility or internal scripts
-      const userId = req.headers['x-user-id'];
+      let userId = req.headers['x-user-id'];
       if (userId) {
+        if (Array.isArray(userId)) userId = userId[0];
         (req as any).user = { id: userId };
         return next();
       }

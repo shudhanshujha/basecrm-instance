@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
     status.db_info = {
       type: dbUrl.startsWith('postgresql') ? 'PostgreSQL' : 'Unknown',
       hasUrl: !!process.env.DATABASE_URL,
-      host: dbUrl.includes('@') ? dbUrl.split('@')[1].split(':')[0] : 'local',
+      host: dbUrl.includes('@') ? (dbUrl.split('@')[1]?.split(':')[0] ?? 'local') : 'local',
       error: error.message
     };
   }

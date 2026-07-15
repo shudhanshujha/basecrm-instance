@@ -135,12 +135,14 @@ router.put('/:id', async (req, res) => {
     const existing = await getPrisma().task.findFirst({ where: { id, orgId } });
     if (!existing) return res.status(404).json({ error: 'Task not found' });
 
-    // Auto-set completedAt
+    // Auto-set completedAt only if status explicitly provided
     const data = sanitizeTaskData(req.body);
-    if (data.status === 'COMPLETED' && existing.status !== 'COMPLETED') {
-      data.completedAt = new Date();
-    } else if (data.status !== 'COMPLETED') {
-      data.completedAt = null;
+    if ('status' in req.body) {
+      if (data.status === 'COMPLETED' && existing.status !== 'COMPLETED') {
+        data.completedAt = new Date();
+      } else if (data.status !== 'COMPLETED') {
+        data.completedAt = null;
+      }
     }
 
     const task = await getPrisma().task.update({

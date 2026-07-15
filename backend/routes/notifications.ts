@@ -38,7 +38,7 @@ router.get('/', async (req: any, res) => {
       notifications.push({
         id: `inv-${inv.id}`,
         type: 'INVOICE_DUE',
-        message: `Invoice #${inv.invoiceNumber} is overdue for ${inv.client.name}`,
+        message: `Invoice #${inv.invoiceNumber} is overdue for ${inv.client?.name || 'Unknown'}`,
         date: inv.dueDate.toISOString(),
         isRead: false
       });
@@ -59,7 +59,7 @@ router.get('/', async (req: any, res) => {
       notifications.push({
         id: `pay-${pay.id}`,
         type: 'PAYMENT_RECEIVED',
-        message: `Payment received: ₹${pay.amount.toLocaleString()} from ${pay.client.name}`,
+        message: `Payment received: ₹${pay.amount.toLocaleString()} from ${pay.client?.name || 'Unknown'}`,
         date: pay.paymentDate.toISOString(),
         isRead: false
       });

@@ -69,7 +69,10 @@ router.post('/', async (req: any, res) => {
     };
 
     // Parse items
-    const items = typeof lineItems === 'string' ? JSON.parse(lineItems) : lineItems;
+    let items: any = lineItems;
+    if (typeof lineItems === 'string') {
+      try { items = JSON.parse(lineItems); } catch { return res.status(400).json({ error: 'Invalid lineItems JSON' }); }
+    }
 
     const result = await prisma.$transaction(async (tx) => {
       const invoice = await tx.invoice.create({
@@ -87,7 +90,11 @@ router.post('/', async (req: any, res) => {
           igstAmount: parseFloat(igstAmount) || 0,
           totalAmount: parseFloat(totalAmount) || 0,
           notes,
-          bankDetails: bankDetails ? (typeof bankDetails === 'string' ? JSON.parse(bankDetails) : bankDetails) : null,
+          bankDetails: bankDetails
+            ? (typeof bankDetails === 'string'
+              ? (() => { try { return JSON.parse(bankDetails); } catch { return null; } })()
+              : bankDetails)
+            : null,
           status: status || 'PENDING',
           reverseCharge: reverseCharge || 'N',
           upiId: upiId || '',
@@ -158,7 +165,7 @@ router.put('/:id', async (req: any, res) => {
       logoUrl: logoUrl || '',
     };
 
-    const items = lineItems ? (typeof lineItems === 'string' ? JSON.parse(lineItems) : lineItems) : null;
+    let items: any = lineItems ? (typeof lineItems === 'string' ? (() => { try { return JSON.parse(lineItems); } catch { return null; } })() : lineItems) : null;
 
     const result = await prisma.$transaction(async (tx) => {
       // 1. Update Invoice Metadata
@@ -177,7 +184,11 @@ router.put('/:id', async (req: any, res) => {
           igstAmount: igstAmount !== undefined ? parseFloat(igstAmount) : undefined,
           totalAmount: totalAmount !== undefined ? parseFloat(totalAmount) : undefined,
           notes,
-          bankDetails: bankDetails ? (typeof bankDetails === 'string' ? JSON.parse(bankDetails) : bankDetails) : undefined,
+          bankDetails: bankDetails
+            ? (typeof bankDetails === 'string'
+              ? (() => { try { return JSON.parse(bankDetails); } catch { return undefined; } })()
+              : bankDetails)
+            : undefined,
           reverseCharge,
           upiId,
           showUpiQr: showUpiQr !== undefined ? showUpiQr : undefined,

@@ -3,18 +3,10 @@ import { getPrisma } from '../prismaClient.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { authMiddleware } from '../middleware/auth.js';
+import { getOrgId } from '../middleware/org.js';
 
 const router = Router();
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'super-secret-key';
-
-// Helper to get org_id
-const getOrgId = async (req: any) => {
-  if (req.user.id === 'bypass-admin') return 'bypass-org';
-  const profile = await getPrisma().profile.findUnique({
-    where: { id: req.user.id }
-  });
-  return profile?.orgId;
-};
 
 // Helper to build token payload
 const buildToken = (profile: any) =>
@@ -394,14 +386,15 @@ router.post('/register', authMiddleware, async (req: any, res) => {
     if (!orgId) return res.status(403).json({ error: 'No organization linked' });
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
-    const existing = await getPrisma().profile.findUnique({ where: { email } });
+    const normalizedEmail = email.toLowerCase();
+    const existing = await getPrisma().profile.findUnique({ where: { email: normalizedEmail } });
     if (existing) return res.status(400).json({ error: 'User already exists' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await getPrisma().profile.create({
       data: {
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
         fullName,
         role: role || 'member',

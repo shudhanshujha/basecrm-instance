@@ -74,11 +74,14 @@ router.post('/upload', async (req: any, res) => {
       clientId 
     } = req.body;
 
-    if (!fileName || !mimeType || !size) {
+    const parsedSize = Number(size);
+    if (!fileName || !mimeType) {
       return res.status(400).json({ error: 'Missing file metadata' });
     }
-
-    if (size > 50 * 1024 * 1024) {
+    if (isNaN(parsedSize) || parsedSize <= 0) {
+      return res.status(400).json({ error: 'Invalid file size' });
+    }
+    if (parsedSize > 50 * 1024 * 1024) {
       return res.status(400).json({ error: 'File size exceeds 50MB limit' });
     }
 
@@ -101,7 +104,7 @@ router.post('/upload', async (req: any, res) => {
         clientId: clientId || null,
         fileName: fileName,
         fileKey: fileKey,
-        fileSize: BigInt(size),
+        fileSize: BigInt(parsedSize),
         mimeType: mimeType,
         uploadedBy: req.user.id
       }
