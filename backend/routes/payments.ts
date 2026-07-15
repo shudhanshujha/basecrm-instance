@@ -54,7 +54,7 @@ router.post('/clients', async (req: any, res) => {
     const payment = await getPrisma().payment.create({
       data: {
         orgId,
-        invoiceId: internalInvoiceId,
+        invoiceId: internalInvoiceId ?? null,
         clientId,
         amount: parseFloat(amount),
         paymentDate: new Date(paymentDate),
