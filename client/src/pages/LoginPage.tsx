@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Loader2, Building2, Lock, Mail, Globe, User } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Lock, Mail, Globe, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import api from '../lib/axios';
@@ -87,9 +87,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-10"
         >
-          <div className="inline-flex w-14 h-14 bg-accent-blue rounded-2xl items-center justify-center mb-5 shadow-lg shadow-accent-blue/20">
-            <Building2 size={26} className="text-white" />
-          </div>
+          <img src="/flowcrmm.png" alt="FlowCRM" className="w-14 h-14 rounded-2xl mb-5 shadow-lg shadow-accent-blue/20 object-contain" />
           <h1 className="text-2xl font-bold text-text-primary tracking-tight">
             FlowCRM
           </h1>
