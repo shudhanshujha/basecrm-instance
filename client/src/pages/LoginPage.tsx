@@ -87,7 +87,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-10"
         >
-          <img src="/flowcrmm.png" alt="FlowCRM" className="w-14 h-14 rounded-2xl mb-5 shadow-lg shadow-accent-blue/20 object-contain" />
+          <img src="/flowcrmm.png" alt="FlowCRM" className="w-14 h-14 rounded-2xl mb-5 shadow-lg shadow-accent-blue/20 object-contain mx-auto" />
           <h1 className="text-2xl font-bold text-text-primary tracking-tight">
             FlowCRM
           </h1>
